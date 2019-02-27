@@ -3,85 +3,69 @@
     <string name="title_history">History</string>
     <string name="title_dashboard">Dashboard</string>
     <string name="title_statistic">Statistics</string>
+    <string name="title_activity_settings">Settings</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="dashboard">dashboard</string>
     <string name="history">History</string>
     <string name="statistic">statistic</string>
     <string name="menu_categories">Manage categories</string>
     <string name="menu_regular_income">Regular income/expenses</string>
     <string name="menu_settings">Settings</string>
-    <string name="title_activity_settings">Settings</string>
 
-    <!-- Strings related to Settings -->
+    <string name="currency_input_hint">0.00</string>
+    <string name="description_input_hint">description</string>
+    <string name="add_expense_title">add/edit expenses</string>
+    <string name="no_category_warning">Please select a category!</string>
+    <string name="no_amount_warning">please specify an amount!</string>
+    <string name="menu_history_search">search</string>
+    <string name="menu_history_filter">filter</string>
+    <string name="today">today</string>
+    <string name="yesterday">yesterday</string>
+    <string name="edit">Edit</string>
+    <string name="delete">Delete</string>
+    <string name="delete_expenses_message">Do you want to delete all selected expenses?</string>
+    <string name="yes">yes</string>
+    <string name="no">no</string>
+    <string name="filter_fragment_expense_type_textview">Entry type</string>
+    <string name="filter_fragment_daterange_textview">Date range</string>
+    <string name="all_categories">All categories</string>
 
-    <!-- Example General settings -->
-    <string name="pref_header_general">General</string>
 
-    <string name="pref_title_social_recommendations">Enable social recommendations</string>
-    <string name="pref_description_social_recommendations">Recommendations for people to contact
-        based on your message history
-    </string>
+    <string name="about_app">About</string>
+    <string name="about_version">Version</string>
+    <string name="about_version_number_key">version_number_key</string>
+    <string name="key_send_feedback">send_feedback</string>
+    <string name="about_send_feedback_summary">Have any questions or problems? Let me know</string>
+    <string name="about_send_feedback_title">Send feedback</string>
+    <string name="about_rate_app_key">rate_app</string>
+    <string name="about_rate_app_summary">Give the app 5 stars if you like it.</string>
+    <string name="about_rate_app_title">Rate the app!</string>
+    <string name="about_other_apps_key">other_apps_key</string>
+    <string name="about_other_apps_title">Check out my other apps</string>
+    <string name="about_sourcecode_summary">View the sourcecode on my GitHub repo</string>
+    <string name="about_sourcecode_title">Sourcecode</string>
+    <string name="summary_about">A simple and straightforward App for handling your finances</string>
+    <string name="general_settings">General settings</string>
 
-    <string name="pref_title_display_name">Display name</string>
-    <string name="pref_default_display_name">John Smith</string>
-
-    <string name="pref_title_add_friends_to_messages">Add friends to messages</string>
-    <string-array name="pref_example_list_titles">
-        <item>Always</item>
-        <item>When possible</item>
-        <item>Never</item>
-    </string-array>
-    <string-array name="pref_example_list_values">
-        <item>1</item>
-        <item>0</item>
-        <item>-1</item>
-    </string-array>
-
-    <!-- Example settings for Data & Sync -->
-    <string name="pref_header_data_sync">Data &amp; sync</string>
-
-    <string name="pref_title_sync_frequency">Sync frequency</string>
-    <string-array name="pref_sync_frequency_titles">
-        <item>15 minutes</item>
-        <item>30 minutes</item>
-        <item>1 hour</item>
-        <item>3 hours</item>
-        <item>6 hours</item>
-        <item>Never</item>
-    </string-array>
-    <string-array name="pref_sync_frequency_values">
-        <item>15</item>
-        <item>30</item>
-        <item>60</item>
-        <item>180</item>
-        <item>360</item>
-        <item>-1</item>
+    <string-array name="default_categories">
+        <item>Food</item>
+        <item>Transportation</item>
+        <item>Health</item>
+        <item>Shopping</item>
+        <item>Housing</item>
+        <item>Travel</item>
     </string-array>
 
-    <string-array name="list_preference_entries">
-        <item>Entry 1</item>
-        <item>Entry 2</item>
-        <item>Entry 3</item>
+    <string-array name="expense_types">
+        <item>Both</item>
+        <item>Expense</item>
+        <item>Income</item>
     </string-array>
 
-    <string-array name="list_preference_entry_values">
-        <item>1</item>
-        <item>2</item>
-        <item>3</item>
+    <string-array name="date_range">
+        <item>Last 30 days</item>
+        <item>Last 90 days</item>
+        <item>This Year</item>
+        <item>All time</item>
     </string-array>
-
-    <string-array name="multi_select_list_preference_default_value" />
-
-    <string name="pref_title_system_sync_settings">System sync settings</string>
-
-    <!-- Example settings for Notifications -->
-    <string name="pref_header_notifications">Notifications</string>
-
-    <string name="pref_title_new_message_notifications">New message notifications</string>
-
-    <string name="pref_title_ringtone">Ringtone</string>
-    <string name="pref_ringtone_silent">Silent</string>
-
-    <string name="pref_title_vibrate">Vibrate</string>
 </resources>

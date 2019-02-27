@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory android:title="@string/general_settings"
+        app:iconSpaceReserved="false">
+
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/about_app"
+        app:iconSpaceReserved="false">
+
+        <Preference
+            android:selectable="false"
+            android:summary="@string/summary_about"
+            app:iconSpaceReserved="false"/>
+
+        <Preference
+            android:selectable="false"
+            android:key="@string/about_version_number_key"
+            android:summary="1"
+            android:title="@string/about_version"
+            app:iconSpaceReserved="false"/>
+
+        <Preference
+            android:key="@string/key_send_feedback"
+            android:summary="@string/about_send_feedback_summary"
+            android:title="@string/about_send_feedback_title"
+            app:iconSpaceReserved="false"/>
+
+
+        <Preference
+            android:key="@string/about_rate_app_key"
+            android:summary="@string/about_rate_app_summary"
+            android:title="@string/about_rate_app_title"
+            app:iconSpaceReserved="false"/>
+
+        <Preference
+            android:key="@string/about_other_apps_key"
+            android:title="@string/about_other_apps_title"
+            app:iconSpaceReserved="false"/>
+
+        <Preference
+            android:summary="@string/about_sourcecode_summary"
+            android:title="@string/about_sourcecode_title"
+            app:iconSpaceReserved="false">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="https://github.com/korbi98/Simple-Budget"/>
+        </Preference>
+
+    </PreferenceCategory>
+
+</PreferenceScreen>
+
+
+
+
+

@@ -21,7 +21,9 @@
         <activity
             android:name=".ui.SettingsActivity"
             android:label="@string/title_activity_settings" />
-        <activity android:name=".ui.AddExpenses"></activity>
+        <activity android:name=".ui.AddExpenses" />
+        <activity android:name=".ui.ManageCategories" />
+        <activity android:name=".ui.IncomeManager"/>
     </application>
 
 </manifest>
