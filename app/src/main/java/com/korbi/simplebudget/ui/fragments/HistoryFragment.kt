@@ -2,16 +2,14 @@ package com.korbi.simplebudget.ui.fragments
 
 import android.app.AlertDialog
 import android.content.Intent
-import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import androidx.recyclerview.widget.RecyclerView
 
 import com.korbi.simplebudget.R
 import com.korbi.simplebudget.database.DBhandler
-import com.korbi.simplebudget.logic.HistoryAdapter
+import com.korbi.simplebudget.logic.adapters.HistoryAdapter
 import android.view.*
-import android.widget.LinearLayout
 import android.widget.SearchView
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bignerdranch.expandablerecyclerview.ExpandableRecyclerAdapter
@@ -30,7 +28,7 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
     private lateinit var historyRecycler: RecyclerView
     private lateinit var db: DBhandler
     private lateinit var historyAdapter: HistoryAdapter
-    private lateinit var historyEntries: MutableList<HistoryEntry>
+
     private var mActionMode: ActionMode? = null
     private var parentPosition = 1 // position to update when update expenses
     private var typeSelection = 0 //0 for both, 1 for expenses, 2 for income
@@ -55,7 +53,6 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
                                             RecyclerView.VERTICAL, false)
         historyRecycler.isNestedScrollingEnabled = false
 
-        historyEntries = getHistoryEntries()
         setHasOptionsMenu(true)
         return rootview
     }
@@ -68,7 +65,7 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
 
     override fun onResume() {
         super.onResume()
-        updateView()
+        updateView(getHistoryEntries())
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -80,13 +77,31 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
 
             override fun onQueryTextChange(newText: String?): Boolean {
+                search()
                 return false
             }
 
             override fun onQueryTextSubmit(query: String?): Boolean {
+                search()
                 return false
             }
+
+            fun search() {
+                historyAdapter = HistoryAdapter(performSearch(searchView.query.toString()), this@HistoryFragment)
+                historyRecycler.adapter = historyAdapter
+                historyAdapter.sort()
+                historyAdapter.initializeSelectedItems()
+
+                for (index in historyAdapter.parentList.indices) {
+                    historyAdapter.expandParent(index)
+                }
+            }
         })
+
+        searchView.setOnCloseListener {
+            updateView(getHistoryEntries())
+            false
+        }
         updateOptionsMenu()
     }
 
@@ -108,6 +123,7 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
             }
 
             R.id.menu_history_search -> {
+
                 true
             }
 
@@ -312,8 +328,24 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
         return categoryFilteredList.toMutableList()
     }
 
-    private fun updateView() {
-        historyAdapter = HistoryAdapter(getHistoryEntries(), this)
+    private fun performSearch(searchPhrase: String): MutableList<HistoryEntry> {
+        val search = searchPhrase.toLowerCase()
+        val searchedList = getHistoryEntries()
+
+        for (hEntry in searchedList.iterator()) {
+            val expenseIterator = hEntry.childList.iterator()
+            for (expense in expenseIterator) {
+                if (!expense.description.toLowerCase().contains(search)) {
+                    expenseIterator.remove()
+                }
+            }
+        }
+
+        return searchedList
+    }
+
+    private fun updateView(hEntries: MutableList<HistoryEntry>) {
+        historyAdapter = HistoryAdapter(hEntries, this)
         historyAdapter.setExpandCollapseListener(object : ExpandableRecyclerAdapter.
                                                                 ExpandCollapseListener {
 
@@ -340,7 +372,7 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
         typeSelection = type
         dateSelection = date
         categorySelection = categories
-        updateView()
+        updateView(getHistoryEntries())
         updateOptionsMenu()
     }
 

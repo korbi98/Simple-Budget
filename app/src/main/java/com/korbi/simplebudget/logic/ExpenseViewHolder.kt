@@ -25,8 +25,6 @@ class ExpenseViewHolder(expenseListening: View, listener: ExpenseAdapterListener
 
     init {
         expenseListening.setOnLongClickListener(){
-            Toast.makeText(context, "test", Toast.LENGTH_LONG).show()
-
             listener.onItemLongClicked(parentAdapterPosition, childAdapterPosition, it)
             true
         }

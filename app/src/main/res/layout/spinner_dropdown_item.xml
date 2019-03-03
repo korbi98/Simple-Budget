@@ -8,5 +8,4 @@
     android:gravity="start"
     android:textColor="@android:color/primary_text_dark"
     android:padding="6dp"
-    android:background="@color/darker_background"
-    />
+    android:background="@color/darker_background" />

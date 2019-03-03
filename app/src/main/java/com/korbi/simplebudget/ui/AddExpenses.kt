@@ -3,22 +3,20 @@ package com.korbi.simplebudget.ui
 import android.app.DatePickerDialog
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.text.Editable
 import android.text.InputFilter
 import android.text.format.DateUtils
-import android.util.Log
 import android.view.View
+import android.view.ViewGroup
 import android.view.WindowManager
 import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import android.widget.Toast
 import com.korbi.simplebudget.R
 import com.korbi.simplebudget.database.DBhandler
-import com.korbi.simplebudget.logic.CategoryAdapter
+import com.korbi.simplebudget.logic.adapters.CategoryAdapter
 import com.korbi.simplebudget.logic.Expense
 import java.util.*
 import com.korbi.simplebudget.logic.InputFilterDecimal
-import kotlinx.android.synthetic.main.activity_add_expenses.*
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 
@@ -64,7 +62,7 @@ class AddExpenses : AppCompatActivity() {
         categoryGrid = findViewById(R.id.categoryChooser)
         categoryGrid.layoutManager = androidx.recyclerview.widget.GridLayoutManager(this, 2)
 
-        val actionBarLayout = layoutInflater.inflate(R.layout.custom_toolbar, null)
+        val actionBarLayout = layoutInflater.inflate(R.layout.custom_toolbar, null as ViewGroup?)
         val actionBar = supportActionBar
         actionBar?.setDisplayShowCustomEnabled(true)
         actionBar?.customView = actionBarLayout
@@ -78,7 +76,7 @@ class AddExpenses : AppCompatActivity() {
         prefill()
     }
 
-    fun save(view: View) {
+    fun save(@Suppress("UNUSED_PARAMETER")view: View) {
 
         when {
             amountEditText.text.toString().isEmpty() ->
@@ -109,7 +107,7 @@ class AddExpenses : AppCompatActivity() {
         }
     }
 
-    fun setDate(v: View) {
+    fun setDate(@Suppress("UNUSED_PARAMETER")view: View) {
         val cal = Calendar.getInstance()
 
         val year = cal.get(Calendar.YEAR)
@@ -146,7 +144,7 @@ class AddExpenses : AppCompatActivity() {
         datePickerTextView
     }
 
-    fun cancel(view: View) {
+    fun cancel(@Suppress("UNUSED_PARAMETER")view: View) {
         finish()
     }
 

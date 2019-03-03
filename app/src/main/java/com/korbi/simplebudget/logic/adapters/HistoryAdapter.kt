@@ -1,27 +1,27 @@
-package com.korbi.simplebudget.logic
+package com.korbi.simplebudget.logic.adapters
 
-import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.SortedList
 import com.bignerdranch.expandablerecyclerview.ExpandableRecyclerAdapter
 import com.korbi.simplebudget.R
+import com.korbi.simplebudget.logic.Expense
+import com.korbi.simplebudget.logic.ExpenseViewHolder
+import com.korbi.simplebudget.logic.HistoryEntry
+import com.korbi.simplebudget.logic.HistoryViewHolder
 import java.util.*
 
 
 class HistoryAdapter(private val historyEntries: MutableList<HistoryEntry>,
                      private val listener: ExpenseViewHolder.ExpenseAdapterListener) :
                                             ExpandableRecyclerAdapter<HistoryEntry, Expense,
-                                            HistoryViewHolder, ExpenseViewHolder>(historyEntries) {
+                                                    HistoryViewHolder, ExpenseViewHolder>(historyEntries) {
 
     private var currentSelectedChild = -1
     private var currentSelectedParent = -1
     private val selectedItems = mutableListOf<MutableList<Boolean>>()
-    private lateinit var sortedListList: MutableList<SortedList<Expense>>
 
-    init { createSortedListList() }
 
     override fun onCreateParentViewHolder(parent: ViewGroup, viewType: Int): HistoryViewHolder {
         val view = LayoutInflater.from(parent.context)
@@ -30,7 +30,7 @@ class HistoryAdapter(private val historyEntries: MutableList<HistoryEntry>,
     }
 
     override fun onCreateChildViewHolder(childViewGroup: ViewGroup, viewType: Int):
-                                                                                ExpenseViewHolder {
+            ExpenseViewHolder {
         val view = LayoutInflater.from(childViewGroup.context)
                 .inflate(R.layout.expense_listening, childViewGroup, false)
         return ExpenseViewHolder(view, listener)
@@ -61,7 +61,7 @@ class HistoryAdapter(private val historyEntries: MutableList<HistoryEntry>,
         } else {
             val attrs = IntArray(1){R.attr.selectableItemBackground}
             val typedArray = childViewHolder.context.obtainStyledAttributes(attrs)
-            val backgroundResource = typedArray.getResourceId(0, 0);
+            val backgroundResource = typedArray.getResourceId(0, 0)
             childViewHolder.itemView.setBackgroundResource(backgroundResource)
             typedArray.recycle()
         }
@@ -124,48 +124,5 @@ class HistoryAdapter(private val historyEntries: MutableList<HistoryEntry>,
         for (entry in historyEntries) {
             entry.childList.sortByDescending { it.date.time }
         }
-    }
-
-    private fun createSortedListList() {
-
-            val mSortedList = SortedList<Expense>(Expense::class.java, object : SortedList.Callback<Expense>() {
-
-            override fun compare(a: Expense, b: Expense): Int {
-                val mComparator = kotlin.Comparator {e1: Expense,e2: Expense ->
-                    e1.date.compareTo(e2.date)
-                }
-                return mComparator.compare(a, b)
-            }
-
-            override fun onInserted(position: Int, count: Int) {
-                notifyItemRangeInserted(position, count)
-            }
-
-            override fun onRemoved(position: Int, count: Int) {
-                notifyItemRangeRemoved(position, count)
-            }
-
-            override fun onMoved(fromPosition: Int, toPosition: Int) {
-                notifyItemMoved(fromPosition, toPosition)
-            }
-
-            override fun onChanged(position: Int, count: Int) {
-                notifyItemRangeChanged(position, count)
-            }
-
-            override fun areContentsTheSame(oldItem: Expense, newItem: Expense): Boolean {
-                return oldItem == newItem
-            }
-
-            override fun areItemsTheSame(item1: Expense, item2: Expense): Boolean {
-                return item1.id == item2.id
-            }
-        })
-
-        val listList = mutableListOf<SortedList<Expense>>()
-        for (h in historyEntries) {
-            listList.add(mSortedList)
-        }
-        sortedListList = listList
     }
 }

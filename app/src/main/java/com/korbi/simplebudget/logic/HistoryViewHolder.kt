@@ -7,7 +7,6 @@ import com.bignerdranch.expandablerecyclerview.ParentViewHolder
 import com.korbi.simplebudget.R
 import android.view.View
 import android.widget.ImageView
-import android.widget.Toast
 
 
 class HistoryViewHolder(private val historyEntryView: View) : ParentViewHolder<HistoryEntry,

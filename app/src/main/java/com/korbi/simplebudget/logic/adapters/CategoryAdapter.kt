@@ -1,4 +1,4 @@
-package com.korbi.simplebudget.logic
+package com.korbi.simplebudget.logic.adapters
 
 import android.view.LayoutInflater
 import android.view.View
@@ -15,7 +15,7 @@ class CategoryAdapter(private val categories: MutableList<String>) :
 
     private var selectedCategory: String? = null
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CategoryAdapter.ViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
 
         val categoryView = LayoutInflater.from(parent.context).inflate(R.layout.category_listening,
                 parent, false)
