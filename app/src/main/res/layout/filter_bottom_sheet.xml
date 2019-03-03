@@ -1,10 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:id="@+id/bottom_sheet_design"
     android:layout_height="match_parent"
     android:padding="5dp"
     android:layout_marginTop="4000dp"
     android:background="@color/gray_background">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:id="@+id/filter_cancel_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/cancel"
+            android:layout_marginTop="-5dp"
+            style="?attr/buttonBarButtonStyle" />
+
+        <Button
+            android:id="@+id/filter_confirm_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/menu_history_filter"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="-5dp"
+            style="?attr/buttonBarButtonStyle"/>
+
+    </RelativeLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="@android:color/darker_gray"
+        android:layout_gravity="bottom"
+        />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -12,8 +45,9 @@
         android:orientation="horizontal"
         android:layout_marginStart="15dp"
         android:layout_marginEnd="5dp"
-        android:layout_marginTop="7dp"
-        android:layout_marginBottom="12dp">
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="12dp"
+        android:background="@color/gray_background">
 
         <TextView
             android:layout_width="match_parent"
@@ -43,7 +77,8 @@
         android:layout_marginStart="15dp"
         android:layout_marginEnd="5dp"
         android:layout_marginTop="12dp"
-        android:layout_marginBottom="12dp">
+        android:layout_marginBottom="12dp"
+        android:background="@color/gray_background">
 
         <TextView
             android:layout_width="match_parent"
@@ -64,8 +99,7 @@
         android:layout_height="1dp"
         android:background="@android:color/darker_gray"
         android:layout_gravity="bottom"
-        android:layout_marginBottom="10dp"
-        />
+        android:layout_marginBottom="10dp" />
 
         <ListView
             android:id="@+id/filter_category_list"

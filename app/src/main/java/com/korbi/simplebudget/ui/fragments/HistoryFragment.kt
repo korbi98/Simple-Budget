@@ -2,13 +2,16 @@ package com.korbi.simplebudget.ui.fragments
 
 import android.app.AlertDialog
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import androidx.recyclerview.widget.RecyclerView
 
 import com.korbi.simplebudget.R
 import com.korbi.simplebudget.database.DBhandler
 import com.korbi.simplebudget.logic.HistoryAdapter
 import android.view.*
+import android.widget.LinearLayout
 import android.widget.SearchView
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bignerdranch.expandablerecyclerview.ExpandableRecyclerAdapter
@@ -33,6 +36,7 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
     private var typeSelection = 0 //0 for both, 1 for expenses, 2 for income
     private var dateSelection = 3 //0 last 30 days, 1 last 90 days, 2 this year, 3 all time
     private lateinit var categorySelection: IntArray //1 if category selected 0 else
+    private lateinit var mOptionsMenu: Menu
 
     private val dateFormatter = SimpleDateFormat("dd.MM.yy", Locale.US)
 
@@ -68,6 +72,7 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        mOptionsMenu = menu
         menu.clear()
         inflater.inflate(R.menu.menu_history, menu)
         val searchItem = menu.findItem(R.id.menu_history_search)
@@ -82,6 +87,7 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
                 return false
             }
         })
+        updateOptionsMenu()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -102,6 +108,11 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
             }
 
             R.id.menu_history_search -> {
+                true
+            }
+
+            R.id.menu_history_filter_reset -> {
+                onSelectionChanged(0, 3, IntArray(categorySelection.size){1})
                 true
             }
             else -> false
@@ -330,6 +341,7 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
         dateSelection = date
         categorySelection = categories
         updateView()
+        updateOptionsMenu()
     }
 
     override fun onItemClicked(parentPosition: Int, childPosition: Int) {
@@ -353,5 +365,12 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
                 (activity as MainActivity).expandedStateMap[index] = false
             }
         }
+    }
+
+    private fun updateOptionsMenu() {
+        Log.d("test", "test")
+        mOptionsMenu.findItem(R.id.menu_history_filter_reset).isVisible = typeSelection != 0 ||
+                dateSelection != 3 ||
+                !categorySelection.contentEquals(IntArray(categorySelection.size){1})
     }
 }

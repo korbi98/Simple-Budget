@@ -1,7 +1,10 @@
 package com.korbi.simplebudget.ui
 
 import android.app.Dialog
+import android.content.DialogInterface
+import android.graphics.Color
 import android.os.Bundle
+import android.telephony.mbms.MbmsErrors
 import android.util.Log
 import android.util.SparseBooleanArray
 import android.view.ViewGroup
@@ -25,13 +28,16 @@ class FilterBottomSheet :  BottomSheetDialogFragment() {
     private lateinit var categoryList: ListView
     private lateinit var typeSpinner: Spinner
     private lateinit var dateRangeSpinner: Spinner
+    private var initialType = 0
+    private var initialDateSelection = 3
+    private var initialCategories = IntArray(DBhandler.getInstance().getAllCategories().size)
+
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                                             savedInstanceState: Bundle?): View? {
 
 
         val rootView = inflater.inflate(R.layout.filter_bottom_sheet, container, false)
-
 
         typeSpinner = rootView.findViewById(R.id.filter_type_spinner)
         typeSpinner.adapter = ArrayAdapter.createFromResource(context!!, R.array.expense_types,
@@ -48,6 +54,16 @@ class FilterBottomSheet :  BottomSheetDialogFragment() {
                 }
 
         categoryList = rootView.findViewById(R.id.filter_category_list)
+
+        val cancelButton = rootView.findViewById<Button>(R.id.filter_cancel_button)
+        cancelButton.setOnClickListener {
+            dialog?.cancel()
+        }
+
+        val filterButton = rootView.findViewById<Button>(R.id.filter_confirm_button)
+        filterButton.setOnClickListener {
+            dialog?.dismiss()
+        }
 
         setupCategoryList()
         prefillSelection()
@@ -89,6 +105,8 @@ class FilterBottomSheet :  BottomSheetDialogFragment() {
         if (arg != null) {
             typeSpinner.setSelection(arg.getInt(TYPE_PREFILL))
             dateRangeSpinner.setSelection(arg.getInt(DATE_PREFILL))
+            initialType = arg.getInt(TYPE_PREFILL)
+            initialDateSelection = arg.getInt(DATE_PREFILL)
 
             val catList = arg.getIntArray(CATEGORY_PRESELECT)
 
@@ -96,8 +114,9 @@ class FilterBottomSheet :  BottomSheetDialogFragment() {
                 if (!catList!!.contentEquals(IntArray(catList.size){0}) &&
                         !catList!!.contentEquals(IntArray(catList.size){1})) {
 
-                    for ((i, j) in catList.withIndex()) {
-                        categoryList.setItemChecked(i+1, j==1)
+                    initialCategories = catList
+                    for ((index, values) in catList.withIndex()) {
+                        categoryList.setItemChecked(index+1, values==1)
                     }
 
                 } else {
@@ -145,6 +164,22 @@ class FilterBottomSheet :  BottomSheetDialogFragment() {
         listener.onSelectionChanged(typeSpinner.selectedItemPosition,
                                     dateRangeSpinner.selectedItemPosition,
                                     getCategorySelectionArray())
+    }
+
+    override fun onCancel(dialog: DialogInterface) {
+        super.onCancel(dialog)
+        typeSpinner.setSelection(initialType)
+        dateRangeSpinner.setSelection(initialDateSelection)
+
+        if (!initialCategories.contentEquals(IntArray(initialCategories.size){0})) {
+            categoryList.setItemChecked(0, false)
+            for ((index, value) in initialCategories.withIndex()) {
+                categoryList.setItemChecked(index + 1, value == 1)
+            }
+        } else {
+            categoryList.setItemChecked(0, true)
+        }
+
     }
 
     fun setListener(listener: OnFilterFragmentListener) {

@@ -11,5 +11,8 @@
         android:title="@string/menu_history_filter"
         android:icon="@drawable/ic_filter_list_white_24dp"
         app:showAsAction="ifRoom" />
+    <item android:id="@+id/menu_history_filter_reset"
+        android:title="@string/reset"
+        app:showAsAction="ifRoom"/>
 
 </menu>

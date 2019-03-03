@@ -22,7 +22,7 @@ private const val COL_DATE = "date"
 private const val CATEGORY_TABLE = "categories"
 private const val COL_CATEGORY = "category"
 
-class DBhandler(context: Context, val defaultCategories: Array<String>) :
+class DBhandler(context: Context, private val defaultCategories: Array<String>) :
                                     SQLiteOpenHelper(context, DB_NAME, null, DB_VERSION) {
 
     private val dateFormatter = SimpleDateFormat("yyyy-MM-dd", Locale.US)

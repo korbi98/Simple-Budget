@@ -46,6 +46,8 @@
     <string name="about_sourcecode_title">Sourcecode</string>
     <string name="summary_about">A simple and straightforward App for handling your finances</string>
     <string name="general_settings">General settings</string>
+    <string name="cancel">cancel</string>
+    <string name="reset">Reset</string>
 
     <string-array name="default_categories">
         <item>Food</item>
