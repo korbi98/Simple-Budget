@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     android:id="@+id/bottom_sheet_design"
     android:layout_height="match_parent"
-    android:padding="5dp"
+    android:paddingStart="10dp"
+    android:paddingEnd="10dp"
     android:layout_marginTop="4000dp"
     android:background="@color/gray_background">
 
@@ -18,7 +19,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/cancel"
-            android:layout_marginTop="-5dp"
             style="?attr/buttonBarButtonStyle" />
 
         <Button
@@ -27,7 +27,6 @@
             android:layout_height="wrap_content"
             android:text="@string/menu_history_filter"
             android:layout_alignParentEnd="true"
-            android:layout_marginTop="-5dp"
             style="?attr/buttonBarButtonStyle"
             tools:ignore="RelativeOverlap" />
 
@@ -68,8 +67,7 @@
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="@android:color/darker_gray"
-        android:layout_gravity="bottom"
-        />
+        android:layout_gravity="bottom" />
 
     <LinearLayout
         android:layout_width="match_parent"

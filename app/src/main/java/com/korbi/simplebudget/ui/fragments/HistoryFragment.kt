@@ -305,6 +305,8 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
 
         // filter date selection
         val cal = Calendar.getInstance()
+
+        //TODO implement specific time range
         val dateFilteredList: List<Expense> = when (dateSelection) {
             0 -> {
                 cal.add(Calendar.DATE,  - 30)

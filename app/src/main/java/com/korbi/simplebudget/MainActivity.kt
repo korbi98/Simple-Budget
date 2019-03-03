@@ -51,32 +51,7 @@ class MainActivity : AppCompatActivity() {
         showFragment(DashboardFragment())
     }
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        val inflater: MenuInflater = menuInflater
-        inflater.inflate(R.menu.menu_dashboard, menu)
-        return true
-    }
 
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-
-        return when (item?.itemId) {
-
-            R.id.menu_categories -> {
-                true
-            }
-            R.id.menu_regular_income -> {
-
-                true
-            }
-            R.id.menu_settings -> {
-                val settings = Intent(this, SettingsActivity::class.java)
-                startActivity(settings)
-                true
-            }
-
-            else -> super.onOptionsItemSelected(item)
-        }
-    }
 
     private fun showFragment(fragment: androidx.fragment.app.Fragment) {
         val transaction = supportFragmentManager.beginTransaction()

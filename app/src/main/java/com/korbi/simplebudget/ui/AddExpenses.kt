@@ -69,6 +69,7 @@ class AddExpenses : AppCompatActivity() {
 
         categoryAdapter = CategoryAdapter(db.getAllCategories())
         categoryGrid.adapter = categoryAdapter
+        categoryAdapter.setSelectedCategory(db.getAllCategories()[0])
 
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE)
         updateDatePickerText()

@@ -50,6 +50,11 @@
                 android:data="https://github.com/korbi98/Simple-Budget"/>
         </Preference>
 
+        <Preference
+            android:key="@string/licenses_key"
+            android:title="@string/licenses"
+            app:iconSpaceReserved="false"/>
+
     </PreferenceCategory>
 
 </PreferenceScreen>

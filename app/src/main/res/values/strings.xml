@@ -5,9 +5,6 @@
     <string name="title_statistic">Statistics</string>
     <string name="title_activity_settings">Settings</string>
 
-    <string name="dashboard">dashboard</string>
-    <string name="history">History</string>
-    <string name="statistic">statistic</string>
     <string name="menu_categories">Manage categories</string>
     <string name="menu_regular_income">Regular income/expenses</string>
     <string name="menu_settings">Settings</string>
@@ -30,7 +27,6 @@
     <string name="filter_fragment_daterange_textview">Date range</string>
     <string name="all_categories">All categories</string>
 
-
     <string name="about_app">About</string>
     <string name="about_version">Version</string>
     <string name="about_version_number_key">version_number_key</string>
@@ -46,8 +42,18 @@
     <string name="about_sourcecode_title">Sourcecode</string>
     <string name="summary_about">A simple and straightforward App for handling your finances</string>
     <string name="general_settings">General settings</string>
-    <string name="cancel">cancel</string>
+    <string name="cancel">Cancel</string>
     <string name="reset">Reset</string>
+    <string name="dashboard_time_selection">Summary for </string>
+    <string name="dashboard_expenses">Expenses</string>
+    <string name="dashboard_balance">Balance</string>
+    <string name="dashboard_income">Income</string>
+    <string name="licenses_key">licenses_key</string>
+    <string name="licenses">Licenses</string>
+    <string name="budget">Budget</string>
+    <string name="pi_chart">Pi chart</string>
+    <string name="income_manager_titel">Regular income/expenses</string>
+    <string name="manage_categories_titel">Manage categories</string>
 
     <string-array name="default_categories">
         <item>Food</item>
@@ -69,5 +75,34 @@
         <item>Last 90 days</item>
         <item>This Year</item>
         <item>All time</item>
+        <item>Specific range</item>
+    </string-array>
+
+    <string-array name="dashboard_time_interval">
+        <item>Weekly</item>
+        <item>Monthly</item>
+        <item>Quarterly</item>
+        <item>Yearly</item>
+        <item>All time</item>
+    </string-array>
+
+    <string-array name="dashboard_time_selection_weekly">
+        <item>This week</item>
+        <item>Last week</item>
+    </string-array>
+
+    <string-array name="dashboard_time_selection_monthly">
+        <item>This month</item>
+        <item>Last month</item>
+    </string-array>
+
+    <string-array name="dashboard_time_selection_quarterly">
+        <item>This quarter</item>
+        <item>Last quarter</item>
+    </string-array>
+
+    <string-array name="dashboard_time_selection_yearly">
+        <item>This year</item>
+        <item>Last year</item>
     </string-array>
 </resources>
