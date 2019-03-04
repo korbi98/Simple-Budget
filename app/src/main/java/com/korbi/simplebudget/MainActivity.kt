@@ -18,11 +18,9 @@ package com.korbi.simplebudget
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.*
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
 import com.korbi.simplebudget.database.DBhandler
 import com.korbi.simplebudget.ui.*
 import com.korbi.simplebudget.ui.fragments.DashboardFragment
@@ -64,6 +62,10 @@ class MainActivity : AppCompatActivity() {
         DBhandler.createInstance(this, resources.getStringArray(R.array.default_categories))
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
         navigation.selectedItemId = R.id.navigation_dashboard
+
+        // make sure, that the keyboard doesn't push the bottomnavigationbar upwards
+        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING)
+
         showFragment(DashboardFragment())
     }
 
