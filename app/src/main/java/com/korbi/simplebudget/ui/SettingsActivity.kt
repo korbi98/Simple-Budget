@@ -17,6 +17,7 @@
 package com.korbi.simplebudget.ui
 
 import android.annotation.TargetApi
+import android.app.Dialog
 import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
@@ -29,6 +30,7 @@ import android.preference.PreferenceManager
 import android.preference.RingtonePreference
 import android.text.TextUtils
 import android.view.MenuItem
+import android.view.Window
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
@@ -68,6 +70,14 @@ class SettingsActivity : AppCompatActivity() {
 
             val packageName = BuildConfig.APPLICATION_ID
             val versionNumber = BuildConfig.VERSION_CODE
+
+            val currency = findPreference<Preference>(getString(R.string.settings_key_currency))
+            currency.onPreferenceClickListener = Preference.OnPreferenceClickListener {
+                val currencyDialog = Dialog(context!!)
+                currencyDialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+                    CurrencyDialog().show(fragmentManager!!, "currency_dialog")
+                true
+            }
 
             val version = findPreference<Preference>(getString(R.string.about_version_number_key))
             version.summary = versionNumber.toString()

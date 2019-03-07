@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright 2019 Korbinian Moser
+  ~
+  ~ Licensed under the BSD 3-Clause License (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ https://opensource.org/licenses/BSD-3-Clause
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<resources>
+
+    <string-array name="currencies_with_names">
+        <item>Dollar $</item>
+        <item>Euro €</item>
+        <item>Yen ¥</item>
+        <item>Pound sterling £</item>
+        <item>Swiss franc CHF</item>
+        <item>Renminbi 元</item>
+        <item>Krona kr</item>
+        <item>Won ₩</item>
+        <item>Lira ₺</item>
+        <item>Ruble ₽</item>
+        <item>Rupee ₹</item>
+        <item>Custom currency</item>
+    </string-array>
+
+    <string-array name="currencies_symbols">
+        <item>$</item>
+        <item>€</item>
+        <item>¥</item>
+        <item>£</item>
+        <item>CHF</item>
+        <item>元</item>
+        <item>kr</item>
+        <item>₩</item>
+        <item>₺</item>
+        <item>₽</item>
+        <item>₹</item>
+    </string-array>
+
+</resources>

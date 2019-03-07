@@ -22,6 +22,11 @@
     <PreferenceCategory android:title="@string/general_settings"
         app:iconSpaceReserved="false">
 
+        <Preference
+            android:key="@string/settings_key_currency"
+            android:title="@string/currency"
+            app:iconSpaceReserved="false"/>
+
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/about_app"
