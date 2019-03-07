@@ -26,7 +26,9 @@ import com.korbi.simplebudget.SimpleBudgetApp
 import com.korbi.simplebudget.database.DBhandler
 import org.threeten.bp.*
 import org.threeten.bp.format.DateTimeFormatter
+import org.threeten.bp.format.TextStyle
 import org.threeten.bp.temporal.IsoFields
+import java.util.*
 
 
 class DateHelper {
@@ -57,7 +59,6 @@ class DateHelper {
         val date1 = db.getOldestDate()
 
         while (date2.isAfter(date1.minusWeeks(1))) {
-            Log.d("test", "test")
             val firstDayOfWeek = date2.with( DayOfWeek.MONDAY )
             val lastDayOfWeek = date2.with( DayOfWeek.SUNDAY)
             weeks.add(arrayOf(firstDayOfWeek, lastDayOfWeek))
@@ -134,11 +135,13 @@ class DateHelper {
         val monthStringArray = mutableListOf<String>(SimpleBudgetApp.res.
                                 getString(R.string.this_month))
         val monthList = getMonths()
-        Log.d("monthtest", monthList.size.toString())
+
         if (monthList.size > 1) {
             monthList.subList(1, monthList.size).forEach {
                 if (!db.getExpensesByDate(it.atDay(1), it.atEndOfMonth()).isEmpty()) {
-                    monthStringArray.add(it.month.toString() + " " + it.year.toString())
+                    monthStringArray.add(
+                            it.month.getDisplayName(TextStyle.FULL, Locale.getDefault()) + " " +
+                                    it.year.toString())
                 }
             }
         }
