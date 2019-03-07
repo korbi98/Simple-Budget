@@ -37,7 +37,7 @@ class ExpenseViewHolder(expenseListening: View, listener: ExpenseAdapterListener
     private val expenseDate = expenseListening.findViewById<TextView>(R.id.expense_listening_date)
     private val expenseAmount = expenseListening
                                         .findViewById<TextView>(R.id.expense_listening_amount)
-    private val decimalFormat = DecimalFormat("#.00")
+    private val decimalFormat = DecimalFormat("#0.00")
     private val dateFormatter = DateTimeFormatter.ofPattern("dd.MM.yy")
 
     init {

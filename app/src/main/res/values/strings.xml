@@ -80,6 +80,7 @@
     <string name="second_quarter">2nd quarter</string>
     <string name="third_quarter">3rd quarter</string>
     <string name="fourth_quarter">4th quarter</string>
+    <string name="default_value">0.00$</string>
 
     <string-array name="default_categories">
         <item>Food</item>

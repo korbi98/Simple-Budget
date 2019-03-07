@@ -84,7 +84,6 @@ class DateHelper {
 
     fun getQuarters(): MutableList<Array<Int>> {
         val quarterList = mutableListOf<Array<Int>>()
-
         var date2 = YearMonth.from(LocalDate.now())
         val date1 = YearMonth.from(db.getOldestDate())
 
@@ -96,7 +95,7 @@ class DateHelper {
         }
 
         while (date2.isAfter(date1.minusMonths(3))) {
-            quarterList.add(arrayOf(date2.get(IsoFields.QUARTER_OF_YEAR), date1.year))
+            quarterList.add(arrayOf(date2.get(IsoFields.QUARTER_OF_YEAR), date2.year))
             date2 = date2.minusMonths(3)
         }
         return quarterList
@@ -168,7 +167,7 @@ class DateHelper {
                     4 -> {
                         SimpleBudgetApp.res.getString(R.string.fourth_quarter)+" "+it[1].toString()
                     }
-                    else -> "invalid quarter number"
+                    else -> "invalid number"
                 }
                 quarterStringArray.add(dateString)
             }

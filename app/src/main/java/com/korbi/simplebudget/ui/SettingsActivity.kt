@@ -43,12 +43,18 @@ class SettingsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setupActionBar()
 
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
         supportFragmentManager
                 .beginTransaction()
                 .replace(android.R.id.content, MainPreferenceFragment())
                 .commit()
     }
 
+    override fun onSupportNavigateUp(): Boolean {
+        onBackPressed()
+        return true
+    }
 
     private fun setupActionBar() {
         actionBar?.setDisplayHomeAsUpEnabled(true)

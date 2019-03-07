@@ -17,11 +17,15 @@
 package com.korbi.simplebudget.ui.fragments
 
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Spinner
+import android.widget.TextView
+import androidx.core.content.ContextCompat
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentStatePagerAdapter
@@ -29,11 +33,23 @@ import androidx.viewpager.widget.ViewPager
 import com.google.android.material.tabs.TabLayout
 
 import com.korbi.simplebudget.R
+import com.korbi.simplebudget.database.DBhandler
 import com.korbi.simplebudget.logic.DateHelper
 import com.korbi.simplebudget.ui.AddExpenses
 import com.korbi.simplebudget.ui.IncomeManager
 import com.korbi.simplebudget.ui.ManageCategories
 import com.korbi.simplebudget.ui.SettingsActivity
+import org.threeten.bp.LocalDate
+import org.threeten.bp.Month
+import org.threeten.bp.YearMonth
+import java.text.DecimalFormat
+
+
+private const val ALL_TIME = 4
+private const val YEARLY_INTERVAL = 3
+private const val QUARTERLY_INTERVAL = 2
+private const val MONTHLY_INTERVAL = 1
+private const val WEEKLY_INTERVAL = 0
 
 class DashboardFragment : androidx.fragment.app.Fragment() {
 
@@ -41,6 +57,12 @@ class DashboardFragment : androidx.fragment.app.Fragment() {
     private lateinit var actionBarSpinner: Spinner
     private lateinit var timeSelectionLayout: View
     private lateinit var firstDivider: View
+    private lateinit var expensesTextView: TextView
+    private lateinit var incomeTextView: TextView
+    private lateinit var balanceTextView: TextView
+
+    private val db = DBhandler.getInstance()
+    private val dh = DateHelper.getInstance()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -56,6 +78,9 @@ class DashboardFragment : androidx.fragment.app.Fragment() {
         timeSelectionSpinner = rootView.findViewById(R.id.dashboard_time_selection_spinner)
         timeSelectionLayout = rootView.findViewById(R.id.dashboard_time_selection_layout)
         firstDivider = rootView.findViewById(R.id.dashboard_first_divider)
+        expensesTextView = rootView.findViewById(R.id.dashboard_total_expenses)
+        incomeTextView = rootView.findViewById(R.id.dashboard_total_income)
+        balanceTextView = rootView.findViewById(R.id.dashboard_balance)
 
         val tabLayout = rootView.findViewById<TabLayout>(R.id.dashboard_tabs)
         tabLayout.addTab(tabLayout.newTab().setText(R.string.budget))
@@ -90,6 +115,14 @@ class DashboardFragment : androidx.fragment.app.Fragment() {
 
         })
 
+        timeSelectionSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onNothingSelected(parent: AdapterView<*>?) {parent?.setSelection(0)}
+
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                sumExpenses(actionBarSpinner.selectedItemPosition, position)
+            }
+        }
+
         setHasOptionsMenu(true)
         return rootView
     }
@@ -118,6 +151,10 @@ class DashboardFragment : androidx.fragment.app.Fragment() {
         super.onResume()
         if (this::actionBarSpinner.isInitialized) {
             setupTimeSelectionSpinner(actionBarSpinner.selectedItemPosition)
+            sumExpenses(actionBarSpinner.selectedItemPosition,
+                    timeSelectionSpinner.selectedItemPosition)
+        } else {
+            sumExpenses(0, 0)
         }
     }
 
@@ -145,19 +182,20 @@ class DashboardFragment : androidx.fragment.app.Fragment() {
         }
     }
 
-    fun setupTimeSelectionSpinner(option: Int) {
+    fun setupTimeSelectionSpinner(intervalType: Int) {
 
         firstDivider.visibility = View.VISIBLE
         timeSelectionLayout.visibility = View.VISIBLE
         val dh = DateHelper.getInstance()
 
-        val optionsArray = when (option) {
-            0 -> dh.getWeekSpinnerArray()
-            2 -> dh.getQuarterSpinnerArray()
-            3 -> dh.getYearSpinnerArray()
-            4 -> {
+        val optionsArray = when (intervalType) {
+            WEEKLY_INTERVAL -> dh.getWeekSpinnerArray()
+            QUARTERLY_INTERVAL -> dh.getQuarterSpinnerArray()
+            YEARLY_INTERVAL -> dh.getYearSpinnerArray()
+            ALL_TIME -> {
                 firstDivider.visibility = View.GONE
                 timeSelectionLayout.visibility = View.GONE
+                sumExpenses(ALL_TIME, 0)
                 Array(0){""}
             }
 
@@ -166,6 +204,60 @@ class DashboardFragment : androidx.fragment.app.Fragment() {
 
         timeSelectionSpinner.adapter = ArrayAdapter<String>(context!!,
                 android.R.layout.simple_spinner_dropdown_item, optionsArray)
+    }
+
+    fun sumExpenses(intervalType: Int, selectedInterval: Int) {
+        var startDate = db.getOldestDate()
+        var endDate = db.getNewestDate()
+        val decimalFormat = DecimalFormat("#0.00")
+
+        when (intervalType) {
+            WEEKLY_INTERVAL -> {
+                val week = dh.getWeeks().filter {
+                    !db.getExpensesByDate(it[0], it[1]).isEmpty()
+                } [selectedInterval]
+                startDate = week[0]
+                endDate = week[1]
+            }
+            MONTHLY_INTERVAL -> {
+                val month = dh.getMonths().filter {
+                    !db.getExpensesByDate(it.atDay(1), it.atEndOfMonth()).isEmpty()
+                } [selectedInterval]
+                startDate = month.atDay(1)
+                endDate = month.atEndOfMonth()
+            }
+            QUARTERLY_INTERVAL -> {
+                val quarter = dh.getQuarters()[selectedInterval]
+                startDate = LocalDate.of(quarter[1], 1, 1)
+                endDate = YearMonth.of(quarter[1], 3).atEndOfMonth()
+                startDate = startDate.plusMonths(3*(quarter[0] - 1).toLong())
+                endDate = endDate.plusMonths(3*(quarter[0] - 1).toLong())
+            }
+            YEARLY_INTERVAL -> {
+                startDate = LocalDate.of(dh.getYears()[selectedInterval], 1, 1)
+                endDate = LocalDate.of(dh.getYears()[selectedInterval], 12, 31)
+            }
+        }
+        Log.d("startdate", startDate.toString())
+        Log.d("enddate", endDate.toString())
+        val expenses = db.getExpensesByDate(startDate, endDate)
+        Log.d("enddate", expenses.size.toString())
+        val totalExpenses = expenses.filter { it.cost < 0 } .sumBy { it.cost }
+        val totalIncome = expenses.filter {it.cost > 0} .sumBy { it.cost }
+        val balance = totalExpenses + totalIncome
+
+        expensesTextView.text = decimalFormat.format(totalExpenses.toFloat()/100).toString()
+        incomeTextView.text = decimalFormat.format(totalIncome.toFloat()/100).toString()
+        balanceTextView .text = decimalFormat.format(balance.toFloat()/100).toString()
+
+        when  {
+            balance < 0 -> balanceTextView.setTextColor(ContextCompat.getColor(context!!,
+                                            R.color.expenseColor))
+            balance > 0 -> balanceTextView.setTextColor(ContextCompat.getColor(context!!,
+                                            R.color.incomeColor))
+            else -> balanceTextView.setTextColor(ContextCompat.getColor(context!!,
+                    R.color.neutalColor))
+        }
     }
 
 }
