@@ -16,6 +16,7 @@
 
 package com.korbi.simplebudget.logic
 
+import org.threeten.bp.LocalDate
 import java.util.Date
 
 // Class definition of the expense object which holds all the data of an expense. Apparently there
@@ -23,7 +24,7 @@ import java.util.Date
 data class Expense(var id: Int,
                    var description: String,
                    var cost: Int,
-                   var date: Date,
+                   var date: LocalDate,
                    var category: String) {
 
 

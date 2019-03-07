@@ -58,6 +58,7 @@
     <string name="about_sourcecode_title">Sourcecode</string>
     <string name="summary_about">A simple and straightforward App for handling your finances</string>
     <string name="general_settings">General settings</string>
+
     <string name="cancel">Cancel</string>
     <string name="reset">Reset</string>
     <string name="dashboard_time_selection">Summary for </string>
@@ -70,6 +71,15 @@
     <string name="pi_chart">Pi chart</string>
     <string name="income_manager_titel">Regular income/expenses</string>
     <string name="manage_categories_titel">Manage categories</string>
+
+    <string name="this_week">This week</string>
+    <string name="last_week">Last week</string>
+    <string name="this_month">This month</string>
+    <string name="this_quarter">This quarter</string>
+    <string name="first_quarter">1st quarter</string>
+    <string name="second_quarter">2nd quarter</string>
+    <string name="third_quarter">3rd quarter</string>
+    <string name="fourth_quarter">4th quarter</string>
 
     <string-array name="default_categories">
         <item>Food</item>
@@ -102,23 +112,4 @@
         <item>All time</item>
     </string-array>
 
-    <string-array name="dashboard_time_selection_weekly">
-        <item>This week</item>
-        <item>Last week</item>
-    </string-array>
-
-    <string-array name="dashboard_time_selection_monthly">
-        <item>This month</item>
-        <item>Last month</item>
-    </string-array>
-
-    <string-array name="dashboard_time_selection_quarterly">
-        <item>This quarter</item>
-        <item>Last quarter</item>
-    </string-array>
-
-    <string-array name="dashboard_time_selection_yearly">
-        <item>This year</item>
-        <item>Last year</item>
-    </string-array>
 </resources>

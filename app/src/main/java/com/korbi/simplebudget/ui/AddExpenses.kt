@@ -33,6 +33,10 @@ import com.korbi.simplebudget.logic.adapters.CategoryAdapter
 import com.korbi.simplebudget.logic.Expense
 import java.util.*
 import com.korbi.simplebudget.logic.InputFilterDecimal
+import org.threeten.bp.Instant
+import org.threeten.bp.LocalDate
+import org.threeten.bp.LocalDateTime
+import org.threeten.bp.format.DateTimeFormatter
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 
@@ -45,7 +49,7 @@ const val EXPENSE_CAT = "prefill_cat"
 class AddExpenses : AppCompatActivity() {
 
     private lateinit var db: DBhandler
-    private val calendar = Calendar.getInstance()
+    private var expenseDate = LocalDate.now()
 
     private lateinit var descriptionEditText: EditText
     private lateinit var amountEditText: EditText
@@ -54,7 +58,9 @@ class AddExpenses : AppCompatActivity() {
     private lateinit var datePickerTextView: EditText
     private lateinit var expenseToUpdate: Expense
 
-    private val dateFormatter = SimpleDateFormat("dd.MM.yy", Locale.US)
+    private val dateFormatter = DateTimeFormatter.ofPattern("dd.MM.yy")
+    // used for converting dateObject from datePicker which still uses the Calendar class
+    private val dateFormatterLegacy = SimpleDateFormat("dd.MM.yy", Locale.US)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -105,7 +111,7 @@ class AddExpenses : AppCompatActivity() {
             (this::expenseToUpdate.isInitialized) -> { // update existing expense
                 expenseToUpdate.description = descriptionEditText.text.toString()
                 expenseToUpdate.cost = (amountEditText.text.toString().toFloat() * -100).toInt()
-                expenseToUpdate.date = calendar.time
+                expenseToUpdate.date = expenseDate
                 expenseToUpdate.category = categoryAdapter.getSelectedCategory()!!
                 db.updateExpense(expenseToUpdate)
                 setResult(1)
@@ -117,7 +123,7 @@ class AddExpenses : AppCompatActivity() {
                 val id = db.getLatestID()
                 val amount = amountEditText.text.toString().toFloat() * -100 // store value in cents negative, because positive numbers are threaded as expenses
                 val expense = Expense(id, descriptionEditText.text.toString(), amount.toInt(),
-                        calendar.time, categoryAdapter.getSelectedCategory()!!)
+                        expenseDate, categoryAdapter.getSelectedCategory()!!)
                 db.addExpense(expense)
                 finish()
             }
@@ -138,7 +144,8 @@ class AddExpenses : AppCompatActivity() {
                     calTest.set(Calendar.MONTH, sMonth)
                     calTest.set(Calendar.DATE, sDay)
 
-                    calendar.time = calTest.time
+                    expenseDate = LocalDate.parse(dateFormatterLegacy.format(calTest.time),
+                                    dateFormatter)
                     updateDatePickerText()
 
                 }, year, month, day)
@@ -149,14 +156,15 @@ class AddExpenses : AppCompatActivity() {
     private fun updateDatePickerText() {
         val compareCal = Calendar.getInstance()
         compareCal.add(Calendar.DAY_OF_YEAR, -1)
-        if (DateUtils.isToday(calendar.timeInMillis)) {
+
+        if (LocalDate.now().isEqual(expenseDate)) {
             datePickerTextView.setText(getString(R.string.today))
         }
-        else if (compareCal.get(Calendar.YEAR) == calendar.get(Calendar.YEAR) &&
-                    compareCal.get(Calendar.DAY_OF_YEAR) == calendar.get(Calendar.DAY_OF_YEAR)) {
+
+        else if (LocalDate.now().minusDays(1).isEqual(expenseDate)) {
             datePickerTextView.setText(getString(R.string.yesterday))
         } else {
-            datePickerTextView.setText(dateFormatter.format(calendar.time))
+            datePickerTextView.setText(dateFormatter.format(expenseDate))
         }
         datePickerTextView
     }
@@ -178,7 +186,8 @@ class AddExpenses : AppCompatActivity() {
         if (index != null && index != 0) {
             expenseToUpdate = Expense(index, bundle.getString(EXPENSE_DESC)!!,
                                             bundle.getInt(EXPENSE_COST),
-                                            dateFormatter.parse(bundle.getString(EXPENSE_DATE)),
+                                            LocalDate.parse(
+                                                    bundle.getString(EXPENSE_DATE), dateFormatter),
                                             bundle.getString(EXPENSE_CAT)!!)
 
             amountEditText.setText(decimalFormat.format(expenseToUpdate.cost.

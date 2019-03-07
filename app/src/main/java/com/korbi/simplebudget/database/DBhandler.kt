@@ -22,6 +22,8 @@ import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.util.Log
 import com.korbi.simplebudget.logic.Expense
+import org.threeten.bp.LocalDate
+import org.threeten.bp.format.DateTimeFormatter
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
@@ -41,7 +43,7 @@ private const val COL_CATEGORY = "category"
 class DBhandler(context: Context, private val defaultCategories: Array<String>) :
                                     SQLiteOpenHelper(context, DB_NAME, null, DB_VERSION) {
 
-    private val dateFormatter = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+    private val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
 
     companion object {
 
@@ -99,11 +101,10 @@ class DBhandler(context: Context, private val defaultCategories: Array<String>) 
 
         if (cursor.moveToFirst()) {
             do {
-                val date = dateFormatter.parse(cursor.getString(3))
                 val expense = Expense(cursor.getInt(0),
                                     cursor.getString(1),
                                     cursor.getInt(2),
-                                    date,
+                                    LocalDate.parse(cursor.getString(3)),
                                     getCategoryById(cursor.getInt(4)))
 
                 expenses.add(expense)
@@ -113,7 +114,7 @@ class DBhandler(context: Context, private val defaultCategories: Array<String>) 
         return expenses
     }
 
-    fun getExpensesByDate(firstDate: Date, lastDate: Date): MutableList<Expense> {
+    fun getExpensesByDate(firstDate: LocalDate, lastDate: LocalDate): MutableList<Expense> {
         val expenses = mutableListOf<Expense>()
         val db = this.writableDatabase
         val firstDateStr = dateFormatter.format(firstDate)
@@ -126,11 +127,10 @@ class DBhandler(context: Context, private val defaultCategories: Array<String>) 
 
         if (cursor.moveToFirst()) {
             do {
-                val date = dateFormatter.parse(cursor.getString(3))
                 val expense = Expense(cursor.getInt(0),
                         cursor.getString(1),
                         cursor.getInt(2),
-                        date,
+                        LocalDate.parse(cursor.getString(3)),
                         getCategoryById(cursor.getInt(4)))
 
                 expenses.add(expense)
@@ -138,6 +138,36 @@ class DBhandler(context: Context, private val defaultCategories: Array<String>) 
         }
         cursor.close()
         return expenses
+    }
+
+    fun getOldestDate(): LocalDate {
+        val db = this.writableDatabase
+        val query = "SELECT * FROM $EXPENSE_TABLE ORDER BY $COL_DATE ASC LIMIT 1"
+        val cursor = db.rawQuery(query, null)
+
+        val oldestDate = if (cursor.moveToFirst()) {
+            LocalDate.parse(cursor.getString(3))
+        } else {
+            LocalDate.now()
+        }
+        cursor.close()
+
+        return oldestDate
+    }
+
+    fun getNewestDate(): LocalDate {
+        val db = this.writableDatabase
+        val query = "SELECT * FROM $EXPENSE_TABLE ORDER BY $COL_DATE DESC LIMIT 1"
+        val cursor = db.rawQuery(query, null)
+
+        val newestDate = if (cursor.moveToFirst()) {
+            LocalDate.parse(cursor.getString(3))
+        } else {
+            LocalDate.now()
+        }
+        cursor.close()
+
+        return newestDate
     }
 
     fun updateExpense(expense: Expense) {
@@ -192,7 +222,7 @@ class DBhandler(context: Context, private val defaultCategories: Array<String>) 
         return id
     }
 
-    fun getCategoryById(Id: Int): String {
+    private fun getCategoryById(Id: Int): String {
 
         val query = "SELECT * FROM $CATEGORY_TABLE WHERE $COL_ID = $Id"
 
@@ -234,18 +264,6 @@ class DBhandler(context: Context, private val defaultCategories: Array<String>) 
         // but be migrated to another category
     }
 
-    private fun parseDate(dateString: String): Date {
-        val date: Date
-
-        date = try {
-            dateFormatter.parse(dateString)
-        } catch (e: ParseException) {
-            e.printStackTrace()
-            // Error should be easy to spot as the Date is 01.01.1970 according to Unix time
-            Date(0)
-        }
-        return date
-    }
 
     fun getLatestID(): Int {
         val latestID: Int

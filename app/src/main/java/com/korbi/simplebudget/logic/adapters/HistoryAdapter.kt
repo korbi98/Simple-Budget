@@ -138,7 +138,7 @@ class HistoryAdapter(private val historyEntries: MutableList<HistoryEntry>,
 
     fun sort() {
         for (entry in historyEntries) {
-            entry.childList.sortByDescending { it.date.time }
+            entry.childList.sortByDescending { it.date }
         }
     }
 }

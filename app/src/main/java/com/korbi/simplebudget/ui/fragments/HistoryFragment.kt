@@ -30,11 +30,17 @@ import android.widget.SearchView
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bignerdranch.expandablerecyclerview.ExpandableRecyclerAdapter
 import com.korbi.simplebudget.MainActivity
+import com.korbi.simplebudget.logic.DateHelper
 import com.korbi.simplebudget.logic.Expense
 import com.korbi.simplebudget.logic.ExpenseViewHolder
 import com.korbi.simplebudget.logic.HistoryEntry
 import com.korbi.simplebudget.ui.*
-import java.text.SimpleDateFormat
+import org.threeten.bp.LocalDate
+import org.threeten.bp.LocalDateTime
+import org.threeten.bp.format.DateTimeFormatter
+import org.threeten.bp.temporal.TemporalAdjuster
+import org.threeten.bp.temporal.TemporalAdjusters
+
 import java.util.*
 
 
@@ -52,7 +58,7 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
     private lateinit var categorySelection: IntArray //1 if category selected 0 else
     private lateinit var mOptionsMenu: Menu
 
-    private val dateFormatter = SimpleDateFormat("dd.MM.yy", Locale.US)
+    private val dateFormatter = DateTimeFormatter.ofPattern("dd.MM.yy")
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -151,81 +157,17 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
         }
     }
 
-    private fun getWeekDates(week: Array<Int>): Array<Date> {
-        val cal = Calendar.getInstance()
-        cal.set(Calendar.YEAR, week[0]) // first entry of week array is year
-        cal.set(Calendar.WEEK_OF_YEAR, week[1]) // second entry is number of week (1 to 52)
-        cal.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY)
-        val firstDate = cal.time
-
-        cal.set(Calendar.WEEK_OF_YEAR, week[1]+1)
-        cal.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY)
-        val lastDate = cal.time
-
-        return arrayOf(firstDate, lastDate)
-    }
-
-    private fun getWeeks(): MutableList<Array<Int>> {
-        val expenses = db.getAllExpenses()
-        val cal1 = Calendar.getInstance()
-        val cal2 = Calendar.getInstance()
-        val weeks = mutableListOf<Array<Int>>()
-
-        if (!expenses.isEmpty()) {
-
-            val oldestExpense: Expense? = expenses.minBy { it -> it.date }
-            cal1.time = oldestExpense?.date
-            val oldestYear = cal1.get(Calendar.YEAR)
-
-            val latestExpense: Expense? = expenses.maxBy { it -> it.date }
-            cal2.time = latestExpense?.date
-            val latestYear = cal2.get(Calendar.YEAR)
-
-            val oldestWeek = cal1.get(Calendar.WEEK_OF_YEAR)
-            val latestWeek = cal2.get(Calendar.WEEK_OF_YEAR)
-
-            if (latestYear == oldestYear) {
-
-                for (week in latestWeek downTo oldestWeek) {
-                    weeks.add(intArrayOf(oldestYear, week).toTypedArray())
-                }
-
-            } else {
-
-                for (week in 52 downTo oldestWeek) {
-                    weeks.add(intArrayOf(oldestYear, week).toTypedArray())
-                }
-
-                for (year in latestYear downTo oldestYear) {
-
-                    if (year == latestYear) {
-
-                        for (week in latestWeek downTo 1) {
-                            weeks.add(intArrayOf(latestYear, week).toTypedArray())
-                        }
-
-                    } else {
-
-                        for (week in 52 downTo 1) {
-                            weeks.add(intArrayOf(year, week).toTypedArray())
-                        }
-                    }
-                }
-            }
-        }
-        return weeks
-    }
-
     private fun getHistoryEntries(): MutableList<HistoryEntry> {
 
         val historyEntries = mutableListOf<HistoryEntry>()
 
-        for (week in getWeeks()) {
-            val weekDates = getWeekDates(week)
-            val dateString = dateFormatter.format(weekDates[0]) + " - " +
-                                                dateFormatter.format(weekDates[1])
-            var expenses = db.getExpensesByDate(weekDates[0], weekDates[1])
+        for (week in DateHelper.getInstance().getWeeks()) {
+
+            val dateString = dateFormatter.format(week[0]) + " - " + dateFormatter.format(week[1])
+
+            var expenses = db.getExpensesByDate(week[0], week[1])
             expenses = filterExpenses(expenses, typeSelection, dateSelection, categorySelection)
+
             historyEntries.add(HistoryEntry(expenses, dateString))
         }
         return historyEntries
@@ -320,21 +262,20 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
         }
 
         // filter date selection
-        val cal = Calendar.getInstance()
+        val currentDate = LocalDate.now()
 
         //TODO implement specific time range
         val dateFilteredList: List<Expense> = when (dateSelection) {
             0 -> {
-                cal.add(Calendar.DATE,  - 30)
-                typeFilteredList.filter { it.date.after(cal.time) }
+                typeFilteredList.filter { it.date.isAfter(currentDate.minusDays(30)) }
             }
             1 -> {
-                cal.add(Calendar.DATE, -90)
-                typeFilteredList.filter { it.date.after(cal.time) }
+                typeFilteredList.filter { it.date.isAfter(currentDate.minusDays(90)) }
             }
             2 -> {
-                cal.set(Calendar.DAY_OF_YEAR, 1)
-                typeFilteredList.filter { it.date.after(cal.time) }
+                typeFilteredList.filter {
+                    it.date.isAfter(currentDate.with(TemporalAdjusters.firstDayOfYear()))
+                }
             }
             else -> typeFilteredList
         }

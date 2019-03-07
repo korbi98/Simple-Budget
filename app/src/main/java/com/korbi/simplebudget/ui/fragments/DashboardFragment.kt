@@ -22,7 +22,6 @@ import android.view.*
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Spinner
-import androidx.core.view.MenuItemCompat
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentStatePagerAdapter
@@ -30,6 +29,7 @@ import androidx.viewpager.widget.ViewPager
 import com.google.android.material.tabs.TabLayout
 
 import com.korbi.simplebudget.R
+import com.korbi.simplebudget.logic.DateHelper
 import com.korbi.simplebudget.ui.AddExpenses
 import com.korbi.simplebudget.ui.IncomeManager
 import com.korbi.simplebudget.ui.ManageCategories
@@ -37,9 +37,10 @@ import com.korbi.simplebudget.ui.SettingsActivity
 
 class DashboardFragment : androidx.fragment.app.Fragment() {
 
-    lateinit var timeSelectionSpinner:Spinner
-    lateinit var timeSelectionLayout: View
-    lateinit var firstDivider: View
+    private lateinit var timeSelectionSpinner:Spinner
+    private lateinit var actionBarSpinner: Spinner
+    private lateinit var timeSelectionLayout: View
+    private lateinit var firstDivider: View
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -98,18 +99,26 @@ class DashboardFragment : androidx.fragment.app.Fragment() {
         inflater.inflate(R.menu.menu_dashboard, menu)
 
         val spinnerItem = menu.findItem(R.id.menu_dashboard_time_interval)
-        val spinner: Spinner = spinnerItem.actionView as Spinner
-        spinner.adapter = ArrayAdapter.createFromResource(context!!,R.array.dashboard_time_interval,
-                android.R.layout.simple_spinner_dropdown_item)
+        actionBarSpinner = spinnerItem.actionView as Spinner
+        actionBarSpinner.adapter = ArrayAdapter.createFromResource(context!!,
+                R.array.dashboard_time_interval, android.R.layout.simple_spinner_dropdown_item)
 
-        spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+        actionBarSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onNothingSelected(parent: AdapterView<*>?) {}
 
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+            override fun onItemSelected(parent: AdapterView<*>?,
+                                        view: View?, position: Int, id: Long) {
                 setupTimeSelectionSpinner(position)
             }
         }
 
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (this::actionBarSpinner.isInitialized) {
+            setupTimeSelectionSpinner(actionBarSpinner.selectedItemPosition)
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -140,18 +149,19 @@ class DashboardFragment : androidx.fragment.app.Fragment() {
 
         firstDivider.visibility = View.VISIBLE
         timeSelectionLayout.visibility = View.VISIBLE
+        val dh = DateHelper.getInstance()
 
         val optionsArray = when (option) {
-            0 -> resources.getStringArray(R.array.dashboard_time_selection_weekly)
-            2 -> resources.getStringArray(R.array.dashboard_time_selection_quarterly)
-            3 -> resources.getStringArray(R.array.dashboard_time_selection_yearly)
+            0 -> dh.getWeekSpinnerArray()
+            2 -> dh.getQuarterSpinnerArray()
+            3 -> dh.getYearSpinnerArray()
             4 -> {
                 firstDivider.visibility = View.GONE
                 timeSelectionLayout.visibility = View.GONE
-                Array<String>(0){""}
+                Array(0){""}
             }
 
-            else -> resources.getStringArray(R.array.dashboard_time_selection_monthly)
+            else -> dh.getMonthSpinnerArray()
         }
 
         timeSelectionSpinner.adapter = ArrayAdapter<String>(context!!,

@@ -23,6 +23,7 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat
 import com.bignerdranch.expandablerecyclerview.ChildViewHolder
 import com.korbi.simplebudget.R
+import org.threeten.bp.format.DateTimeFormatter
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -37,7 +38,7 @@ class ExpenseViewHolder(expenseListening: View, listener: ExpenseAdapterListener
     private val expenseAmount = expenseListening
                                         .findViewById<TextView>(R.id.expense_listening_amount)
     private val decimalFormat = DecimalFormat("#.00")
-    private val dateFormatter = SimpleDateFormat("dd.MM.yy", Locale.US)
+    private val dateFormatter = DateTimeFormatter.ofPattern("dd.MM.yy")
 
     init {
         expenseListening.setOnLongClickListener(){

@@ -16,16 +16,14 @@
 
 package com.korbi.simplebudget
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.*
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
+import com.jakewharton.threetenabp.AndroidThreeTen
 import com.korbi.simplebudget.database.DBhandler
-import com.korbi.simplebudget.ui.*
-import com.korbi.simplebudget.ui.fragments.DashboardFragment
-import com.korbi.simplebudget.ui.fragments.HistoryFragment
-import com.korbi.simplebudget.ui.fragments.StatisticFragment
+import com.korbi.simplebudget.logic.DateHelper
+import com.korbi.simplebudget.ui.fragments.*
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
@@ -60,6 +58,9 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         DBhandler.createInstance(this, resources.getStringArray(R.array.default_categories))
+        DateHelper.createInstance()
+        AndroidThreeTen.init(this)
+
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
         navigation.selectedItemId = R.id.navigation_dashboard
 
@@ -68,8 +69,6 @@ class MainActivity : AppCompatActivity() {
 
         showFragment(DashboardFragment())
     }
-
-
 
     private fun showFragment(fragment: androidx.fragment.app.Fragment) {
         val transaction = supportFragmentManager.beginTransaction()
