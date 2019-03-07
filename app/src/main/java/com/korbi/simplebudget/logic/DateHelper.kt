@@ -120,8 +120,11 @@ class DateHelper {
         }
         if (weekList.size > 2) {
             weekList.subList(2, weekList.size).forEach {
-                val dateString = dateFormatter.format(it[0]) + " - " + dateFormatter.format(it[1])
-                weekStringArray.add(dateString)
+                if (!db.getExpensesByDate(it[0], it[1]).isEmpty()) {
+                    val dateString = dateFormatter.format(it[0]) + " - " +
+                                        dateFormatter.format(it[1])
+                    weekStringArray.add(dateString)
+                }
             }
         }
         return weekStringArray.toTypedArray()
@@ -134,7 +137,9 @@ class DateHelper {
         Log.d("monthtest", monthList.size.toString())
         if (monthList.size > 1) {
             monthList.subList(1, monthList.size).forEach {
-                monthStringArray.add(it.month.toString() + " " + it.year.toString())
+                if (!db.getExpensesByDate(it.atDay(1), it.atEndOfMonth()).isEmpty()) {
+                    monthStringArray.add(it.month.toString() + " " + it.year.toString())
+                }
             }
         }
         return monthStringArray.toTypedArray()
@@ -172,5 +177,4 @@ class DateHelper {
     fun getYearSpinnerArray(): Array<String> {
         return getYears().map { it.toString() }.toTypedArray()
     }
-
 }
