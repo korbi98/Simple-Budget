@@ -17,17 +17,43 @@
 package com.korbi.simplebudget
 
 import android.app.Application
+import android.content.SharedPreferences
 import android.content.res.Resources
+import androidx.preference.Preference
+import androidx.preference.PreferenceManager
+import java.text.DecimalFormat
 
 class SimpleBudgetApp : Application() {
 
+
+
     companion object {
         lateinit var res: Resources
+        lateinit var pref: SharedPreferences
+        private val decimalFormat = DecimalFormat("#0.00")
+
+        fun createCurrencyString(amount: Int): String {
+            val onLeft = pref.getBoolean(
+                    res.getString(R.string.settings_key_currency_left), false)
+            val noDecimal = pref.getBoolean(
+                    res.getString(R.string.settings_key_currency_decimal), false)
+            val amountString = when (noDecimal) {
+                false -> decimalFormat.format(amount.toFloat()/100).toString()
+                true -> amount.toString()
+            }
+            val currencySymbol = pref.getString(res.getString(R.string.settings_key_currency),
+                                    res.getStringArray(R.array.currencies_symbols)[0])
+            return when (onLeft) {
+                false -> "$amountString $currencySymbol"
+                true -> "$currencySymbol $amountString"
+            }
+        }
     }
 
     override fun onCreate() {
         super.onCreate()
         res = resources
+        pref = PreferenceManager.getDefaultSharedPreferences(this)
     }
 
 }

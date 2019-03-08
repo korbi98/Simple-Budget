@@ -23,6 +23,7 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat
 import com.bignerdranch.expandablerecyclerview.ChildViewHolder
 import com.korbi.simplebudget.R
+import com.korbi.simplebudget.SimpleBudgetApp
 import org.threeten.bp.format.DateTimeFormatter
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
@@ -52,9 +53,7 @@ class ExpenseViewHolder(expenseListening: View, listener: ExpenseAdapterListener
 
     fun bind(expense: Expense) {
         expenseDate.text = dateFormatter.format(expense.date)
-        var amountText = decimalFormat.format(expense.cost.toFloat()/100).toString()
-        amountText = "$amountText €"
-        expenseAmount.text =  amountText
+        expenseAmount.text =  SimpleBudgetApp.createCurrencyString(expense.cost)
 
         if (expense.cost < 0) {
             expenseAmount.setTextColor(ContextCompat.getColor(context, R.color.expenseColor))

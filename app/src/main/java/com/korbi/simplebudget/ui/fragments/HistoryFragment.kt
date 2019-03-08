@@ -359,7 +359,6 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
     }
 
     private fun updateOptionsMenu() {
-        Log.d("test", "test")
         mOptionsMenu.findItem(R.id.menu_history_filter_reset).isVisible = typeSelection != 0 ||
                 dateSelection != 3 ||
                 !categorySelection.contentEquals(IntArray(categorySelection.size){1})

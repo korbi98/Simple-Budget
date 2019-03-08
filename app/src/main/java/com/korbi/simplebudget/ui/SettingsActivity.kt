@@ -20,6 +20,7 @@ import android.annotation.TargetApi
 import android.app.Dialog
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.content.res.Configuration
 import android.media.RingtoneManager
 import android.net.Uri
@@ -72,6 +73,19 @@ class SettingsActivity : AppCompatActivity() {
             val versionNumber = BuildConfig.VERSION_CODE
 
             val currency = findPreference<Preference>(getString(R.string.settings_key_currency))
+            val currencyList = resources.getStringArray(R.array.currencies_with_names)
+            val currencySymbols = resources.getStringArray(R.array.currencies_symbols)
+            val pref = PreferenceManager.getDefaultSharedPreferences(context)
+
+            val symbol = pref.getString(getString(R.string.settings_key_currency),
+                    currencySymbols[0])
+            currency.summary = when {
+                currencySymbols.contains(symbol) -> {
+                    currencyList[currencySymbols.indexOf(symbol)]
+                }
+                else -> symbol
+            }
+
             currency.onPreferenceClickListener = Preference.OnPreferenceClickListener {
                 val currencyDialog = Dialog(context!!)
                 currencyDialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
@@ -118,7 +132,21 @@ class SettingsActivity : AppCompatActivity() {
 
                 true
             }
+
+            pref.registerOnSharedPreferenceChangeListener { _, key ->
+                when (key) {
+                    getString(R.string.settings_key_currency) -> {
+                        val symbol = pref.getString(getString(R.string.settings_key_currency),
+                                currencySymbols[0])
+                        currency.summary = when {
+                            currencySymbols.contains(symbol) -> {
+                                currencyList[currencySymbols.indexOf(symbol)]
+                            }
+                            else -> symbol
+                        }
+                    }
+                }
+            }
         }
     }
-
 }

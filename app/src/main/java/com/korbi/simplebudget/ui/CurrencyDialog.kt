@@ -20,7 +20,9 @@ import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.app.Dialog
 import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
+import android.preference.PreferenceManager
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
@@ -35,6 +37,7 @@ class CurrencyDialog : DialogFragment() {
     private lateinit var currencyEditText: EditText
     private lateinit var leftSideCheckBox: CheckBox
     private lateinit var noDecimalCheckBox: CheckBox
+    private lateinit var pref: SharedPreferences
 
     @SuppressLint("InflateParams")
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -61,8 +64,8 @@ class CurrencyDialog : DialogFragment() {
             noDecimalCheckBox = dialog.findViewById(R.id.settings_currency_decimal)
 
             val currencySymbols = resources.getStringArray(R.array.currencies_symbols)
-            val sharedPref = activity!!.getPreferences(Context.MODE_PRIVATE)
-            val currentCurrency = sharedPref?.getString(getString(R.string.settings_key_currency), currencySymbols[0])
+            pref = PreferenceManager.getDefaultSharedPreferences(context)
+            val currentCurrency = pref.getString(getString(R.string.settings_key_currency), currencySymbols[0])
 
             if (currencySymbols.contains(currentCurrency)) {
                 currencySpinner.setSelection(currencySymbols.indexOf(currentCurrency))
@@ -71,10 +74,8 @@ class CurrencyDialog : DialogFragment() {
                 currencySpinner.setSelection(
                         resources.getStringArray(R.array.currencies_with_names).lastIndex)
             }
-            noDecimalCheckBox.isChecked = sharedPref.
-                    getBoolean(getString(R.string.settings_key_currency_decimal), false)
-            leftSideCheckBox.isChecked = sharedPref.
-                    getBoolean(getString(R.string.settings_key_currency_left), false)
+            noDecimalCheckBox.isChecked = pref.getBoolean(getString(R.string.settings_key_currency_decimal), false)
+            leftSideCheckBox.isChecked = pref.getBoolean(getString(R.string.settings_key_currency_left), false)
 
 
             currencyEditText.addTextChangedListener(object : TextWatcher {
@@ -120,8 +121,7 @@ class CurrencyDialog : DialogFragment() {
             }
         }
 
-        val sharedPref = activity?.getPreferences(Context.MODE_PRIVATE) ?: return
-        with (sharedPref.edit()) {
+        with (pref.edit()) {
             putString(getString(R.string.settings_key_currency), currency)
             putBoolean(getString(R.string.settings_key_currency_left), leftSideCheckBox.isChecked)
             putBoolean(getString(R.string.settings_key_currency_decimal),

@@ -33,6 +33,7 @@ import androidx.viewpager.widget.ViewPager
 import com.google.android.material.tabs.TabLayout
 
 import com.korbi.simplebudget.R
+import com.korbi.simplebudget.SimpleBudgetApp
 import com.korbi.simplebudget.database.DBhandler
 import com.korbi.simplebudget.logic.DateHelper
 import com.korbi.simplebudget.ui.AddExpenses
@@ -238,17 +239,16 @@ class DashboardFragment : androidx.fragment.app.Fragment() {
                 endDate = LocalDate.of(dh.getYears()[selectedInterval], 12, 31)
             }
         }
-        Log.d("startdate", startDate.toString())
-        Log.d("enddate", endDate.toString())
+
         val expenses = db.getExpensesByDate(startDate, endDate)
-        Log.d("enddate", expenses.size.toString())
+
         val totalExpenses = expenses.filter { it.cost < 0 } .sumBy { it.cost }
         val totalIncome = expenses.filter {it.cost > 0} .sumBy { it.cost }
         val balance = totalExpenses + totalIncome
 
-        expensesTextView.text = decimalFormat.format(totalExpenses.toFloat()/100).toString()
-        incomeTextView.text = decimalFormat.format(totalIncome.toFloat()/100).toString()
-        balanceTextView .text = decimalFormat.format(balance.toFloat()/100).toString()
+        expensesTextView.text = SimpleBudgetApp.createCurrencyString(totalExpenses)
+        incomeTextView.text = SimpleBudgetApp.createCurrencyString(totalIncome)
+        balanceTextView .text = SimpleBudgetApp.createCurrencyString(balance)
 
         when  {
             balance < 0 -> balanceTextView.setTextColor(ContextCompat.getColor(context!!,
