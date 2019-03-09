@@ -23,6 +23,7 @@ import android.graphics.drawable.Drawable
 import androidx.preference.Preference
 import androidx.preference.PreferenceManager
 import java.text.DecimalFormat
+import java.text.DecimalFormatSymbols
 
 class SimpleBudgetApp : Application() {
 
@@ -31,7 +32,7 @@ class SimpleBudgetApp : Application() {
     companion object {
         lateinit var res: Resources
         lateinit var pref: SharedPreferences
-        private val decimalFormat = DecimalFormat("#0.00")
+        lateinit var decimalFormat: DecimalFormat
 
         fun createCurrencyString(amount: Int): String {
             val onLeft = pref.getBoolean(
@@ -55,6 +56,7 @@ class SimpleBudgetApp : Application() {
         super.onCreate()
         res = resources
         pref = PreferenceManager.getDefaultSharedPreferences(this)
+        decimalFormat = DecimalFormat(res.getString(R.string.number_format))
     }
 
 }

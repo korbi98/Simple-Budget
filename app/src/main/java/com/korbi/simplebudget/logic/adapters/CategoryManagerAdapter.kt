@@ -18,9 +18,7 @@ package com.korbi.simplebudget.logic.adapters
 
 import android.annotation.SuppressLint
 import android.content.res.TypedArray
-import android.graphics.Color
 import android.view.LayoutInflater
-import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
@@ -47,7 +45,7 @@ class CategoryManagerAdapter(private val categoryList: MutableList<Category>,
         fun onStartDrag(viewHolder: ViewHolder)
     }
 
-    private val iconIdArray: TypedArray = SimpleBudgetApp.res.obtainTypedArray(R.array.expense_icons)
+    private val iconIdArray: TypedArray = SimpleBudgetApp.res.obtainTypedArray(R.array.category_icons)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val categoryView = LayoutInflater.from(parent.context)

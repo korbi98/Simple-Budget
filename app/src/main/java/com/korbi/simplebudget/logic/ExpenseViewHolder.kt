@@ -21,15 +21,11 @@ import android.content.res.TypedArray
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.core.content.ContextCompat
 import com.bignerdranch.expandablerecyclerview.ChildViewHolder
 import com.korbi.simplebudget.R
 import com.korbi.simplebudget.SimpleBudgetApp
 import org.threeten.bp.format.DateTimeFormatter
-import java.text.DecimalFormat
-import java.text.SimpleDateFormat
-import java.util.Locale
 
 class ExpenseViewHolder(expenseListening: View, listener: ExpenseAdapterListener) :
                                     ChildViewHolder<Expense>(expenseListening) {
@@ -44,7 +40,7 @@ class ExpenseViewHolder(expenseListening: View, listener: ExpenseAdapterListener
     private val expenseIcon = expenseListening
                                         .findViewById<ImageView>(R.id.expense_listening_icon)
     private val dateFormatter = DateTimeFormatter.ofPattern("dd.MM.yy")
-    private val iconIdArray: TypedArray = context.resources.obtainTypedArray(R.array.expense_icons)
+    private val iconIdArray: TypedArray = context.resources.obtainTypedArray(R.array.category_icons)
 
     init {
         expenseListening.setOnLongClickListener(){

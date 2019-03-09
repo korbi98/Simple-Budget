@@ -18,6 +18,10 @@ package com.korbi.simplebudget.ui
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.widget.SearchView
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -25,6 +29,7 @@ import com.korbi.simplebudget.R
 import com.korbi.simplebudget.database.DBhandler
 import com.korbi.simplebudget.logic.adapters.CategoryAdapter
 import com.korbi.simplebudget.logic.adapters.CategoryManagerAdapter
+import com.korbi.simplebudget.logic.adapters.HistoryAdapter
 import com.korbi.simplebudget.logic.dragAndDrop.ItemTouchHelperCallback
 
 class ManageCategories : AppCompatActivity(),  CategoryManagerAdapter.OnStartDragListener {
@@ -61,4 +66,24 @@ class ManageCategories : AppCompatActivity(),  CategoryManagerAdapter.OnStartDra
     override fun onStartDrag(viewHolder: CategoryManagerAdapter.ViewHolder) {
         itemTouchHelper.startDrag(viewHolder)
     }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.category_manager_menu, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+
+            R.id.menu_category_manager_add -> {
+                val dialog = AddEditCagegoryDialog()
+                dialog.show(supportFragmentManager, "addEditCategoryDialog")
+                true
+            }
+
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+
 }

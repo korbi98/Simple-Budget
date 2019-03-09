@@ -15,20 +15,6 @@
   ~ limitations under the License.
   -->
 
-<menu xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:android="http://schemas.android.com/apk/res/android">
-
-
-    <item android:id="@+id/menu_dashboard_time_interval"
-        android:title=""
-        app:showAsAction="ifRoom"
-        app:actionViewClass="android.widget.Spinner" />
-    <item android:id="@+id/menu_dashboard_categories"
-        android:title="@string/menu_categories" />
-    <item android:id="@+id/menu_dashboard_regular_income"
-        android:title="@string/menu_regular_income" />
-    <item android:id="@+id/menu_dashboard_settings"
-        android:title="@string/menu_settings" />
-
-
-</menu>
+<resources>
+    <string name="app_name">Simple Budget</string>
+</resources>

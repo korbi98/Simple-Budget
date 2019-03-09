@@ -33,17 +33,18 @@
             android:id="@+id/currencyIndicator"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="$"
+            android:text=""
             android:textSize="@dimen/currency_indicator_textsize"/>
 
         <EditText
             android:id="@+id/currencyInput"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:ems="5"
+            android:ems="6"
             android:textAlignment="viewEnd"
             android:hint="@string/currency_input_hint"
-            android:inputType="numberSigned|numberDecimal"
+            android:inputType="numberDecimal"
+            android:digits="0123456789,.-"
             android:textSize="@dimen/currency_input_textsize"
             android:imeOptions="actionDone">
 

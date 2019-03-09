@@ -17,7 +17,7 @@
 
 <resources>
 
-    <integer-array name="expense_icons">
+    <integer-array name="category_icons">
         <item>@drawable/ic_drag_handle_black_24dp</item>
         <item>@drawable/ic_dashboard_white_24dp</item>
         <item>@drawable/ic_add_white_24dp</item>

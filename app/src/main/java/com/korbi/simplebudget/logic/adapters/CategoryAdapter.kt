@@ -16,13 +16,15 @@
 
 package com.korbi.simplebudget.logic.adapters
 
+import android.animation.ArgbEvaluator
+import android.animation.ValueAnimator
 import android.content.res.TypedArray
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.korbi.simplebudget.R
 import com.korbi.simplebudget.SimpleBudgetApp
@@ -35,7 +37,7 @@ class CategoryAdapter(private val categories: MutableList<Category>) :
                         RecyclerView.Adapter<CategoryAdapter.ViewHolder>() {
 
     private var selectedCategory: Category? = null
-    private val iconIdArray: TypedArray = SimpleBudgetApp.res.obtainTypedArray(R.array.expense_icons)
+    private val iconIdArray: TypedArray = SimpleBudgetApp.res.obtainTypedArray(R.array.category_icons)
 
     init {
         categories.sortBy { it.position }
@@ -54,11 +56,24 @@ class CategoryAdapter(private val categories: MutableList<Category>) :
         parent.categoryNameView.text = categories[position].name
         parent.categoryIconView.setImageResource(iconIdArray.getResourceId(categories[position].icon, -1))
 
-        if (selectedCategory == categories[position]){
+        if (selectedCategory == categories[position]) {
             parent.itemView.setBackgroundResource(R.color.colorPrimaryDark)
+//            val colorStart = ContextCompat.getColor(parent.itemView.context, R.color.gray_background)
+//            val colorEnd = ContextCompat.getColor(parent.itemView.context, R.color.colorPrimaryDark)
+//            val backgroundAnimator = ValueAnimator.ofObject(ArgbEvaluator(), colorStart, colorEnd)
+//            backgroundAnimator.duration = 100
+//            backgroundAnimator.addUpdateListener { valueAnimator ->
+//                parent.itemView.setBackgroundColor(valueAnimator.animatedValue as Int)
+//            }
+//            backgroundAnimator.start()
         } else {
-            parent.itemView.setBackgroundResource(android.R.color.transparent)
+            val attrs = IntArray(1){R.attr.selectableItemBackground}
+            val typedArray = parent.itemView.context.obtainStyledAttributes(attrs)
+            val backgroundResource = typedArray.getResourceId(0, 0)
+            typedArray.recycle()
+            parent.itemView.setBackgroundResource(backgroundResource)
         }
+
     }
 
     override fun getItemCount(): Int {
@@ -72,13 +87,9 @@ class CategoryAdapter(private val categories: MutableList<Category>) :
 
         init {
             categoryView.setOnClickListener {
-                if (selectedCategory == categories[adapterPosition]) {
-                    selectedCategory = null
-                    notifyDataSetChanged()
-                } else {
-                    selectedCategory = categories[adapterPosition]
-                    notifyDataSetChanged()
-                }
+                selectedCategory = categories[adapterPosition]
+
+                notifyDataSetChanged()
             }
         }
     }

@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <!--
   ~ Copyright 2019 Korbinian Moser
   ~
@@ -91,6 +92,12 @@
     <string name="settings_key_currency_left">currency_left</string>
     <string name="settings_key_currency_decimal">currency_decimal</string>
     <string name="no_currency_selected">Please select a currency!</string>
+    <string name="add">Add</string>
+    <string name="category_name">Category name</string>
+    <string name="select_icon">Select icon:</string>
+    <string name="add_edit_category_dialog_titel">Add/Edit Category</string>
+    <string name="number_format">#0.00</string>
+
 
     <string-array name="default_categories">
         <item>Food</item>
@@ -122,5 +129,4 @@
         <item>Yearly</item>
         <item>All time</item>
     </string-array>
-
 </resources>
