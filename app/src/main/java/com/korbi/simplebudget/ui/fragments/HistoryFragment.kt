@@ -246,7 +246,7 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
         intent.putExtra(EXPENSE_DESC, expenseToUpdate.description)
         intent.putExtra(EXPENSE_COST, expenseToUpdate.cost)
         intent.putExtra(EXPENSE_DATE, dateFormatter.format(expenseToUpdate.date))
-        intent.putExtra(EXPENSE_CAT, expenseToUpdate.category)
+        intent.putExtra(EXPENSE_CAT, expenseToUpdate.category.id)
         parentPosition = indices[0]
         startActivityForResult(intent, 1)
     }
@@ -281,7 +281,7 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
         }
 
         val categoryFilteredList = dateFilteredList.filter {
-            categorySelection[db.getAllCategories().indexOf(it.category)] == 1
+            categorySelection[it.category.position] == 1
         }
 
         return categoryFilteredList.toMutableList()

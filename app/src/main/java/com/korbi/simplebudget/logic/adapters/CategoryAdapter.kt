@@ -16,20 +16,30 @@
 
 package com.korbi.simplebudget.logic.adapters
 
+import android.content.res.TypedArray
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
 import com.korbi.simplebudget.R
+import com.korbi.simplebudget.SimpleBudgetApp
+import com.korbi.simplebudget.logic.Category
 import kotlinx.android.synthetic.main.category_listening.view.*
 
 
 
-class CategoryAdapter(private val categories: MutableList<String>) :
-                androidx.recyclerview.widget.RecyclerView.Adapter<CategoryAdapter.ViewHolder>() {
+class CategoryAdapter(private val categories: MutableList<Category>) :
+                        RecyclerView.Adapter<CategoryAdapter.ViewHolder>() {
 
-    private var selectedCategory: String? = null
+    private var selectedCategory: Category? = null
+    private val iconIdArray: TypedArray = SimpleBudgetApp.res.obtainTypedArray(R.array.expense_icons)
+
+    init {
+        categories.sortBy { it.position }
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
 
@@ -41,8 +51,8 @@ class CategoryAdapter(private val categories: MutableList<String>) :
 
     override fun onBindViewHolder(parent: ViewHolder, position: Int) {
 
-        parent.categoryNameView.text = categories[position]
-        parent.categoryIconView.setBackgroundResource(R.drawable.ic_add_white_24dp)
+        parent.categoryNameView.text = categories[position].name
+        parent.categoryIconView.setImageResource(iconIdArray.getResourceId(categories[position].icon, -1))
 
         if (selectedCategory == categories[position]){
             parent.itemView.setBackgroundResource(R.color.colorPrimaryDark)
@@ -55,8 +65,7 @@ class CategoryAdapter(private val categories: MutableList<String>) :
         return categories.size
     }
 
-    inner class ViewHolder(categoryView: View) :
-            androidx.recyclerview.widget.RecyclerView.ViewHolder(categoryView) {
+    inner class ViewHolder(categoryView: View) : RecyclerView.ViewHolder(categoryView) {
 
         val categoryNameView: TextView = categoryView.category_listening_name
         val categoryIconView: ImageView = categoryView.category_listening_icon
@@ -74,12 +83,13 @@ class CategoryAdapter(private val categories: MutableList<String>) :
         }
     }
 
-    fun getSelectedCategory(): String? {
+    fun getSelectedCategory(): Category? {
         return selectedCategory
     }
 
-    fun setSelectedCategory(category: String) {
+    fun setSelectedCategory(category: Category) {
         selectedCategory = category
+
         notifyItemChanged(categories.indexOf(category))
     }
 }

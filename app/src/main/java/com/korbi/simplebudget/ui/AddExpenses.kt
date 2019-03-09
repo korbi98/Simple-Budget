@@ -27,8 +27,11 @@ import android.view.WindowManager
 import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import android.widget.Toast
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.korbi.simplebudget.R
 import com.korbi.simplebudget.database.DBhandler
+import com.korbi.simplebudget.logic.Category
 import com.korbi.simplebudget.logic.adapters.CategoryAdapter
 import com.korbi.simplebudget.logic.Expense
 import java.util.*
@@ -82,7 +85,7 @@ class AddExpenses : AppCompatActivity() {
 
         descriptionEditText = findViewById(R.id.descriptionInput)
         categoryGrid = findViewById(R.id.categoryChooser)
-        categoryGrid.layoutManager = androidx.recyclerview.widget.GridLayoutManager(this, 2)
+        categoryGrid.layoutManager = GridLayoutManager(this, 2)
 
         val actionBarLayout = layoutInflater.inflate(R.layout.custom_toolbar, null as ViewGroup?)
         val actionBar = supportActionBar
@@ -123,13 +126,14 @@ class AddExpenses : AppCompatActivity() {
                 val id = db.getLatestID()
                 val amount = amountEditText.text.toString().toFloat() * -100 // store value in cents negative, because positive numbers are threaded as expenses
                 val expense = Expense(id, descriptionEditText.text.toString(), amount.toInt(),
-                        expenseDate, categoryAdapter.getSelectedCategory()!!)
+                        expenseDate, categoryAdapter.getSelectedCategory() as Category)
                 db.addExpense(expense)
                 finish()
             }
         }
     }
 
+    //TODO replace Calendar with LocalDate
     fun setDate(@Suppress("UNUSED_PARAMETER")view: View) {
         val cal = Calendar.getInstance()
 
@@ -153,6 +157,7 @@ class AddExpenses : AppCompatActivity() {
         datePickerDialog.show()
     }
 
+    //TODO replace Calendar with LocalDate
     private fun updateDatePickerText() {
         val compareCal = Calendar.getInstance()
         compareCal.add(Calendar.DAY_OF_YEAR, -1)
@@ -188,7 +193,7 @@ class AddExpenses : AppCompatActivity() {
                                             bundle.getInt(EXPENSE_COST),
                                             LocalDate.parse(
                                                     bundle.getString(EXPENSE_DATE), dateFormatter),
-                                            bundle.getString(EXPENSE_CAT)!!)
+                                            db.getCategoryById(bundle.getInt(EXPENSE_CAT)))
 
             amountEditText.setText(decimalFormat.format(expenseToUpdate.cost.
                                                                         toFloat()/-100).toString())

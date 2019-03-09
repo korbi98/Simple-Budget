@@ -20,7 +20,12 @@ import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import android.graphics.drawable.Drawable
 import android.util.Log
+import androidx.core.content.ContextCompat
+import com.korbi.simplebudget.R
+import com.korbi.simplebudget.SimpleBudgetApp
+import com.korbi.simplebudget.logic.Category
 import com.korbi.simplebudget.logic.Expense
 import org.threeten.bp.LocalDate
 import org.threeten.bp.format.DateTimeFormatter
@@ -30,7 +35,7 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 private const val DB_NAME = "ExpenseDatabase.db"
-private const val DB_VERSION = 1
+private const val DB_VERSION = 2
 private const val EXPENSE_TABLE = "expenses"
 private const val COL_ID = "_id"
 private const val COL_COST = "cost"
@@ -39,6 +44,8 @@ private const val COL_DATE = "date"
 
 private const val CATEGORY_TABLE = "categories"
 private const val COL_CATEGORY = "category"
+private const val COL_DRAWABLE = "drawable"
+private const val COL_POSITION = "position"
 
 class DBhandler(context: Context, private val defaultCategories: Array<String>) :
                                     SQLiteOpenHelper(context, DB_NAME, null, DB_VERSION) {
@@ -80,7 +87,27 @@ class DBhandler(context: Context, private val defaultCategories: Array<String>) 
         }
     }
 
-    override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {}
+    override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
+        when (newVersion) {
+            2 -> {
+                db.execSQL("ALTER TABLE $CATEGORY_TABLE ADD COLUMN "
+                        + "$COL_DRAWABLE INTEGER NOT NULL DEFAULT 0")
+
+                db.execSQL("ALTER TABLE $CATEGORY_TABLE ADD COLUMN "
+                        + "$COL_POSITION INTEGER NOT NULL DEFAULT 0")
+
+                db.delete(CATEGORY_TABLE, "1", null)
+
+                val values = ContentValues()
+                for ((index, category) in defaultCategories.withIndex()) {
+                    values.put(COL_CATEGORY, category)
+                    values.put(COL_DRAWABLE, index)
+                    values.put(COL_POSITION, index)
+                    db.insert(CATEGORY_TABLE, null, values)
+                }
+            }
+        }
+    }
 
     fun addExpense(expense: Expense) {
         val db: SQLiteDatabase = this.writableDatabase
@@ -92,26 +119,6 @@ class DBhandler(context: Context, private val defaultCategories: Array<String>) 
         values.put(COL_CATEGORY, getCategoryId(expense.category))
 
         db.insert(EXPENSE_TABLE, null, values)
-    }
-
-    fun getAllExpenses(): MutableList<Expense> {
-        val expenses = mutableListOf<Expense>()
-        val db = this.writableDatabase
-        val cursor = db.rawQuery("SELECT * FROM $EXPENSE_TABLE", null)
-
-        if (cursor.moveToFirst()) {
-            do {
-                val expense = Expense(cursor.getInt(0),
-                                    cursor.getString(1),
-                                    cursor.getInt(2),
-                                    LocalDate.parse(cursor.getString(3)),
-                                    getCategoryById(cursor.getInt(4)))
-
-                expenses.add(expense)
-            } while (cursor.moveToNext())
-        }
-        cursor.close()
-        return expenses
     }
 
     fun getExpensesByDate(firstDate: LocalDate, lastDate: LocalDate): MutableList<Expense> {
@@ -193,19 +200,22 @@ class DBhandler(context: Context, private val defaultCategories: Array<String>) 
         Log.d("test", count.toString())
     }
 
-    fun addCategory(category: String) {
+    fun addCategory(category: Category) {
 
         val db = this.writableDatabase
 
         val values = ContentValues()
-        values.put(COL_CATEGORY, category)
+        values.put(COL_CATEGORY, category.name)
+        values.put(COL_DRAWABLE, category.position)
+        values.put(COL_POSITION, category.position)
 
         db.insert(CATEGORY_TABLE, null, values)
     }
 
-    private fun getCategoryId(category: String): Int{
+    private fun getCategoryId(category: Category): Int{
 
-        val query = "SELECT * FROM $CATEGORY_TABLE WHERE $COL_CATEGORY = '$category'"
+        val name = category.name
+        val query = "SELECT * FROM $CATEGORY_TABLE WHERE $COL_CATEGORY = '$name'"
 
         val db: SQLiteDatabase = this.writableDatabase
         val cursor = db.rawQuery(query, null)
@@ -213,16 +223,15 @@ class DBhandler(context: Context, private val defaultCategories: Array<String>) 
         cursor?.moveToFirst()
 
         val id: Int
-        id = if (cursor.count != 0) {
-            cursor.getInt(0)
-        } else {
-            1
+        id = when {
+            cursor.count != 0 -> cursor.getInt(0)
+            else -> 1
         }
         cursor.close()
         return id
     }
 
-    private fun getCategoryById(Id: Int): String {
+    fun getCategoryById(Id: Int): Category {
 
         val query = "SELECT * FROM $CATEGORY_TABLE WHERE $COL_ID = $Id"
 
@@ -230,32 +239,49 @@ class DBhandler(context: Context, private val defaultCategories: Array<String>) 
         val cursor = db.rawQuery(query, null)
 
         cursor?.moveToFirst()
-        val category = cursor.getString(1)
+        val id = cursor.getInt(0)
+        val name = cursor.getString(1)
+        val drawable = cursor.getInt(2)
+        val position = cursor.getInt(3)
         cursor.close()
-        return category
+        return Category(id, name, drawable, position)
     }
 
-    fun getAllCategories(): MutableList<String> {
+    fun getAllCategories(): MutableList<Category> {
         val db = this.writableDatabase
         val cursor = db.rawQuery("SELECT * FROM $CATEGORY_TABLE", null)
-        val categories = mutableListOf<String>()
+        val categories = mutableListOf<Category>()
 
         if (cursor.moveToFirst()) {
             do {
-                categories.add(cursor.getString(1))
+                val id = cursor.getInt(0)
+                val name = cursor.getString(1)
+                val drawable = cursor.getInt(2)
+                val position = cursor.getInt(3)
+                categories.add(Category(id, name, drawable, position))
             } while (cursor.moveToNext())
         }
         cursor.close()
         return categories
     }
 
-    fun updateCategory(category: String, newName: String): Int {
+    fun updatePosition(category: Category, newPos: Int) {
+        val db = this.writableDatabase
+        val values = ContentValues()
+        values.put(COL_POSITION, newPos)
+        db.update(CATEGORY_TABLE, values, "$COL_ID = ?", arrayOf(category.id.toString()))
+    }
+
+    fun updateCategory(category: Category, changedCategory: Category): Int {
 
         val db = this.writableDatabase
         val values = ContentValues()
-        values.put(COL_CATEGORY, newName)
+        values.put(COL_CATEGORY, changedCategory.name)
+        values.put(COL_DRAWABLE, changedCategory.icon)
+        values.put(COL_POSITION, changedCategory.position)
 
-        return db.update(CATEGORY_TABLE, values, "$COL_CATEGORY = ?", arrayOf(category))
+        return db.update(CATEGORY_TABLE, values, "$COL_ID = ?",
+                arrayOf(category.id.toString()))
     }
 
     private fun deleteCategory(category: String) {
@@ -270,6 +296,18 @@ class DBhandler(context: Context, private val defaultCategories: Array<String>) 
         val db = this.writableDatabase
 
         val cursor = db.rawQuery("SELECT max($COL_ID) FROM $EXPENSE_TABLE", null)
+        cursor.moveToFirst()
+        latestID = cursor.getInt(0)
+
+        cursor.close()
+        return latestID
+    }
+
+    fun getLatestCategoryID(): Int {
+        val latestID: Int
+        val db = this.writableDatabase
+
+        val cursor = db.rawQuery("SELECT max($COL_ID) FROM $CATEGORY_TABLE", null)
         cursor.moveToFirst()
         latestID = cursor.getInt(0)
 

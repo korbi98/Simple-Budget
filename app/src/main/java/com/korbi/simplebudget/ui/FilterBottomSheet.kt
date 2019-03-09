@@ -90,9 +90,12 @@ class FilterBottomSheet :  BottomSheetDialogFragment() {
     private fun setupCategoryList(){
         val db = DBhandler.getInstance()
         val categories = db.getAllCategories()
-        categories.add(0, getString(R.string.all_categories))
+        categories.sortBy { it.position }
+        val categoryNames = categories.map { it.name } .toMutableList()
+        categoryNames.add(0, getString(R.string.all_categories))
 
-        val adapter = ArrayAdapter(context!!, android.R.layout.simple_list_item_multiple_choice, categories)
+        val adapter = ArrayAdapter(context!!, android.R.layout.simple_list_item_multiple_choice,
+                categoryNames)
         categoryList.adapter = adapter
 
         if (adapter.count > 5) {
@@ -108,7 +111,7 @@ class FilterBottomSheet :  BottomSheetDialogFragment() {
                 categoryList.setItemChecked(0, false)
             }
             if (position == 0) {
-                for (i in 1..categories.size) {
+                for (i in 1..categoryNames.size) {
                     categoryList.setItemChecked(i, false)
                 }
             }

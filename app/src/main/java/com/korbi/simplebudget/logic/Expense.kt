@@ -25,7 +25,7 @@ data class Expense(var id: Int,
                    var description: String,
                    var cost: Int,
                    var date: LocalDate,
-                   var category: String) {
+                   var category: Category) {
 
 
     override fun equals(other: Any?): Boolean {

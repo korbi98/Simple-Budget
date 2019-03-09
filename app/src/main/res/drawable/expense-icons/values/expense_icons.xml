@@ -15,15 +15,17 @@
   ~ limitations under the License.
   -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".ui.ManageCategories">
+<resources>
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/category_recycler"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+    <integer-array name="expense_icons">
+        <item>@drawable/ic_drag_handle_black_24dp</item>
+        <item>@drawable/ic_dashboard_white_24dp</item>
+        <item>@drawable/ic_add_white_24dp</item>
+        <item>@drawable/ic_filter_list_white_24dp</item>
+        <item>@drawable/ic_search_white_24dp</item>
+        <item>@drawable/ic_clear_white_24px</item>
+        <item>@drawable/ic_arrow_right_white_24dp</item>
+        <item>@drawable/ic_statistic_white_24dp</item>
+    </integer-array>
 
-</LinearLayout>
+</resources>

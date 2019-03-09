@@ -19,6 +19,7 @@ package com.korbi.simplebudget
 import android.app.Application
 import android.content.SharedPreferences
 import android.content.res.Resources
+import android.graphics.drawable.Drawable
 import androidx.preference.Preference
 import androidx.preference.PreferenceManager
 import java.text.DecimalFormat

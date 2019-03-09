@@ -18,14 +18,37 @@ package com.korbi.simplebudget.ui
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.korbi.simplebudget.R
+import com.korbi.simplebudget.database.DBhandler
+import com.korbi.simplebudget.logic.adapters.CategoryAdapter
+import com.korbi.simplebudget.logic.adapters.CategoryManagerAdapter
+import com.korbi.simplebudget.logic.dragAndDrop.ItemTouchHelperCallback
 
-class ManageCategories : AppCompatActivity() {
+class ManageCategories : AppCompatActivity(),  CategoryManagerAdapter.OnStartDragListener {
+
+    private lateinit var categoryRecycler: RecyclerView
+    private lateinit var categoryAdapter: CategoryManagerAdapter
+    private lateinit var itemTouchHelper: ItemTouchHelper
+    private val db = DBhandler.getInstance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_manage_categories)
         setTitle(R.string.manage_categories_titel)
+
+        categoryRecycler = findViewById(R.id.category_recycler)
+        categoryRecycler.setHasFixedSize(true)
+        categoryRecycler.layoutManager = LinearLayoutManager(applicationContext,
+                RecyclerView.VERTICAL, false)
+        categoryAdapter = CategoryManagerAdapter(db.getAllCategories(), this)
+        categoryRecycler.adapter = categoryAdapter
+
+        val callback = ItemTouchHelperCallback(categoryAdapter)
+        itemTouchHelper = ItemTouchHelper(callback)
+        itemTouchHelper.attachToRecyclerView(categoryRecycler)
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
     }
@@ -33,5 +56,9 @@ class ManageCategories : AppCompatActivity() {
     override fun onSupportNavigateUp(): Boolean {
         onBackPressed()
         return true
+    }
+
+    override fun onStartDrag(viewHolder: CategoryManagerAdapter.ViewHolder) {
+        itemTouchHelper.startDrag(viewHolder)
     }
 }

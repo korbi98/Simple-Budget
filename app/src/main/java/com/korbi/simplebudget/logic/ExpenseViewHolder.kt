@@ -17,7 +17,9 @@
 package com.korbi.simplebudget.logic
 
 import android.content.Context
+import android.content.res.TypedArray
 import android.view.View
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
@@ -35,11 +37,14 @@ class ExpenseViewHolder(expenseListening: View, listener: ExpenseAdapterListener
     val context:Context = expenseListening.context
     private val expenseDescription = expenseListening
                                         .findViewById<TextView>(R.id.expense_listening_description)
-    private val expenseDate = expenseListening.findViewById<TextView>(R.id.expense_listening_date)
+    private val expenseDate = expenseListening
+                                        .findViewById<TextView>(R.id.expense_listening_date)
     private val expenseAmount = expenseListening
                                         .findViewById<TextView>(R.id.expense_listening_amount)
-    private val decimalFormat = DecimalFormat("#0.00")
+    private val expenseIcon = expenseListening
+                                        .findViewById<ImageView>(R.id.expense_listening_icon)
     private val dateFormatter = DateTimeFormatter.ofPattern("dd.MM.yy")
+    private val iconIdArray: TypedArray = context.resources.obtainTypedArray(R.array.expense_icons)
 
     init {
         expenseListening.setOnLongClickListener(){
@@ -54,6 +59,7 @@ class ExpenseViewHolder(expenseListening: View, listener: ExpenseAdapterListener
     fun bind(expense: Expense) {
         expenseDate.text = dateFormatter.format(expense.date)
         expenseAmount.text =  SimpleBudgetApp.createCurrencyString(expense.cost)
+        expenseIcon.setImageResource(iconIdArray.getResourceId(expense.category.icon, -1))
 
         if (expense.cost < 0) {
             expenseAmount.setTextColor(ContextCompat.getColor(context, R.color.expenseColor))
@@ -62,12 +68,13 @@ class ExpenseViewHolder(expenseListening: View, listener: ExpenseAdapterListener
         }
 
         if (expense.description.isEmpty()){
-            expenseDescription.text = expense.category
+            expenseDescription.text = expense.category.name
         } else {
             expenseDescription.text = expense.description
         }
-    }
 
+
+    }
 
 
     interface ExpenseAdapterListener {
