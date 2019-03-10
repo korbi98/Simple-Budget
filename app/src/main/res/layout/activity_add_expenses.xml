@@ -54,10 +54,17 @@
 
     </LinearLayout>
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/choose_categories"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="16dp"/>
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/categoryChooser"
         android:layout_width="match_parent"
-        android:layout_height="100dp"
+        android:layout_height="144dp"
         android:layout_marginTop="10dp"
         android:layout_marginBottom="10dp"
         android:layout_marginRight="20dp"

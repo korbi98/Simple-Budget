@@ -101,6 +101,7 @@
     <string name="none">None</string>
     <string name="migrate_to_category">Migrate to category:</string>
     <string name="delete_category">Delete category?</string>
+    <string name="choose_categories">Choose category:</string>
 
 
     <string-array name="default_categories">
