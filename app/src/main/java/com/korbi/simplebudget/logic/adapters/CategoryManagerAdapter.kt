@@ -18,11 +18,11 @@ package com.korbi.simplebudget.logic.adapters
 
 import android.annotation.SuppressLint
 import android.content.res.TypedArray
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.util.Log
+import android.view.*
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.korbi.simplebudget.R
 import com.korbi.simplebudget.SimpleBudgetApp
@@ -30,13 +30,21 @@ import com.korbi.simplebudget.database.DBhandler
 import com.korbi.simplebudget.logic.Category
 import com.korbi.simplebudget.logic.dragAndDrop.ItemTouchHelperAdapter
 import com.korbi.simplebudget.logic.dragAndDrop.ItemTouchHelperViewHolder
+import com.korbi.simplebudget.ui.AddEditCagegoryDialog
 import kotlinx.android.synthetic.main.category_manager_listening.view.*
 import java.util.*
 
 class CategoryManagerAdapter(private val categoryList: MutableList<Category>,
-                             val startDragListener: OnStartDragListener) :
+                             val startDragListener: OnStartDragListener,
+                             val editListener: OnEditListener) :
                             RecyclerView.Adapter<CategoryManagerAdapter.ViewHolder>(),
                             ItemTouchHelperAdapter {
+
+    interface OnEditListener {
+        fun onEdit(category: Category)
+        fun onDelete(category: Category)
+    }
+
     init {
         categoryList.sortBy { it.position }
     }
@@ -55,7 +63,10 @@ class CategoryManagerAdapter(private val categoryList: MutableList<Category>,
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.categoryNameView.text = categoryList[position].name
+        Log.d("icon", categoryList[position].name)
+        Log.d("icon", categoryList[position].icon.toString())
         val iconId = iconIdArray.getResourceId(categoryList[position].icon, -1)
+
         holder.categoryIconView.setImageResource(iconId)
     }
 
@@ -81,11 +92,28 @@ class CategoryManagerAdapter(private val categoryList: MutableList<Category>,
         private val dragHandle: ImageView = categoryView.category_manager_listening_drag_handle
 
         init {
-            categoryView.setOnClickListener {  }
-
             dragHandle.setOnTouchListener { _, _ ->
                 startDragListener.onStartDrag(this@ViewHolder)
                 true
+            }
+
+            itemView.setOnCreateContextMenuListener { menu, _, _ ->
+                val edit = menu.add(Menu.NONE, 1, 1, itemView.context.getString(R.string.edit))
+                val delete = menu.add(Menu.NONE, 2, 2, itemView.context.getString(R.string.delete))
+                edit.setOnMenuItemClickListener {
+
+                    editListener.onEdit(categoryList[adapterPosition])
+
+                    true
+                }
+                delete.setOnMenuItemClickListener {
+                    for ((pos, cat) in categoryList.withIndex()) {
+                        DBhandler.getInstance().updatePosition(cat, pos)
+                    }
+                    val categoryToDelete = categoryList[adapterPosition]
+                    editListener.onDelete(categoryToDelete)
+                    true
+                }
             }
         }
 

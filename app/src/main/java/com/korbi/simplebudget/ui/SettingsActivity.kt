@@ -32,7 +32,9 @@ import android.preference.RingtonePreference
 import android.text.TextUtils
 import android.view.MenuItem
 import android.view.Window
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.DialogFragment
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import com.korbi.simplebudget.BuildConfig
@@ -63,7 +65,12 @@ class SettingsActivity : AppCompatActivity() {
         actionBar?.setDisplayHomeAsUpEnabled(true)
     }
 
-    class MainPreferenceFragment : PreferenceFragmentCompat() {
+    class MainPreferenceFragment : PreferenceFragmentCompat(), CurrencyDialog.OnDismissListener {
+
+        private lateinit var currency: Preference
+        private lateinit var currencyList: Array<String>
+        private lateinit var currencySymbols: Array<String>
+        private lateinit var pref: SharedPreferences
 
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootkey: String?) {
 
@@ -72,13 +79,12 @@ class SettingsActivity : AppCompatActivity() {
             val packageName = BuildConfig.APPLICATION_ID
             val versionNumber = BuildConfig.VERSION_CODE
 
-            val currency = findPreference<Preference>(getString(R.string.settings_key_currency))
-            val currencyList = resources.getStringArray(R.array.currencies_with_names)
-            val currencySymbols = resources.getStringArray(R.array.currencies_symbols)
-            val pref = PreferenceManager.getDefaultSharedPreferences(context)
+            currency = findPreference<Preference>(getString(R.string.settings_key_currency))
+            currencyList = resources.getStringArray(R.array.currencies_with_names)
+            currencySymbols = resources.getStringArray(R.array.currencies_symbols)
+            pref = PreferenceManager.getDefaultSharedPreferences(context)
 
-            val symbol = pref.getString(getString(R.string.settings_key_currency),
-                    currencySymbols[0])
+            val symbol = pref.getString(getString(R.string.settings_key_currency), currencySymbols[0])
             currency.summary = when {
                 currencySymbols.contains(symbol) -> {
                     currencyList[currencySymbols.indexOf(symbol)]
@@ -87,9 +93,9 @@ class SettingsActivity : AppCompatActivity() {
             }
 
             currency.onPreferenceClickListener = Preference.OnPreferenceClickListener {
-                val currencyDialog = Dialog(context!!)
-                currencyDialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-                    CurrencyDialog().show(fragmentManager!!, "currency_dialog")
+                val dialog = CurrencyDialog()
+                dialog.setTargetFragment(this, 0)
+                dialog.show(fragmentManager!!, "currency_dialog")
                 true
             }
 
@@ -132,20 +138,16 @@ class SettingsActivity : AppCompatActivity() {
 
                 true
             }
+        }
 
-            pref.registerOnSharedPreferenceChangeListener { _, key ->
-                when (key) {
-                    getString(R.string.settings_key_currency) -> {
-                        val symbol = pref.getString(getString(R.string.settings_key_currency),
+        override fun onDialogDismiss() {
+            val symbol = pref.getString(getString(R.string.settings_key_currency),
                                 currencySymbols[0])
-                        currency.summary = when {
-                            currencySymbols.contains(symbol) -> {
-                                currencyList[currencySymbols.indexOf(symbol)]
-                            }
-                            else -> symbol
-                        }
-                    }
+            currency.summary = when {
+                currencySymbols.contains(symbol) -> {
+                    currencyList[currencySymbols.indexOf(symbol)]
                 }
+                else -> symbol
             }
         }
     }

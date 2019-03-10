@@ -24,6 +24,8 @@ import android.app.Dialog
 import android.content.Context
 import android.content.res.TypedArray
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -33,16 +35,34 @@ import com.korbi.simplebudget.R
 import java.lang.IllegalStateException
 import android.widget.GridView
 import androidx.core.content.ContextCompat
+import com.korbi.simplebudget.database.DBhandler
+import com.korbi.simplebudget.logic.Category
+import java.lang.ClassCastException
 
+const val CAT_INDEX = "id"
 
 class AddEditCagegoryDialog : DialogFragment() {
 
     private lateinit var categoryNameView: EditText
     private lateinit var iconGridView: GridView
     private lateinit var adapter: IconAdapter
+    private val db = DBhandler.getInstance()
+    private lateinit var listener: OnSaveListener
+    private var prefillCategory: Category? = null
+
+    interface OnSaveListener {
+        fun onSave(category: Category, oldCategory: Category?)
+    }
 
     @SuppressLint("InflateParams")
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+
+        try {
+            listener = activity as OnSaveListener
+        } catch (e: ClassCastException) {
+            throw ClassCastException("$activity must implement OnSaveListener")
+        }
+
         return activity?.let {
             val builder = AlertDialog.Builder(it)
 
@@ -54,38 +74,68 @@ class AddEditCagegoryDialog : DialogFragment() {
                         dialog.cancel()
                     }
                     .setPositiveButton(R.string.ok) { dialog, _ ->
-                        Toast.makeText(context, adapter.getSelected().toString(), Toast.LENGTH_LONG).show()
+                        save()
                         dialog.dismiss()
                     }
 
             val dialog = builder.create()
             dialog.create()
 
+            dialog.getButton(Dialog.BUTTON_POSITIVE).isEnabled = false
 
             categoryNameView = dialog.findViewById(R.id.add_edit_category_edit_text)
+            categoryNameView.addTextChangedListener(object : TextWatcher {
+                override fun afterTextChanged(s: Editable?) {
+                    if (s != null) {
+                        dialog.getButton(Dialog.BUTTON_POSITIVE).isEnabled = !s.isEmpty()
+                                                                && adapter.getSelected() != null
+                    }
+                }
+
+                override fun beforeTextChanged(s: CharSequence?,
+                                               start: Int, count: Int, after: Int) {}
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            })
+
             iconGridView = dialog.findViewById(R.id.add_edit_category_icon_grid)
             iconGridView.adapter = adapter
 
-            iconGridView.setOnItemClickListener { parent, view, position, id ->
+            iconGridView.setOnItemClickListener { _, _, position, _ ->
                 (iconGridView.adapter as IconAdapter).setSelected(position)
-                val colorStart = ContextCompat.getColor(context!!, R.color.gray_background)
-                val colorEnd = ContextCompat.getColor(context!!, R.color.colorPrimaryDark)
-                val backgroundAnimator = ValueAnimator.ofObject(ArgbEvaluator(), colorStart, colorEnd)
-                backgroundAnimator.duration = 400
-                backgroundAnimator.addUpdateListener { valueAnimator ->
-                    view.setBackgroundColor(valueAnimator.animatedValue as Int)
+                if (!categoryNameView.text.isEmpty()) {
+                    dialog.getButton(Dialog.BUTTON_POSITIVE).isEnabled = true
                 }
-                backgroundAnimator.start()
             }
+
+            prefill()
 
             dialog
         } ?: throw IllegalStateException("Activity cannot be null")
+    }
+    
+    private fun save() {
+        val categoryName = categoryNameView.text.toString()
+        val categoryIcon = adapter.getSelected()
+        if (categoryIcon != null) {
+            val newCategory = Category(db.getLatestCategoryID() + 1, categoryName, categoryIcon,
+                    db.getAllCategories().size)
+            listener.onSave(newCategory, prefillCategory)
+        }
+
+    }
+
+    private fun prefill() {
+        if (arguments?.getInt(CAT_INDEX) != null) {
+            prefillCategory = db.getCategoryById(arguments!!.getInt(CAT_INDEX))
+            adapter.setSelected(prefillCategory!!.icon)
+            categoryNameView.setText(prefillCategory!!.name)
+        }
     }
 
     inner class IconAdapter(context: Context) : BaseAdapter() {
 
         private val iconIDs: TypedArray = context.resources.obtainTypedArray(R.array.category_icons)
-        private var selectedItem:Int = 1
+        private var selectedItem:Int? = null
 
         fun setSelected(position: Int) {
             selectedItem = position
@@ -128,6 +178,15 @@ class AddEditCagegoryDialog : DialogFragment() {
                 val backgroundResource = typedArray.getResourceId(0, 0)
                 typedArray.recycle()
                 view.setBackgroundResource(backgroundResource)
+            } else {
+                val colorStart = ContextCompat.getColor(context!!, R.color.gray_background)
+                val colorEnd = ContextCompat.getColor(context!!, R.color.colorPrimaryDark)
+                val backgroundAnimator = ValueAnimator.ofObject(ArgbEvaluator(), colorStart, colorEnd)
+                backgroundAnimator.duration = 400
+                backgroundAnimator.addUpdateListener { valueAnimator ->
+                    view.setBackgroundColor(valueAnimator.animatedValue as Int)
+                }
+                backgroundAnimator.start()
             }
 
             return view

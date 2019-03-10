@@ -97,6 +97,10 @@
     <string name="select_icon">Select icon:</string>
     <string name="add_edit_category_dialog_titel">Add/Edit Category</string>
     <string name="number_format">#0.00</string>
+    <string name="migrate_expenses_message">Choose a category to migrate existing expenses to. If you choose none, all expenses in the category will be deleted!</string>
+    <string name="none">None</string>
+    <string name="migrate_to_category">Migrate to category:</string>
+    <string name="delete_category">Delete category?</string>
 
 
     <string-array name="default_categories">

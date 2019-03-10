@@ -18,42 +18,49 @@ package com.korbi.simplebudget.ui
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
-import android.widget.SearchView
+import android.util.Log
+import android.view.*
+import android.widget.*
+import androidx.appcompat.app.AlertDialog
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.korbi.simplebudget.R
 import com.korbi.simplebudget.database.DBhandler
+import com.korbi.simplebudget.logic.Category
 import com.korbi.simplebudget.logic.adapters.CategoryAdapter
 import com.korbi.simplebudget.logic.adapters.CategoryManagerAdapter
 import com.korbi.simplebudget.logic.adapters.HistoryAdapter
 import com.korbi.simplebudget.logic.dragAndDrop.ItemTouchHelperCallback
 
-class ManageCategories : AppCompatActivity(),  CategoryManagerAdapter.OnStartDragListener {
+class ManageCategories : AppCompatActivity(), AddEditCagegoryDialog.OnSaveListener,
+                                                CategoryManagerAdapter.OnEditListener,
+                                                CategoryManagerAdapter.OnStartDragListener {
 
     private lateinit var categoryRecycler: RecyclerView
     private lateinit var categoryAdapter: CategoryManagerAdapter
     private lateinit var itemTouchHelper: ItemTouchHelper
     private val db = DBhandler.getInstance()
+    private lateinit var categoryList: MutableList<Category>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_manage_categories)
         setTitle(R.string.manage_categories_titel)
 
+        categoryList = db.getAllCategories()
         categoryRecycler = findViewById(R.id.category_recycler)
         categoryRecycler.setHasFixedSize(true)
         categoryRecycler.layoutManager = LinearLayoutManager(applicationContext,
                 RecyclerView.VERTICAL, false)
-        categoryAdapter = CategoryManagerAdapter(db.getAllCategories(), this)
+        categoryAdapter = CategoryManagerAdapter(categoryList, this, this)
         categoryRecycler.adapter = categoryAdapter
 
         val callback = ItemTouchHelperCallback(categoryAdapter)
         itemTouchHelper = ItemTouchHelper(callback)
         itemTouchHelper.attachToRecyclerView(categoryRecycler)
+        registerForContextMenu(categoryRecycler)
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
     }
@@ -61,10 +68,6 @@ class ManageCategories : AppCompatActivity(),  CategoryManagerAdapter.OnStartDra
     override fun onSupportNavigateUp(): Boolean {
         onBackPressed()
         return true
-    }
-
-    override fun onStartDrag(viewHolder: CategoryManagerAdapter.ViewHolder) {
-        itemTouchHelper.startDrag(viewHolder)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -80,10 +83,81 @@ class ManageCategories : AppCompatActivity(),  CategoryManagerAdapter.OnStartDra
                 dialog.show(supportFragmentManager, "addEditCategoryDialog")
                 true
             }
-
             else -> super.onOptionsItemSelected(item)
         }
     }
 
+    override fun onSave(category: Category, oldCategory: Category?) {
+        if (oldCategory != null) {
+            db.updateCategory(category, oldCategory)
+            categoryList[categoryList.indexOf(oldCategory)] = category
+            categoryAdapter.notifyItemChanged(categoryList.indexOf(category))
+        } else {
+            db.addCategory(category)
+            categoryList.add(category)
+            categoryAdapter.notifyItemInserted(category.position)
+        }
+    }
 
+    override fun onEdit(category: Category) {
+        val dialog = AddEditCagegoryDialog()
+        val args = Bundle()
+        args.putInt(CAT_INDEX, category.id)
+        dialog.arguments = args
+        dialog.show(supportFragmentManager, "addEditCategoryDialog")
+    }
+
+    override fun onDelete(category: Category) {
+        val builder = AlertDialog.Builder(this)
+        var categorySpinner: Spinner? = null
+        val newCatList = categoryList
+        newCatList.remove(category)
+        builder.setTitle(getString(R.string.delete_category))
+        builder.setMessage(getString(R.string.migrate_expenses_message))
+        builder.setPositiveButton(getString(R.string.ok)) { dialog, _ ->
+            if (categorySpinner != null) {
+                deleteCategory(category, categorySpinner!!.selectedItemPosition)
+            }
+            dialog.dismiss()
+        }
+
+        builder.setNegativeButton(getString(R.string.cancel)) { dialog, _ ->
+            dialog.cancel()
+        }
+
+        builder.setView(R.layout.category_manager_migrate_category)
+        val dialog = builder.create()
+        dialog.create()
+
+        categorySpinner = dialog.findViewById<Spinner>(R.id.category_manager_migration_spinner)
+        val categoryNameList = newCatList.map { it.name }.toMutableList()
+        categoryNameList.add(0, getString(R.string.none))
+        categorySpinner?.adapter = ArrayAdapter<String>(this,
+                            android.R.layout.simple_spinner_dropdown_item, categoryNameList)
+
+        dialog.show()
+    }
+
+    override fun onStartDrag(viewHolder: CategoryManagerAdapter.ViewHolder) {
+        itemTouchHelper.startDrag(viewHolder)
+    }
+
+    private fun deleteCategory(category: Category, migrationIndex: Int) {
+
+        val newCatList = categoryList
+        newCatList.remove(category)
+        if (migrationIndex != 0) {
+            val newCategory = newCatList[migrationIndex - 1]
+
+            db.migrateExpenses(category, newCategory)
+        } else {
+            db.deleteExpenesByCategory(category)
+        }
+        db.deleteCategory(category)
+        categoryList.remove(category)
+        categoryAdapter.notifyItemRemoved(category.position)
+        for ((pos, cat) in categoryList.withIndex()) {
+            db.updatePosition(cat, pos)
+        }
+    }
 }

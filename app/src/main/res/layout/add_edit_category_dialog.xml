@@ -19,7 +19,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="10dp">
+    android:padding="16dp">
 
     <EditText
         android:id="@+id/add_edit_category_edit_text"
@@ -32,7 +32,9 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/select_icon" />
+        android:text="@string/select_icon"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"/>
 
     <GridView
         android:id="@+id/add_edit_category_icon_grid"

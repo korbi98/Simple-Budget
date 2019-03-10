@@ -110,7 +110,7 @@ class DBhandler(context: Context, private val defaultCategories: Array<String>) 
     }
 
     fun addExpense(expense: Expense) {
-        val db: SQLiteDatabase = this.writableDatabase
+        val db = this.writableDatabase
 
         val values = ContentValues()
         values.put(COL_DESCRIPTION, expense.description)
@@ -178,7 +178,7 @@ class DBhandler(context: Context, private val defaultCategories: Array<String>) 
     }
 
     fun updateExpense(expense: Expense) {
-        val db: SQLiteDatabase = this.writableDatabase
+        val db = this.writableDatabase
 
         val values = ContentValues()
         values.put(COL_DESCRIPTION, expense.description)
@@ -195,9 +195,21 @@ class DBhandler(context: Context, private val defaultCategories: Array<String>) 
         for (i in indices.indices - 1) {
             query.append(",?")
         }
-        val count = db.delete(EXPENSE_TABLE, query.append(")").toString(),
+        db.delete(EXPENSE_TABLE, query.append(")").toString(),
                                         indices.toArray<String>(arrayOfNulls(indices.size)))
-        Log.d("test", count.toString())
+    }
+
+    fun deleteExpenesByCategory(category: Category) {
+        val db = this.writableDatabase
+        db.delete(EXPENSE_TABLE, "$COL_CATEGORY = ?", arrayOf(category.id.toString()))
+    }
+
+    fun migrateExpenses(oldCategory: Category, newCategory: Category) {
+        val db = this.writableDatabase
+        val values = ContentValues()
+        values.put(COL_CATEGORY, newCategory.id)
+        db.update(EXPENSE_TABLE, values, "$COL_CATEGORY = ?",
+                arrayOf(oldCategory.id.toString()))
     }
 
     fun addCategory(category: Category) {
@@ -206,7 +218,7 @@ class DBhandler(context: Context, private val defaultCategories: Array<String>) 
 
         val values = ContentValues()
         values.put(COL_CATEGORY, category.name)
-        values.put(COL_DRAWABLE, category.position)
+        values.put(COL_DRAWABLE, category.icon)
         values.put(COL_POSITION, category.position)
 
         db.insert(CATEGORY_TABLE, null, values)
@@ -217,7 +229,7 @@ class DBhandler(context: Context, private val defaultCategories: Array<String>) 
         val name = category.name
         val query = "SELECT * FROM $CATEGORY_TABLE WHERE $COL_CATEGORY = '$name'"
 
-        val db: SQLiteDatabase = this.writableDatabase
+        val db = this.writableDatabase
         val cursor = db.rawQuery(query, null)
 
         cursor?.moveToFirst()
@@ -284,10 +296,10 @@ class DBhandler(context: Context, private val defaultCategories: Array<String>) 
                 arrayOf(category.id.toString()))
     }
 
-    private fun deleteCategory(category: String) {
-        //TODO implement logic.
-        // If a category gets deleted the expenses that belong to he category should'nt be deleted,
-        // but be migrated to another category
+    fun deleteCategory(category: Category): Int {
+        val db = this.writableDatabase
+        val query = "$COL_ID = ${category.id}"
+        return db.delete(CATEGORY_TABLE, query, null)
     }
 
 

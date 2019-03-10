@@ -29,18 +29,34 @@ import android.view.View
 import android.widget.*
 import androidx.fragment.app.DialogFragment
 import com.korbi.simplebudget.R
+import java.lang.ClassCastException
 import java.lang.IllegalStateException
 
 class CurrencyDialog : DialogFragment() {
 
+    private lateinit var listener: OnDismissListener
     private lateinit var currencySpinner: Spinner
     private lateinit var currencyEditText: EditText
     private lateinit var leftSideCheckBox: CheckBox
     private lateinit var noDecimalCheckBox: CheckBox
     private lateinit var pref: SharedPreferences
 
+    interface OnDismissListener {
+        fun onDialogDismiss()
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        try {
+            listener = targetFragment as OnDismissListener
+        } catch (e: ClassCastException) {
+            throw ClassCastException("$context must implement OnDismissListener")
+        }
+    }
+
     @SuppressLint("InflateParams")
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+
         return activity?.let {
             val builder = AlertDialog.Builder(it)
 
@@ -50,7 +66,6 @@ class CurrencyDialog : DialogFragment() {
                         dialog.cancel()
                     }
                     .setPositiveButton(R.string.ok) { dialog, _ ->
-
                         storeCurrencySettings()
                         dialog.dismiss()
                     }
@@ -128,6 +143,7 @@ class CurrencyDialog : DialogFragment() {
                                         noDecimalCheckBox.isChecked)
             apply()
         }
+        listener.onDialogDismiss()
     }
 
     private fun checkIfEnableOK(dialog: AlertDialog) {
