@@ -18,7 +18,7 @@
 <menu xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <item android:id="@+id/menu_category_manager_add"
+    <item android:id="@+id/menu_category_and_income_manager_add"
         android:title="@string/add"
         android:icon="@drawable/ic_add_white_24dp"
         app:showAsAction="always" />

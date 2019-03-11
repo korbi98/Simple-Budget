@@ -21,6 +21,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.text.method.DigitsKeyListener
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
@@ -30,6 +31,7 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.recyclerview.widget.GridLayoutManager
+import com.google.android.material.textfield.TextInputLayout
 import com.korbi.simplebudget.R
 import com.korbi.simplebudget.SimpleBudgetApp
 import com.korbi.simplebudget.database.DBhandler
@@ -59,6 +61,8 @@ class AddExpenses : AppCompatActivity() {
     private lateinit var datePickerTextView: EditText
     private lateinit var expenseToUpdate: Expense
     private var noDecimal: Boolean? = null
+    private var isSymbolOnLeft: Boolean? = null
+    private lateinit var currencySymbol: String
 
     private val dateFormatter = DateTimeFormatter.ofPattern("dd.MM.yy")
 
@@ -69,10 +73,11 @@ class AddExpenses : AppCompatActivity() {
         db = DBhandler.getInstance()
         noDecimal = SimpleBudgetApp.pref.getBoolean(
                 getString(R.string.settings_key_currency_decimal), false)
+        isSymbolOnLeft = SimpleBudgetApp.pref.getBoolean(
+                getString(R.string.settings_key_currency_left), false)
 
-        val currencySymbol = findViewById<TextView>(R.id.currencyIndicator)
-        currencySymbol.text = SimpleBudgetApp.pref.
-                getString(getString(R.string.settings_key_currency), "$")
+        currencySymbol = SimpleBudgetApp.pref.getString(
+                getString(R.string.settings_key_currency), "$")!!
 
         datePickerTextView = findViewById(R.id.datePicker)
 
@@ -199,6 +204,9 @@ class AddExpenses : AppCompatActivity() {
 
     private fun setupCurrencyEditText() {
         amountEditText = findViewById(R.id.currencyInput)
+
+        val inputLayout = findViewById<TextInputLayout>(R.id.add_expense_input_layout)
+        inputLayout.hint = getString(R.string.amount_input_hint) + " $currencySymbol"
         val separator = DecimalFormatSymbols.getInstance().decimalSeparator.toString()
         val forbiddenSeparator = when (separator) {
             "," -> "."
@@ -213,29 +221,38 @@ class AddExpenses : AppCompatActivity() {
                 val newStringBuilder = StringBuilder()
 
                 for ((position, char) in originalString.withIndex()) {
-                    var c = char.toString()
 
+                    var c = char.toString()
                     if (c == separator) {
-                        when (hasSeparator) {
-                            false -> {
-                                hasSeparator = true
-                                separatorPosition = position
-                            }
-                            true -> c = ""
-                        }
+                        if (!hasSeparator) {
+                            hasSeparator = true
+                            separatorPosition = position
+                        } else if (hasSeparator) c = ""
                     }
-                    if (c == forbiddenSeparator || (position != 0 && c == "-") || (position > 11) ||
-                            (separatorPosition != null && position > (separatorPosition + 2))) {
+
+                    if (position == 1 && originalString[0].toString() == "0" &&
+                            !"., $currencySymbol".contains(c)) {
+                        newStringBuilder.append(separator)
+                    }
+                    if (position == 2 && originalString.contains("-0") &&
+                            !"., $currencySymbol".contains(c)) {
+                        newStringBuilder.append(separator)
+                    }
+                    if (c == forbiddenSeparator || (position != 0 && c == "-") ||
+                            (position > 10) || (separatorPosition != null
+                                    && position > (separatorPosition + 2))) {
                         c = ""
                     }
+
                     newStringBuilder.append(c)
                 }
+
                 val newString = newStringBuilder.toString()
+
                 if (newString != originalString) {
                     amountEditText.setText(newString)
-                    amountEditText.setSelection(newString.length)
+                    amountEditText.setSelection(amountEditText.text.length)
                 }
-
             }
 
 

@@ -20,23 +20,18 @@ import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
-import android.graphics.drawable.Drawable
 import android.util.Log
-import androidx.core.content.ContextCompat
-import com.korbi.simplebudget.R
-import com.korbi.simplebudget.SimpleBudgetApp
 import com.korbi.simplebudget.logic.Category
 import com.korbi.simplebudget.logic.Expense
+import com.korbi.simplebudget.logic.RecurrentEntry
 import org.threeten.bp.LocalDate
 import org.threeten.bp.format.DateTimeFormatter
-import java.text.ParseException
-import java.text.SimpleDateFormat
-import java.util.*
 import kotlin.collections.ArrayList
 
 private const val DB_NAME = "ExpenseDatabase.db"
-private const val DB_VERSION = 2
+private const val DB_VERSION = 3
 private const val EXPENSE_TABLE = "expenses"
+
 private const val COL_ID = "_id"
 private const val COL_COST = "cost"
 private const val COL_DESCRIPTION = "description"
@@ -46,6 +41,11 @@ private const val CATEGORY_TABLE = "categories"
 private const val COL_CATEGORY = "category"
 private const val COL_DRAWABLE = "drawable"
 private const val COL_POSITION = "position"
+
+private const val RECURRING_TABLE = "regular"
+private const val COL_INTERVAL = "interval"
+private const val COL_INTERVAL_DATE = "interval_date"
+private const val COL_STARTING_FROM = "starting_from"
 
 class DBhandler(context: Context, private val defaultCategories: Array<String>) :
                                     SQLiteOpenHelper(context, DB_NAME, null, DB_VERSION) {
@@ -75,16 +75,27 @@ class DBhandler(context: Context, private val defaultCategories: Array<String>) 
         db.execSQL(createExpenseTable)
 
         val createCategoryTable = "CREATE TABLE $CATEGORY_TABLE ( $COL_ID INTEGER PRIMARY KEY, " +
-                                    "$COL_CATEGORY TEXT)"
+                                    "$COL_CATEGORY TEXT, $COL_DRAWABLE INTEGER NOT NULL DEFAULT 0, " +
+                                    "$COL_POSITION INTEGER NOT NULL DEFAULT 0)"
 
         db.execSQL( createCategoryTable )
 
         val values = ContentValues()
-
-        for (category in defaultCategories) {
+        for ((index, category) in defaultCategories.withIndex()) {
             values.put(COL_CATEGORY, category)
+            values.put(COL_DRAWABLE, index)
+            values.put(COL_POSITION, index)
             db.insert(CATEGORY_TABLE, null, values)
         }
+
+        val createRecurringTable = "CREATE TABLE $RECURRING_TABLE " +
+                "($COL_ID INTEGER PRIMARY KEY, " +
+                "$COL_DESCRIPTION TEXT, " +
+                "$COL_COST INTEGER, " +
+                "$COL_INTERVAL INTEGER, " +
+                "$COL_INTERVAL_DATE TEXT, " +
+                "$COL_STARTING_FROM DATE)"
+        db.execSQL(createRecurringTable)
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
@@ -105,6 +116,16 @@ class DBhandler(context: Context, private val defaultCategories: Array<String>) 
                     values.put(COL_POSITION, index)
                     db.insert(CATEGORY_TABLE, null, values)
                 }
+            }
+            3 -> {
+                val createRecurringTable = "CREATE TABLE $RECURRING_TABLE " +
+                                                        "($COL_ID INTEGER PRIMARY KEY, " +
+                                                        "$COL_DESCRIPTION TEXT, " +
+                                                        "$COL_COST INTEGER, " +
+                                                        "$COL_INTERVAL INTEGER, " +
+                                                        "$COL_INTERVAL_DATE TEXT, " +
+                                                        "$COL_STARTING_FROM DATE)"
+                db.execSQL(createRecurringTable)
             }
         }
     }
@@ -284,13 +305,13 @@ class DBhandler(context: Context, private val defaultCategories: Array<String>) 
         db.update(CATEGORY_TABLE, values, "$COL_ID = ?", arrayOf(category.id.toString()))
     }
 
-    fun updateCategory(category: Category, changedCategory: Category): Int {
+    fun updateCategory(category: Category): Int {
 
         val db = this.writableDatabase
         val values = ContentValues()
-        values.put(COL_CATEGORY, changedCategory.name)
-        values.put(COL_DRAWABLE, changedCategory.icon)
-        values.put(COL_POSITION, changedCategory.position)
+        values.put(COL_CATEGORY, category.name)
+        values.put(COL_DRAWABLE, category.icon)
+        values.put(COL_POSITION, category.position)
 
         return db.update(CATEGORY_TABLE, values, "$COL_ID = ?",
                 arrayOf(category.id.toString()))
@@ -320,6 +341,58 @@ class DBhandler(context: Context, private val defaultCategories: Array<String>) 
         val db = this.writableDatabase
 
         val cursor = db.rawQuery("SELECT max($COL_ID) FROM $CATEGORY_TABLE", null)
+        cursor.moveToFirst()
+        latestID = cursor.getInt(0)
+
+        cursor.close()
+        return latestID
+    }
+
+    fun getAllRecurringEntries(): MutableList<RecurrentEntry> {
+        val db = this.writableDatabase
+        val cursor = db.rawQuery("SELECT * FROM $RECURRING_TABLE", null)
+        val recurring = mutableListOf<RecurrentEntry>()
+
+        if (cursor.moveToFirst()) {
+            do {
+                val id = cursor.getInt(0)
+                val name = cursor.getString(1)
+                val amount = cursor.getInt(2)
+                val interval = cursor.getInt(3)
+                val intervalDate = cursor.getString(4)
+                val startFrom = LocalDate.parse(cursor.getString(5))
+                recurring.add(RecurrentEntry(id, name, amount, interval, intervalDate, startFrom))
+            } while (cursor.moveToNext())
+        }
+        cursor.close()
+        return recurring
+    }
+
+    fun updateRecurringEntry(entry: RecurrentEntry): Int {
+
+        val db = this.writableDatabase
+        val values = ContentValues()
+        values.put(COL_DESCRIPTION, entry.name)
+        values.put(COL_COST, entry.amount)
+        values.put(COL_INTERVAL, entry.interval)
+        values.put(COL_INTERVAL_DATE, entry.intervalDate)
+        values.put(COL_STARTING_FROM, dateFormatter.format(entry.startingFrom))
+
+        return db.update(RECURRING_TABLE, values, "$COL_ID = ?",
+                arrayOf(entry.id.toString()))
+    }
+
+    fun deleteRecurringEntry(entry: RecurrentEntry): Int {
+        val db = this.writableDatabase
+        val query = "$COL_ID = ${entry.id}"
+        return db.delete(RECURRING_TABLE, query, null)
+    }
+
+    fun getLatestRecurringEntryID(): Int {
+        val latestID: Int
+        val db = this.writableDatabase
+
+        val cursor = db.rawQuery("SELECT max($COL_ID) FROM $RECURRING_TABLE", null)
         cursor.moveToFirst()
         latestID = cursor.getInt(0)
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.korbi.simplebudget.ui
+package com.korbi.simplebudget.ui.dialogs
 
 import android.animation.ArgbEvaluator
 import android.animation.ValueAnimator
@@ -35,17 +35,20 @@ import com.korbi.simplebudget.R
 import java.lang.IllegalStateException
 import android.widget.GridView
 import androidx.core.content.ContextCompat
+import com.google.android.material.chip.Chip
+import com.google.android.material.chip.ChipGroup
 import com.korbi.simplebudget.database.DBhandler
 import com.korbi.simplebudget.logic.Category
 import java.lang.ClassCastException
 
 const val CAT_INDEX = "id"
 
-class AddEditCagegoryDialog : DialogFragment() {
+class AddEditCategoryDialog : DialogFragment() {
 
     private lateinit var categoryNameView: EditText
     private lateinit var iconGridView: GridView
     private lateinit var adapter: IconAdapter
+    private lateinit var chipGroup: ChipGroup
     private val db = DBhandler.getInstance()
     private lateinit var listener: OnSaveListener
     private var prefillCategory: Category? = null

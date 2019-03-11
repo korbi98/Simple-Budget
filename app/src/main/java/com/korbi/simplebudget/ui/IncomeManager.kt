@@ -18,7 +18,10 @@ package com.korbi.simplebudget.ui
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import com.korbi.simplebudget.R
+import com.korbi.simplebudget.ui.dialogs.AddEditRecurrentEntryDialog
 
 class IncomeManager : AppCompatActivity() {
 
@@ -33,5 +36,20 @@ class IncomeManager : AppCompatActivity() {
     override fun onSupportNavigateUp(): Boolean {
         onBackPressed()
         return true
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.category_and_income_manager_menu, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.menu_category_and_income_manager_add -> {
+                AddEditRecurrentEntryDialog().show(supportFragmentManager, "recurrentEntryDialog")
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 }

@@ -22,7 +22,6 @@ import android.util.Log
 import android.view.*
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.korbi.simplebudget.R
 import com.korbi.simplebudget.SimpleBudgetApp
@@ -30,7 +29,6 @@ import com.korbi.simplebudget.database.DBhandler
 import com.korbi.simplebudget.logic.Category
 import com.korbi.simplebudget.logic.dragAndDrop.ItemTouchHelperAdapter
 import com.korbi.simplebudget.logic.dragAndDrop.ItemTouchHelperViewHolder
-import com.korbi.simplebudget.ui.AddEditCagegoryDialog
 import kotlinx.android.synthetic.main.category_manager_listening.view.*
 import java.util.*
 

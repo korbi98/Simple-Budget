@@ -18,23 +18,21 @@ package com.korbi.simplebudget.ui
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
-import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.korbi.simplebudget.R
 import com.korbi.simplebudget.database.DBhandler
 import com.korbi.simplebudget.logic.Category
-import com.korbi.simplebudget.logic.adapters.CategoryAdapter
 import com.korbi.simplebudget.logic.adapters.CategoryManagerAdapter
-import com.korbi.simplebudget.logic.adapters.HistoryAdapter
 import com.korbi.simplebudget.logic.dragAndDrop.ItemTouchHelperCallback
+import com.korbi.simplebudget.ui.dialogs.AddEditCategoryDialog
+import com.korbi.simplebudget.ui.dialogs.CAT_INDEX
 
-class ManageCategories : AppCompatActivity(), AddEditCagegoryDialog.OnSaveListener,
+class ManageCategories : AppCompatActivity(), AddEditCategoryDialog.OnSaveListener,
                                                 CategoryManagerAdapter.OnEditListener,
                                                 CategoryManagerAdapter.OnStartDragListener {
 
@@ -71,15 +69,15 @@ class ManageCategories : AppCompatActivity(), AddEditCagegoryDialog.OnSaveListen
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.category_manager_menu, menu)
+        menuInflater.inflate(R.menu.category_and_income_manager_menu, menu)
         return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
 
-            R.id.menu_category_manager_add -> {
-                val dialog = AddEditCagegoryDialog()
+            R.id.menu_category_and_income_manager_add -> {
+                val dialog = AddEditCategoryDialog()
                 dialog.show(supportFragmentManager, "addEditCategoryDialog")
                 true
             }
@@ -89,7 +87,7 @@ class ManageCategories : AppCompatActivity(), AddEditCagegoryDialog.OnSaveListen
 
     override fun onSave(category: Category, oldCategory: Category?) {
         if (oldCategory != null) {
-            db.updateCategory(category, oldCategory)
+            db.updateCategory(category)
             categoryList[categoryList.indexOf(oldCategory)] = category
             categoryAdapter.notifyItemChanged(categoryList.indexOf(category))
         } else {
@@ -100,7 +98,7 @@ class ManageCategories : AppCompatActivity(), AddEditCagegoryDialog.OnSaveListen
     }
 
     override fun onEdit(category: Category) {
-        val dialog = AddEditCagegoryDialog()
+        val dialog = AddEditCategoryDialog()
         val args = Bundle()
         args.putInt(CAT_INDEX, category.id)
         dialog.arguments = args

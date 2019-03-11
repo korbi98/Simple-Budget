@@ -16,30 +16,17 @@
 
 package com.korbi.simplebudget.ui
 
-import android.annotation.TargetApi
-import android.app.Dialog
-import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
-import android.content.res.Configuration
-import android.media.RingtoneManager
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
-import android.preference.PreferenceActivity
 import android.preference.PreferenceManager
-import android.preference.RingtonePreference
-import android.text.TextUtils
-import android.view.MenuItem
-import android.view.Window
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.DialogFragment
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import com.korbi.simplebudget.BuildConfig
 import com.korbi.simplebudget.R
-
+import com.korbi.simplebudget.ui.dialogs.CurrencyDialog
 
 
 class SettingsActivity : AppCompatActivity() {

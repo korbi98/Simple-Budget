@@ -29,28 +29,31 @@
         android:layout_marginTop="20dp"
         android:layout_marginBottom="10dp">
 
-        <TextView
-            android:id="@+id/currencyIndicator"
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/add_expense_input_layout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text=""
-            android:textSize="@dimen/currency_indicator_textsize"/>
+            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense">
 
-        <EditText
-            android:id="@+id/currencyInput"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:ems="6"
-            android:textAlignment="viewEnd"
-            android:hint="@string/currency_input_hint"
-            android:inputType="numberDecimal"
-            android:digits="0123456789,.-"
-            android:textSize="@dimen/currency_input_textsize"
-            android:imeOptions="actionDone">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/currencyInput"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ems="6"
+                android:textAlignment="viewEnd"
+                android:lines="1"
+                android:inputType="numberDecimal"
+                android:digits="0123456789,.-"
+                android:textSize="@dimen/currency_input_textsize"
+                android:imeOptions="actionDone"
+                tools:ignore="Autofill">
 
-            <requestFocus/>
+                <requestFocus/>
 
-        </EditText>
+            </com.google.android.material.textfield.TextInputEditText>
+
+        </com.google.android.material.textfield.TextInputLayout>
 
     </LinearLayout>
 
@@ -70,27 +73,42 @@
         android:layout_marginRight="20dp"
         android:layout_marginLeft="20dp"/>
 
-    <EditText
-        android:id="@+id/descriptionInput"
+    <com.google.android.material.textfield.TextInputLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
         android:layout_marginLeft="30dp"
         android:layout_marginRight="30dp"
-        android:hint="@string/description_input_hint"
-        android:ems="20"
-        android:inputType="text" />
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense">
 
-    <EditText
-        android:id="@+id/datePicker"
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/descriptionInput"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:ems="20"
+            android:hint="@string/description_input_hint"
+            android:inputType="text" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
+        android:hint="@string/date"
         android:layout_marginLeft="30dp"
         android:layout_marginRight="30dp"
-        android:ems="20"
-        android:onClick="setDate"
-        android:focusable="false"/>
+        android:layout_marginTop="12dp"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense">
 
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/datePicker"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:ems="20"
+            android:onClick="setDate"
+            android:focusable="false"/>
+
+    </com.google.android.material.textfield.TextInputLayout>
 
 </LinearLayout>

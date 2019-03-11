@@ -17,20 +17,26 @@
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical" android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="20dp">
 
-    <Spinner
-        android:id="@+id/settings_currency_spinner"
-        android:layout_width="wrap_content"
+    <com.google.android.material.chip.ChipGroup
+        android:id="@+id/settings_currency_chip_group"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:entries="@array/currencies_with_names"/>
+        app:singleSelection="true"
+        app:chipSpacingVertical="4dp">
+
+    </com.google.android.material.chip.ChipGroup>
 
     <EditText
         android:id="@+id/settings_currency_custom"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
         android:hint="@string/settings_currency_custom"
         tools:ignore="Autofill"
         android:inputType="text" />

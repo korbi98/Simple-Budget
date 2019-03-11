@@ -120,7 +120,9 @@ class DashboardFragment : androidx.fragment.app.Fragment() {
             override fun onNothingSelected(parent: AdapterView<*>?) {parent?.setSelection(0)}
 
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                sumExpenses(actionBarSpinner.selectedItemPosition, position)
+                if (!db.getExpensesByDate(db.getOldestDate(), db.getNewestDate()).isEmpty()) {
+                    sumExpenses(actionBarSpinner.selectedItemPosition, position)
+                }
             }
         }
 
@@ -155,7 +157,9 @@ class DashboardFragment : androidx.fragment.app.Fragment() {
             sumExpenses(actionBarSpinner.selectedItemPosition,
                     timeSelectionSpinner.selectedItemPosition)
         } else {
-            sumExpenses(0, 0)
+            if (!db.getExpensesByDate(db.getOldestDate(), db.getNewestDate()).isEmpty()) {
+                sumExpenses(0, 0)
+            }
         }
     }
 

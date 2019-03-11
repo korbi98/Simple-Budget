@@ -26,7 +26,7 @@
     <string name="menu_regular_income">Regular income/expenses</string>
     <string name="menu_settings">Settings</string>
 
-    <string name="currency_input_hint">0.00</string>
+    <string name="amount_input_hint">Amount</string>
     <string name="description_input_hint">description</string>
     <string name="add_expense_title">add/edit expenses</string>
     <string name="no_category_warning">Please select a category!</string>
@@ -102,6 +102,9 @@
     <string name="migrate_to_category">Migrate to category:</string>
     <string name="delete_category">Delete category?</string>
     <string name="choose_categories">Choose category:</string>
+    <string name="add_recurrent_entry_title">Add recurrent income/expense</string>
+    <string name="edit_recurrent_entry_title">Edit recurrent income/expense</string>
+    <string name="date">Date</string>
 
 
     <string-array name="default_categories">
