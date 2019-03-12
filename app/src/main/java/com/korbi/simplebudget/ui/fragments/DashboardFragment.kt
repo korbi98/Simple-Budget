@@ -17,9 +17,7 @@
 package com.korbi.simplebudget.ui.fragments
 
 import android.content.Intent
-import android.graphics.Color
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
@@ -41,7 +39,6 @@ import com.korbi.simplebudget.ui.IncomeManager
 import com.korbi.simplebudget.ui.ManageCategories
 import com.korbi.simplebudget.ui.SettingsActivity
 import org.threeten.bp.LocalDate
-import org.threeten.bp.Month
 import org.threeten.bp.YearMonth
 import java.text.DecimalFormat
 
@@ -260,7 +257,7 @@ class DashboardFragment : androidx.fragment.app.Fragment() {
             balance > 0 -> balanceTextView.setTextColor(ContextCompat.getColor(context!!,
                                             R.color.incomeColor))
             else -> balanceTextView.setTextColor(ContextCompat.getColor(context!!,
-                    R.color.neutalColor))
+                    R.color.neutralColor))
         }
     }
 

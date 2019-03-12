@@ -20,6 +20,8 @@ import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.app.Dialog
 import android.content.SharedPreferences
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.preference.PreferenceManager
 import android.text.Editable
@@ -94,9 +96,11 @@ class CurrencyDialog : DialogFragment() {
             for ((index, currency) in currenciesWithText.withIndex()) {
                 val chip = Chip(context)
                 chip.text = currency
+                chip.chipBackgroundColor = ContextCompat.getColorStateList(context!!,
+                                            R.color.custom_choice_chip_selector)
                 chip.isClickable = true
                 chip.isCheckable = true
-                chip.checkedIcon = ContextCompat.getDrawable(context!!, R.drawable.ic_done_white_24px)
+                chip.isCheckedIconVisible = false
                 chipList.add(chip)
                 chipGroup.addView(chip as View)
                 if (index != currenciesWithText.lastIndex) {

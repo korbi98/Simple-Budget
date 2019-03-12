@@ -32,7 +32,7 @@
     <string name="no_category_warning">Please select a category!</string>
     <string name="no_amount_warning">please specify an amount!</string>
     <string name="menu_history_search">search</string>
-    <string name="menu_history_filter">filter</string>
+    <string name="menu_history_filter">Filter</string>
     <string name="today">today</string>
     <string name="yesterday">yesterday</string>
     <string name="edit">Edit</string>
@@ -105,6 +105,19 @@
     <string name="add_recurrent_entry_title">Add recurrent income/expense</string>
     <string name="edit_recurrent_entry_title">Edit recurrent income/expense</string>
     <string name="date">Date</string>
+    <string name="both">Both</string>
+    <string name="income">Income</string>
+    <string name="expense">Expense</string>
+    <string name="last30days">Last 30 days</string>
+    <string name="last90days">last90days</string>
+    <string name="this_year">This year</string>
+    <string name="all_time">All time</string>
+    <string name="specific_range">Specific range</string>
+    <string name="filter_fragment_category_textview">Choose catogories</string>
+    <string name="to">To</string>
+    <string name="from">From</string>
+    <string name="from_after_to_error">Date is after last date!</string>
+    <string name="to_before_from_error">Date is before first date!</string>
 
 
     <string-array name="default_categories">
@@ -114,20 +127,6 @@
         <item>Shopping</item>
         <item>Housing</item>
         <item>Travel</item>
-    </string-array>
-
-    <string-array name="expense_types">
-        <item>Both</item>
-        <item>Expense</item>
-        <item>Income</item>
-    </string-array>
-
-    <string-array name="date_range">
-        <item>Last 30 days</item>
-        <item>Last 90 days</item>
-        <item>This Year</item>
-        <item>All time</item>
-        <item>Specific range</item>
     </string-array>
 
     <string-array name="dashboard_time_interval">

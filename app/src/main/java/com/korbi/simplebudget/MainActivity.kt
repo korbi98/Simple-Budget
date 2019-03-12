@@ -23,12 +23,21 @@ import androidx.appcompat.app.AppCompatActivity
 import com.jakewharton.threetenabp.AndroidThreeTen
 import com.korbi.simplebudget.database.DBhandler
 import com.korbi.simplebudget.logic.DateHelper
+import com.korbi.simplebudget.ui.SELECT_ALL
+import com.korbi.simplebudget.ui.TYPE_BOTH
 import com.korbi.simplebudget.ui.fragments.*
 import kotlinx.android.synthetic.main.activity_main.*
+import org.threeten.bp.LocalDate
 
 class MainActivity : AppCompatActivity() {
 
     val expandedStateMap = HashMap<Int, Boolean>()
+
+    var typeSelection = TYPE_BOTH //0 for both, 1 for expenses, 2 for income
+    var dateSelection = SELECT_ALL //0 last 30 days, 1 last 90 days, 2 this year, 3 all time
+    lateinit var fromDateSelection: LocalDate
+    lateinit var toDateSelection: LocalDate
+    lateinit var categorySelection: BooleanArray //1 if category selected 0 else
 
     private val mOnNavigationItemSelectedListener =
                                 BottomNavigationView.OnNavigationItemSelectedListener { item ->
@@ -66,6 +75,10 @@ class MainActivity : AppCompatActivity() {
 
         // make sure, that the keyboard doesn't push the bottomnavigationbar upwards
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING)
+
+        categorySelection = BooleanArray(DBhandler.getInstance().getAllCategories().size) { true }
+        fromDateSelection = LocalDate.now()
+        toDateSelection = LocalDate.now()
 
         showFragment(DashboardFragment())
     }

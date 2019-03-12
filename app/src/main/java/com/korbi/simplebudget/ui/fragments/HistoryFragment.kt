@@ -53,9 +53,6 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
 
     private var mActionMode: ActionMode? = null
     private var parentPosition = 1 // position to update when update expenses
-    private var typeSelection = 0 //0 for both, 1 for expenses, 2 for income
-    private var dateSelection = 3 //0 last 30 days, 1 last 90 days, 2 this year, 3 all time
-    private lateinit var categorySelection: IntArray //1 if category selected 0 else
     private lateinit var mOptionsMenu: Menu
 
     private val dateFormatter = DateTimeFormatter.ofPattern("dd.MM.yy")
@@ -64,7 +61,6 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
                               savedInstanceState: Bundle?): View? {
 
         db = DBhandler.getInstance()
-        categorySelection = IntArray(db.getAllCategories().size) { 1 }
 
         val rootview = inflater.inflate(R.layout.fragment_history, container, false)
 
@@ -87,7 +83,11 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
 
     override fun onResume() {
         super.onResume()
-        updateView(getHistoryEntries())
+        updateView(getHistoryEntries((activity as MainActivity).typeSelection,
+                                        (activity as MainActivity).dateSelection,
+                                        (activity as MainActivity).fromDateSelection,
+                                        (activity as MainActivity).toDateSelection,
+                                        (activity as MainActivity).categorySelection))
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -120,8 +120,16 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
             }
         })
 
+        searchView.setOnSearchClickListener {
+            mOptionsMenu.findItem(R.id.menu_history_filter_reset).isVisible = false
+        }
         searchView.setOnCloseListener {
-            updateView(getHistoryEntries())
+            updateView(getHistoryEntries((activity as MainActivity).typeSelection,
+                    (activity as MainActivity).dateSelection,
+                    (activity as MainActivity).fromDateSelection,
+                    (activity as MainActivity).toDateSelection,
+                    (activity as MainActivity).categorySelection))
+            updateOptionsMenu()
             false
         }
         updateOptionsMenu()
@@ -133,9 +141,14 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
             R.id.menu_history_filter -> {
 
                 val bundle = Bundle()
-                bundle.putInt(TYPE_PREFILL, typeSelection)
-                bundle.putInt(DATE_PREFILL, dateSelection)
-                bundle.putIntArray(CATEGORY_PRESELECT, categorySelection)
+                bundle.putInt(TYPE_PREFILL, (activity as MainActivity).typeSelection)
+                bundle.putInt(DATE_PREFILL, (activity as MainActivity).dateSelection)
+                bundle.putString(FROM_DATE_PRESELECT,
+                        dateFormatter.format((activity as MainActivity).fromDateSelection))
+                bundle.putString(TO_DATE_PRESELECT,
+                        dateFormatter.format((activity as MainActivity).toDateSelection))
+                bundle.putBooleanArray(CATEGORY_PRESELECT,
+                        (activity as MainActivity).categorySelection)
 
                 val filterFragment = FilterBottomSheet()
                 filterFragment.arguments = bundle
@@ -144,20 +157,22 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
                 true
             }
 
-            R.id.menu_history_search -> {
-
-                true
-            }
-
             R.id.menu_history_filter_reset -> {
-                onSelectionChanged(0, 3, IntArray(categorySelection.size){1})
+                onSelectionChanged(TYPE_BOTH, SELECT_ALL,
+                        (activity as MainActivity).fromDateSelection,
+                        (activity as MainActivity).toDateSelection,
+                        BooleanArray((activity as MainActivity).categorySelection.size){true})
                 true
             }
             else -> false
         }
     }
 
-    private fun getHistoryEntries(): MutableList<HistoryEntry> {
+    private fun getHistoryEntries(type: Int,
+                                  date: Int,
+                                  fromDate: LocalDate,
+                                  toDate: LocalDate,
+                                  categories: BooleanArray): MutableList<HistoryEntry> {
 
         val historyEntries = mutableListOf<HistoryEntry>()
 
@@ -166,7 +181,7 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
             val dateString = dateFormatter.format(week[0]) + " - " + dateFormatter.format(week[1])
 
             var expenses = db.getExpensesByDate(week[0], week[1])
-            expenses = filterExpenses(expenses, typeSelection, dateSelection, categorySelection)
+            expenses = filterExpenses(expenses, type, date, fromDate, toDate, categories)
 
             historyEntries.add(HistoryEntry(expenses, dateString))
         }
@@ -251,13 +266,17 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
         startActivityForResult(intent, 1)
     }
 
-    private fun filterExpenses(expenses: MutableList<Expense>,typeSelection: Int, dateSelection: Int,
-                              categorySelection: IntArray) : MutableList<Expense> {
+    private fun filterExpenses(expenses: MutableList<Expense>,
+                               typeSelection: Int,
+                               dateSelection: Int,
+                               fromDate: LocalDate,
+                               toDate: LocalDate,
+                               categorySelection: BooleanArray) : MutableList<Expense> {
 
         // filter income or expense
         val typeFilteredList: List<Expense> = when (typeSelection) {
-            1 -> expenses.filter { it.cost <= 0} // Expenses
-            2 -> expenses.filter { it.cost > 0 } // Income
+            TYPE_EXPENSE -> expenses.filter { it.cost <= 0} // Expenses
+            TYPE_INCOME -> expenses.filter { it.cost > 0 } // Income
             else -> expenses
         }
 
@@ -266,22 +285,28 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
 
         //TODO implement specific time range
         val dateFilteredList: List<Expense> = when (dateSelection) {
-            0 -> {
+            SELECT_LAST30 -> {
                 typeFilteredList.filter { it.date.isAfter(currentDate.minusDays(30)) }
             }
-            1 -> {
+            SELECT_LAST90 -> {
                 typeFilteredList.filter { it.date.isAfter(currentDate.minusDays(90)) }
             }
-            2 -> {
+            SELECT_YEAR -> {
                 typeFilteredList.filter {
                     it.date.isAfter(currentDate.with(TemporalAdjusters.firstDayOfYear()))
+                }
+            }
+            SELECT_CUSTOM -> {
+                typeFilteredList.filter {
+                    it.date.isAfter(fromDate.minusDays(1)) &&
+                            it.date.isBefore(toDate.plusDays(1))
                 }
             }
             else -> typeFilteredList
         }
 
         val categoryFilteredList = dateFilteredList.filter {
-            categorySelection[it.category.position] == 1
+            categorySelection[it.category.position]
         }
 
         return categoryFilteredList.toMutableList()
@@ -289,7 +314,10 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
 
     private fun performSearch(searchPhrase: String): MutableList<HistoryEntry> {
         val search = searchPhrase.toLowerCase()
-        val searchedList = getHistoryEntries()
+        val searchedList = getHistoryEntries(TYPE_BOTH, SELECT_ALL,
+                (activity as MainActivity).fromDateSelection,
+                (activity as MainActivity).toDateSelection,
+                BooleanArray((activity as MainActivity).categorySelection.size) { true })
 
         for (hEntry in searchedList.iterator()) {
             val expenseIterator = hEntry.childList.iterator()
@@ -299,7 +327,6 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
                 }
             }
         }
-
         return searchedList
     }
 
@@ -327,11 +354,17 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
         }
     }
 
-    override fun onSelectionChanged(type: Int, date: Int, categories: IntArray) {
-        typeSelection = type
-        dateSelection = date
-        categorySelection = categories
-        updateView(getHistoryEntries())
+    override fun onSelectionChanged(type: Int,
+                                    date: Int,
+                                    fromDate: LocalDate,
+                                    toDate: LocalDate,
+                                    categories: BooleanArray) {
+        (activity as MainActivity).typeSelection = type
+        (activity as MainActivity).dateSelection = date
+        (activity as MainActivity).categorySelection = categories
+        (activity as MainActivity).fromDateSelection = fromDate
+        (activity as MainActivity).toDateSelection = toDate
+        updateView(getHistoryEntries(type, date, fromDate, toDate, categories))
         updateOptionsMenu()
     }
 
@@ -359,8 +392,9 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
     }
 
     private fun updateOptionsMenu() {
-        mOptionsMenu.findItem(R.id.menu_history_filter_reset).isVisible = typeSelection != 0 ||
-                dateSelection != 3 ||
-                !categorySelection.contentEquals(IntArray(categorySelection.size){1})
+        mOptionsMenu.findItem(R.id.menu_history_filter_reset).isVisible =
+                (activity as MainActivity).typeSelection != TYPE_BOTH ||
+                        (activity as MainActivity).dateSelection != SELECT_ALL ||
+                !(activity as MainActivity).categorySelection.none { !it }
     }
 }

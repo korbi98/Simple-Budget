@@ -156,25 +156,15 @@ class AddExpenses : AppCompatActivity() {
 
     private fun updateDatePickerText() {
 
-        when {
-            LocalDate.now().isEqual(expenseDate) -> {
-                datePickerTextView.setText(getString(R.string.today))
-            }
-            LocalDate.now().minusDays(1).isEqual(expenseDate) -> {
-                datePickerTextView.setText(getString(R.string.yesterday))
-            }
+        when (LocalDate.now()) {
+            expenseDate -> datePickerTextView.setText(getString(R.string.today))
+            expenseDate.plusDays(1) -> datePickerTextView.setText(getString(R.string.yesterday))
             else -> datePickerTextView.setText(dateFormatter.format(expenseDate))
         }
-        datePickerTextView
     }
 
     fun cancel(@Suppress("UNUSED_PARAMETER")view: View) {
         finish()
-    }
-
-    override fun onStop() {
-        super.onStop()
-        db.close()
     }
 
     private fun prefill() {

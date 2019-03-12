@@ -29,7 +29,7 @@
         app:srcCompat="@drawable/ic_clear_white_24px"
         android:layout_alignParentTop="false"
         android:layout_alignParentStart="true"
-        android:background="@drawable/actionbar_imagebutton_background"
+        android:background="@color/actionbar_imagebutton_background"
         android:onClick="cancel" />
 
     <TextView
@@ -51,7 +51,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="false"
         android:layout_alignParentEnd="true"
-        android:background="@drawable/actionbar_imagebutton_background"
+        android:background="@color/actionbar_imagebutton_background"
         app:srcCompat="@drawable/ic_done_white_24px"
         android:onClick="save" />
 

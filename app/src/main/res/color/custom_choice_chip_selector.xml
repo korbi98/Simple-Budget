@@ -15,19 +15,7 @@
   ~ limitations under the License.
   -->
 
-<resources>
-    <color name="colorPrimary">#008577</color>
-    <color name="colorPrimaryDark">#00574B</color>
-    <color name="colorAccent">#D81B60</color>
-
-    <color name="expenseColor">#EF5350</color>
-    <color name="incomeColor">#9CCC65</color>
-    <color name="neutralColor">#BDBDBD</color>
-
-    <color name="gray_background">#424242</color>
-    <color name="chip_background">#363636</color>
-    <color name="darker_background">#212121</color>
-
-    <color name="text_color_white">@android:color/primary_text_dark</color>
-
-</resources>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:color="@color/colorPrimaryDark" android:state_checked="true" />
+    <item android:color="@color/chip_background" />
+</selector>
