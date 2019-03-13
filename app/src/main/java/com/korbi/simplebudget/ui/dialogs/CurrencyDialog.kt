@@ -178,7 +178,7 @@ class CurrencyDialog : DialogFragment() {
 
         return when {
             !chipList.none { it.isChecked } -> {
-                chipList.indexOf(chipList.filter { it.isChecked } [0])
+                chipList.indexOf(chipList.find { it.isChecked })
             }
             else -> NO_SELECTION
         }

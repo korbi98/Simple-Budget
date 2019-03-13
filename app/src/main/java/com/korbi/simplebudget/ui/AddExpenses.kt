@@ -17,26 +17,25 @@
 package com.korbi.simplebudget.ui
 
 import android.app.DatePickerDialog
+import android.content.res.TypedArray
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.text.method.DigitsKeyListener
-import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.view.inputmethod.EditorInfo
 import android.widget.EditText
-import android.widget.TextView
 import android.widget.Toast
-import androidx.recyclerview.widget.GridLayoutManager
+import androidx.core.content.ContextCompat
+import com.google.android.material.chip.Chip
+import com.google.android.material.chip.ChipGroup
 import com.google.android.material.textfield.TextInputLayout
 import com.korbi.simplebudget.R
 import com.korbi.simplebudget.SimpleBudgetApp
 import com.korbi.simplebudget.database.DBhandler
 import com.korbi.simplebudget.logic.Category
-import com.korbi.simplebudget.logic.adapters.CategoryAdapter
 import com.korbi.simplebudget.logic.Expense
 import org.threeten.bp.LocalDate
 import org.threeten.bp.format.DateTimeFormatter
@@ -55,11 +54,13 @@ class AddExpenses : AppCompatActivity() {
     private var expenseDate = LocalDate.now()
 
     private lateinit var descriptionEditText: EditText
-    private lateinit var amountEditText: EditText
-    private lateinit var categoryGrid: androidx.recyclerview.widget.RecyclerView
-    private lateinit var categoryAdapter: CategoryAdapter
+    private lateinit var currencyEditText: EditText
+    private lateinit var currencyEditLayout: TextInputLayout
+    private lateinit var categoryGroup: ChipGroup
+    private lateinit var categoryChips: MutableList<Chip>
     private lateinit var datePickerTextView: EditText
     private lateinit var expenseToUpdate: Expense
+    private lateinit var categories: MutableList<Category>
     private var noDecimal: Boolean? = null
     private var isSymbolOnLeft: Boolean? = null
     private lateinit var currencySymbol: String
@@ -79,48 +80,50 @@ class AddExpenses : AppCompatActivity() {
         currencySymbol = SimpleBudgetApp.pref.getString(
                 getString(R.string.settings_key_currency), "$")!!
 
-        datePickerTextView = findViewById(R.id.datePicker)
+        categories = db.getAllCategories()
+        categories.sortBy { it.position }
 
+        currencyEditLayout = findViewById(R.id.add_expense_input_layout)
+        datePickerTextView = findViewById(R.id.datePicker)
         descriptionEditText = findViewById(R.id.descriptionInput)
-        categoryGrid = findViewById(R.id.categoryChooser)
-        categoryGrid.layoutManager = GridLayoutManager(this, 2)
+        categoryGroup = findViewById(R.id.add_expense_category_group)
+        categoryChips = mutableListOf()
 
         val actionBarLayout = layoutInflater.inflate(R.layout.custom_toolbar, null as ViewGroup?)
         val actionBar = supportActionBar
         actionBar?.setDisplayShowCustomEnabled(true)
         actionBar?.customView = actionBarLayout
 
-        categoryAdapter = CategoryAdapter(db.getAllCategories())
-        categoryGrid.adapter = categoryAdapter
-        categoryAdapter.setSelectedCategory(db.getAllCategories().filter { it.position == 0 }[0])
 
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE)
         updateDatePickerText()
         setupCurrencyEditText()
+        setupCategoryGroup()
 
         prefill()
     }
 
     fun save(@Suppress("UNUSED_PARAMETER")view: View) {
 
-        val amountString = amountEditText.text.toString().replace(",", ".")
-        val amount = when (noDecimal) {
-            false, null -> (amountString.toFloat() * -100).toInt()
-            true -> amountString.toInt()
-        }
+        val amountString = currencyEditText.text.toString().replace(",", ".")
 
         when {
-            amountEditText.text.toString().isEmpty() ->
-                Toast.makeText(this, R.string.no_amount_warning, Toast.LENGTH_LONG).show()
+            currencyEditText.text.toString().isEmpty() ->
+                currencyEditLayout.error = getString(R.string.no_amount_warning)
 
-            categoryAdapter.getSelectedCategory() == null ->
+            getSelectedCategory() == null -> {
                 Toast.makeText(this, R.string.no_category_warning, Toast.LENGTH_LONG).show()
+            }
 
             (this::expenseToUpdate.isInitialized) -> { // update existing expense
+                val amount = when (noDecimal) {
+                    false, null -> (amountString.toFloat() * -100).toInt()
+                    true -> amountString.toInt()
+                }
                 expenseToUpdate.description = descriptionEditText.text.toString()
                 expenseToUpdate.cost = amount
                 expenseToUpdate.date = expenseDate
-                expenseToUpdate.category = categoryAdapter.getSelectedCategory()!!
+                expenseToUpdate.category = getSelectedCategory()!!
                 db.updateExpense(expenseToUpdate)
                 setResult(1)
                 finish()
@@ -128,9 +131,13 @@ class AddExpenses : AppCompatActivity() {
 
             else -> { // save new expense
 
+                val amount = when (noDecimal) {
+                    false, null -> (amountString.toFloat() * -100).toInt()
+                    true -> amountString.toInt()
+                }
                 val id = db.getLatestID()
                 val expense = Expense(id, descriptionEditText.text.toString(), amount,
-                        expenseDate, categoryAdapter.getSelectedCategory() as Category)
+                        expenseDate, getSelectedCategory()!!)
                 db.addExpense(expense)
                 finish()
             }
@@ -184,16 +191,16 @@ class AddExpenses : AppCompatActivity() {
                 false, null -> -100
             }
 
-            amountEditText.setText(SimpleBudgetApp.decimalFormat.format(expenseToUpdate.cost.
+            currencyEditText.setText(SimpleBudgetApp.decimalFormat.format(expenseToUpdate.cost.
                                                             toFloat()/multiplier).toString())
             descriptionEditText.setText(expenseToUpdate.description)
             datePickerTextView.setText(bundle.getString(EXPENSE_DATE))
-            categoryAdapter.setSelectedCategory(expenseToUpdate.category)
+            categoryChips[expenseToUpdate.category.position].isChecked = true
         }
     }
 
     private fun setupCurrencyEditText() {
-        amountEditText = findViewById(R.id.currencyInput)
+        currencyEditText = findViewById(R.id.currencyInput)
 
         val inputLayout = findViewById<TextInputLayout>(R.id.add_expense_input_layout)
         inputLayout.hint = getString(R.string.amount_input_hint) + " $currencySymbol"
@@ -203,8 +210,11 @@ class AddExpenses : AppCompatActivity() {
             else -> ","
         }
 
-        amountEditText.addTextChangedListener(object : TextWatcher {
+        currencyEditText.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
+
+                if (!s.isNullOrBlank()) currencyEditLayout.error = ""
+
                 var hasSeparator = false
                 var separatorPosition:Int? = null
                 val originalString = s.toString()
@@ -240,8 +250,8 @@ class AddExpenses : AppCompatActivity() {
                 val newString = newStringBuilder.toString()
 
                 if (newString != originalString) {
-                    amountEditText.setText(newString)
-                    amountEditText.setSelection(amountEditText.text.length)
+                    currencyEditText.setText(newString)
+                    currencyEditText.setSelection(currencyEditText.text.length)
                 }
             }
 
@@ -250,13 +260,47 @@ class AddExpenses : AppCompatActivity() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         })
 
-        amountEditText.setOnEditorActionListener { v, actionId, _ ->
+        currencyEditText.setOnEditorActionListener { v, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
                 save(v)
                 true
             } else {
                 false
             }
+        }
+    }
+
+    private fun setupCategoryGroup() {
+        val iconIdArray: TypedArray = SimpleBudgetApp.res.obtainTypedArray(R.array.category_icons)
+
+        for (cat in categories) {
+            val chip = Chip(this)
+            chip.text = cat.name
+            chip.isClickable = true
+            chip.isCheckable = true
+            chip.chipBackgroundColor = ContextCompat.getColorStateList(this,
+                    R.color.custom_choice_chip_selector)
+            chip.setChipIconTintResource(R.color.text_color_white)
+            chip.setChipIconResource(iconIdArray.getResourceId(cat.icon ,-1))
+            chip.setCheckedIconResource(iconIdArray.getResourceId(cat.icon ,-1))
+            chip.setOnCheckedChangeListener { _, isChecked ->
+                chip.isChipIconVisible = !isChecked
+            }
+            categoryGroup.addView(chip)
+            categoryChips.add(chip)
+        }
+        iconIdArray.recycle()
+        categoryChips[0].isChecked = true
+    }
+
+    private fun getSelectedCategory(): Category? {
+
+        return when {
+            !categoryChips.none { it.isChecked } -> {
+                val position = categoryChips.indexOf(categoryChips.find { it.isChecked })
+                categories[position]
+            }
+            else -> null
         }
     }
 }

@@ -220,7 +220,7 @@ class DBhandler(context: Context, private val defaultCategories: Array<String>) 
                                         indices.toArray<String>(arrayOfNulls(indices.size)))
     }
 
-    fun deleteExpenesByCategory(category: Category) {
+    fun deleteExpensesByCategory(category: Category) {
         val db = this.writableDatabase
         db.delete(EXPENSE_TABLE, "$COL_CATEGORY = ?", arrayOf(category.id.toString()))
     }

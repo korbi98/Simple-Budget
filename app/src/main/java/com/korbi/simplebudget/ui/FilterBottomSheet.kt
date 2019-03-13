@@ -79,7 +79,6 @@ class FilterBottomSheet :  BottomSheetDialogFragment() {
     private var fromDate: LocalDate = LocalDate.now()
     private var toDate: LocalDate = LocalDate.now()
     private var categorySelection = BooleanArray(DBhandler.getInstance().getAllCategories().size)
-    private val iconIdArray: TypedArray = SimpleBudgetApp.res.obtainTypedArray(R.array.category_icons)
 
     private val dateFormatter = DateTimeFormatter.ofPattern("dd.MM.yy")
 
@@ -160,6 +159,7 @@ class FilterBottomSheet :  BottomSheetDialogFragment() {
     }
 
     private fun setupCategoryGroup(){
+        val iconIdArray: TypedArray = SimpleBudgetApp.res.obtainTypedArray(R.array.category_icons)
         val db = DBhandler.getInstance()
         val categories = db.getAllCategories()
         categories.sortBy { it.position }
@@ -182,6 +182,7 @@ class FilterBottomSheet :  BottomSheetDialogFragment() {
             categoryGroup.addView(chip)
             categoryChips.add(chip)
         }
+        iconIdArray.recycle()
     }
 
     private fun prefillSelection() {

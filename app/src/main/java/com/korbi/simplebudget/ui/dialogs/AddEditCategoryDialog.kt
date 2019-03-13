@@ -48,7 +48,6 @@ class AddEditCategoryDialog : DialogFragment() {
     private lateinit var categoryNameView: EditText
     private lateinit var iconGridView: GridView
     private lateinit var adapter: IconAdapter
-    private lateinit var chipGroup: ChipGroup
     private val db = DBhandler.getInstance()
     private lateinit var listener: OnSaveListener
     private var prefillCategory: Category? = null
@@ -120,8 +119,13 @@ class AddEditCategoryDialog : DialogFragment() {
         val categoryName = categoryNameView.text.toString()
         val categoryIcon = adapter.getSelected()
         if (categoryIcon != null) {
-            val newCategory = Category(db.getLatestCategoryID() + 1, categoryName, categoryIcon,
-                    db.getAllCategories().size)
+            val newCategory =if (prefillCategory == null) { //save new category
+                Category(db.getLatestCategoryID() + 1, categoryName, categoryIcon,
+                        db.getAllCategories().size)
+            } else { //update category
+                Category(prefillCategory!!.id, categoryName, categoryIcon,
+                            prefillCategory!!.position)
+            }
             listener.onSave(newCategory, prefillCategory)
         }
 

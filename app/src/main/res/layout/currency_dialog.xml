@@ -21,14 +21,17 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="20dp">
+    android:paddingTop="18dp"
+    android:paddingStart="24dp"
+    android:paddingEnd="24dp"
+    android:paddingBottom="8dp">
 
     <com.google.android.material.chip.ChipGroup
         android:id="@+id/settings_currency_chip_group"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:singleSelection="true"
-        app:chipSpacingVertical="8dp" >
+        app:chipSpacingVertical="12dp" >
 
     </com.google.android.material.chip.ChipGroup>
 

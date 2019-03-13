@@ -149,7 +149,7 @@ class ManageCategories : AppCompatActivity(), AddEditCategoryDialog.OnSaveListen
 
             db.migrateExpenses(category, newCategory)
         } else {
-            db.deleteExpenesByCategory(category)
+            db.deleteExpensesByCategory(category)
         }
         db.deleteCategory(category)
         categoryList.remove(category)
