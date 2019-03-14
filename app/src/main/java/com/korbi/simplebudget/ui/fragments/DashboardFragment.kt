@@ -149,6 +149,7 @@ class DashboardFragment : androidx.fragment.app.Fragment() {
 
     override fun onResume() {
         super.onResume()
+        SimpleBudgetApp.handleRecurringEntries()
         if (this::actionBarSpinner.isInitialized) {
             setupTimeSelectionSpinner(actionBarSpinner.selectedItemPosition)
             sumExpenses(actionBarSpinner.selectedItemPosition,

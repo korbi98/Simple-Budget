@@ -20,14 +20,17 @@ import android.app.Application
 import android.content.SharedPreferences
 import android.content.res.Resources
 import android.graphics.drawable.Drawable
+import android.util.Log
 import androidx.preference.Preference
 import androidx.preference.PreferenceManager
+import com.korbi.simplebudget.database.DBhandler
+import com.korbi.simplebudget.logic.Expense
+import com.korbi.simplebudget.logic.MONTHLY_ROOT
+import com.korbi.simplebudget.logic.WEEKLY_ROOT
+import org.threeten.bp.LocalDate
 import java.text.DecimalFormat
-import java.text.DecimalFormatSymbols
 
 class SimpleBudgetApp : Application() {
-
-
 
     companion object {
         lateinit var res: Resources
@@ -48,6 +51,40 @@ class SimpleBudgetApp : Application() {
             return when (onLeft) {
                 false -> "$amountString $currencySymbol"
                 true -> "$currencySymbol $amountString"
+            }
+        }
+
+        fun handleRecurringEntries() {
+            val db = DBhandler.getInstance()
+            val recurringEntries = db.getRecurringExpenses()
+            val expenses = db.getExpensesByDate(db.getOldestDate(), db.getNewestDate())
+
+            for (recurring in recurringEntries) {
+                var date = recurring.date
+                val maxDate = when (recurring.interval) {
+                    WEEKLY_ROOT -> {
+                        LocalDate.now().minusWeeks(1).plusDays(1)
+                    }
+                    MONTHLY_ROOT -> {
+                        LocalDate.now().minusMonths(1).plusDays(1)
+                    }
+                    else -> LocalDate.now()
+                }
+                while (date.isBefore( maxDate )) {
+                    when (recurring.interval) {
+                        WEEKLY_ROOT -> date = date.plusWeeks(1)
+                        MONTHLY_ROOT -> date = date.plusMonths(1)
+                    }
+                    if (expenses.none { it.interval == recurring.id && it.date == date}) {
+                        val newRecurringEntry = Expense(db.getLatestCategoryID(),
+                                                        recurring.description,
+                                                        recurring.cost,
+                                                        date,
+                                                        recurring.category,
+                                                        recurring.id)
+                        db.addExpense(newRecurringEntry)
+                    }
+                }
             }
         }
     }

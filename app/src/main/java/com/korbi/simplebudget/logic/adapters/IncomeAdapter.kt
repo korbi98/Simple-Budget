@@ -19,6 +19,7 @@ package com.korbi.simplebudget.logic.adapters
 import android.content.res.TypedArray
 import android.text.Layout
 import android.view.LayoutInflater
+import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
@@ -27,12 +28,30 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.korbi.simplebudget.R
 import com.korbi.simplebudget.SimpleBudgetApp
+import com.korbi.simplebudget.database.DBhandler
+import com.korbi.simplebudget.logic.Category
 import com.korbi.simplebudget.logic.Expense
+import com.korbi.simplebudget.logic.MONTHLY_ROOT
+import com.korbi.simplebudget.logic.WEEKLY_ROOT
 import kotlinx.android.synthetic.main.income_manager_listening.view.*
+import java.text.DateFormatSymbols
+import java.text.NumberFormat
+import java.util.*
 
-class IncomeAdapter(private val incomeList: MutableList<Expense>) : RecyclerView.Adapter<IncomeAdapter.ViewHolder>() {
+class IncomeAdapter(private val incomeList: MutableList<Expense>,
+                    val editListener: OnEditListener) :
+        RecyclerView.Adapter<IncomeAdapter.ViewHolder>() {
 
-    private val iconIdArray: TypedArray = SimpleBudgetApp.res.obtainTypedArray(R.array.category_icons)
+    private val iconIdArray: TypedArray = SimpleBudgetApp.res
+            .obtainTypedArray(R.array.category_icons)
+
+    private val weekDayArray = SimpleBudgetApp.res.getStringArray(R.array.weekdays)
+    private val ordinalNumbers = SimpleBudgetApp.res.getStringArray(R.array.ordinals)
+
+    interface OnEditListener {
+        fun onEdit(income: Expense)
+        fun onDelete(income: Expense)
+    }
 
     override fun getItemCount(): Int {
         return incomeList.size
@@ -45,11 +64,27 @@ class IncomeAdapter(private val incomeList: MutableList<Expense>) : RecyclerView
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.incomeNameView.text = incomeList[position].description
+        holder.incomeNameView.text = when {
+            !incomeList[position].description.isBlank() -> {
+                incomeList[position].description
+            }
+            else -> incomeList[position].category.name
+        }
         val iconId = iconIdArray.getResourceId(incomeList[position].category.icon, -1)
         holder.incomeIconView.setImageResource(iconId)
         holder.incomeAmountView.text = SimpleBudgetApp.createCurrencyString(incomeList[position].cost)
-        holder.incomeIntervalView.text = "On first day of every month"
+        holder.incomeIntervalView.text = when (incomeList[position].interval) {
+            WEEKLY_ROOT -> {
+                holder.itemView.context.getString(R.string.every) +
+                        " ${weekDayArray[incomeList[position].date.dayOfWeek.value - 1]}"
+            }
+            MONTHLY_ROOT -> {
+                holder.itemView.context.getString(R.string.every) +
+                        " ${ordinalNumbers[incomeList[position].date.dayOfMonth - 1]} " +
+                        holder.itemView.context.getString(R.string.of_month)
+            }
+            else -> "ERROR, THIS SHOULD NOT BE HERE"
+        }
 
         if (incomeList[position].cost < 0) {
             holder.incomeAmountView.setTextColor(ContextCompat.getColor(holder.itemView.context,
@@ -67,5 +102,22 @@ class IncomeAdapter(private val incomeList: MutableList<Expense>) : RecyclerView
         val incomeIntervalView: TextView = incomeView.income_manager_listening_date
         val incomeAmountView: TextView = incomeView.income_manager_listening_amount
 
+        init {
+            itemView.setOnCreateContextMenuListener { menu, _, _ ->
+                val edit = menu.add(Menu.NONE, 1, 1, itemView.context.getString(R.string.edit))
+                val delete = menu.add(Menu.NONE, 2, 2, itemView.context.getString(R.string.delete))
+                edit.setOnMenuItemClickListener {
+
+                    editListener.onEdit(incomeList[adapterPosition])
+
+                    true
+                }
+                delete.setOnMenuItemClickListener {
+
+                    editListener.onDelete(incomeList[adapterPosition])
+                    true
+                }
+            }
+        }
     }
 }

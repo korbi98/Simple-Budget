@@ -22,15 +22,13 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bignerdranch.expandablerecyclerview.ExpandableRecyclerAdapter
 import com.korbi.simplebudget.R
-import com.korbi.simplebudget.logic.Expense
-import com.korbi.simplebudget.logic.ExpenseViewHolder
-import com.korbi.simplebudget.logic.HistoryEntry
-import com.korbi.simplebudget.logic.HistoryViewHolder
+import com.korbi.simplebudget.logic.*
 import java.util.*
 
 
 class HistoryAdapter(private val historyEntries: MutableList<HistoryEntry>,
-                     private val listener: ExpenseViewHolder.ExpenseAdapterListener) :
+                     private val listener: ExpenseViewHolder.ExpenseAdapterListener,
+                     private val recurrentListener: ClickRecurrentEntryListener) :
                                             ExpandableRecyclerAdapter<HistoryEntry, Expense,
                                                     HistoryViewHolder, ExpenseViewHolder>(historyEntries) {
 
@@ -38,6 +36,9 @@ class HistoryAdapter(private val historyEntries: MutableList<HistoryEntry>,
     private var currentSelectedParent = -1
     private val selectedItems = mutableListOf<MutableList<Boolean>>()
 
+    interface ClickRecurrentEntryListener {
+        fun onClickRecurrentEntry(parentPosition: Int, childPosition: Int)
+    }
 
     override fun onCreateParentViewHolder(parent: ViewGroup, viewType: Int): HistoryViewHolder {
         val view = LayoutInflater.from(parent.context)
@@ -84,10 +85,14 @@ class HistoryAdapter(private val historyEntries: MutableList<HistoryEntry>,
     }
 
     fun toggleSelection(parentPosition: Int, childPosition: Int) {
-        selectedItems[parentPosition][childPosition] = !selectedItems[parentPosition][childPosition]
-        currentSelectedParent = parentPosition
-        currentSelectedChild = childPosition
-        notifyChildChanged(parentPosition, childPosition)
+        if (historyEntries[parentPosition].childList[childPosition].interval == NON_RECURRING) {
+            selectedItems[parentPosition][childPosition] = !selectedItems[parentPosition][childPosition]
+            currentSelectedParent = parentPosition
+            currentSelectedChild = childPosition
+            notifyChildChanged(parentPosition, childPosition)
+        } else {
+            recurrentListener.onClickRecurrentEntry(parentPosition, childPosition)
+        }
     }
 
     fun getSelectedItemCount(): Int {

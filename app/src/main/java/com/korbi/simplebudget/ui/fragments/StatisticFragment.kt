@@ -25,6 +25,7 @@ import android.view.View
 import android.view.ViewGroup
 
 import com.korbi.simplebudget.R
+import com.korbi.simplebudget.SimpleBudgetApp
 import com.korbi.simplebudget.logic.DateHelper
 
 // TODO: Rename parameter arguments, choose names that match
@@ -52,4 +53,8 @@ class StatisticFragment : androidx.fragment.app.Fragment() {
     }
 
 
+    override fun onResume() {
+        super.onResume()
+        SimpleBudgetApp.handleRecurringEntries()
+    }
 }

@@ -19,10 +19,9 @@ package com.korbi.simplebudget.logic
 import org.threeten.bp.LocalDate
 import java.util.Date
 
-const val NON_RECURRING = 0
-const val MONTHLY_ROOT = 1
-const val WEEKLY_ROOT = 2
-const val RECURRING_CHILD = 3
+const val NON_RECURRING = -1
+const val MONTHLY_ROOT = -2
+const val WEEKLY_ROOT = -3
 
 data class Expense(var id: Int,
                    var description: String,
@@ -33,7 +32,7 @@ data class Expense(var id: Int,
 
 
     override fun equals(other: Any?): Boolean {
-        if (this !== other) return false
+        other as Expense
         return (this.category == other.category && this.cost == other.cost &&
                 this.description == other.description && this.date == other.date &&
                 this.interval == other.interval)
@@ -45,6 +44,9 @@ data class Expense(var id: Int,
         result = 31 * result + cost
         result = 31 * result + date.hashCode()
         result = 31 * result + category.hashCode()
+        result = 31 * result + interval
         return result
     }
+
+
 }

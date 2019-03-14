@@ -107,7 +107,8 @@ class AddExpenses : AppCompatActivity() {
         val amountString = currencyInput.text.toString().replace(",", ".")
 
         when {
-            currencyInput.text.isNullOrBlank() || amountString == "." ->
+            currencyInput.text.isNullOrBlank() || amountString == "." || amountString == "-"
+                                                                        || amountString == "-."->
                 currencyEditLayout.error = getString(R.string.no_amount_warning)
 
             getSelectedCategory() == null -> {

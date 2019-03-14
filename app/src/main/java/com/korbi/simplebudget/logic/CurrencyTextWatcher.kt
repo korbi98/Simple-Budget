@@ -34,8 +34,10 @@ class CurrencyTextWatcher(private val inputView: EditText,
 
         if (!s.isNullOrBlank()) inputLayout.error = ""
         if (dialog != null) {
+            val c = s.toString()
             dialog.getButton(AlertDialog.BUTTON_POSITIVE).isEnabled =
-                    !(s.isNullOrBlank() || s.toString() == "." || s.toString() == ",")
+                    !(s.isNullOrBlank() || c == "." || c == "," || c == "-" || c == "-,"
+                            || c == "-.")
         }
 
         var hasSeparator = false

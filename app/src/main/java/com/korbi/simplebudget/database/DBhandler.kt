@@ -20,10 +20,7 @@ import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
-import android.util.Log
-import com.korbi.simplebudget.logic.Category
-import com.korbi.simplebudget.logic.Expense
-import com.korbi.simplebudget.logic.NON_RECURRING
+import com.korbi.simplebudget.logic.*
 import org.threeten.bp.LocalDate
 import org.threeten.bp.format.DateTimeFormatter
 import kotlin.collections.ArrayList
@@ -155,7 +152,8 @@ class DBhandler(context: Context, private val defaultCategories: Array<String>) 
         val expenses = mutableListOf<Expense>()
         val db = this.writableDatabase
 
-        val query = "SELECT * FROM $EXPENSE_TABLE WHERE $COL_INTERVAL != $NON_RECURRING"
+        val query = "SELECT * FROM $EXPENSE_TABLE WHERE $COL_INTERVAL = $WEEKLY_ROOT " +
+                            "OR $COL_INTERVAL = $MONTHLY_ROOT"
 
         val cursor = db.rawQuery(query, null)
 
@@ -173,6 +171,22 @@ class DBhandler(context: Context, private val defaultCategories: Array<String>) 
         }
         cursor.close()
         return expenses
+    }
+
+    fun getExpenseByID(Id: Int): Expense {
+
+        val query = "SELECT * FROM $EXPENSE_TABLE WHERE $COL_ID = $Id"
+
+        val db = this.writableDatabase
+        val cursor = db.rawQuery(query, null)
+
+        cursor?.moveToFirst()
+        return Expense(cursor.getInt(0),
+                cursor.getString(1),
+                cursor.getInt(2),
+                LocalDate.parse(cursor.getString(3)),
+                getCategoryById(cursor.getInt(4)),
+                cursor.getInt(5))
     }
 
     fun getOldestDate(): LocalDate {
@@ -231,6 +245,14 @@ class DBhandler(context: Context, private val defaultCategories: Array<String>) 
     fun deleteExpensesByCategory(category: Category) {
         val db = this.writableDatabase
         db.delete(EXPENSE_TABLE, "$COL_CATEGORY = ?", arrayOf(category.id.toString()))
+    }
+
+    fun deleteRecurringEntry(income: Expense) {
+        val db = this.writableDatabase
+        if (income.interval == WEEKLY_ROOT || income.interval == MONTHLY_ROOT) {
+            db.delete(EXPENSE_TABLE, "$COL_INTERVAL = ?", arrayOf(income.id.toString()))
+            deleteExpenses(arrayListOf(income.id.toString()))
+        }
     }
 
     fun migrateExpenses(oldCategory: Category, newCategory: Category) {

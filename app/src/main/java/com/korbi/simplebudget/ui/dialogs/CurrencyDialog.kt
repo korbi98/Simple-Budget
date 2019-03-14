@@ -160,8 +160,7 @@ class CurrencyDialog : DialogFragment() {
         with (pref.edit()) {
             putString(getString(R.string.settings_key_currency), currency)
             putBoolean(getString(R.string.settings_key_currency_left), leftSideCheckBox.isChecked)
-            putBoolean(getString(R.string.settings_key_currency_decimal),
-                                        noDecimalCheckBox.isChecked)
+            putBoolean(getString(R.string.settings_key_currency_decimal), noDecimalCheckBox.isChecked)
             apply()
         }
         listener.onDialogDismiss()

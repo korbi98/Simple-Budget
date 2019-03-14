@@ -18,7 +18,9 @@ package com.korbi.simplebudget.ui.fragments
 
 import android.app.AlertDialog
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
+import android.preference.PreferenceManager
 import android.util.Log
 import androidx.recyclerview.widget.RecyclerView
 
@@ -26,15 +28,18 @@ import com.korbi.simplebudget.R
 import com.korbi.simplebudget.database.DBhandler
 import com.korbi.simplebudget.logic.adapters.HistoryAdapter
 import android.view.*
+import android.widget.CheckBox
 import android.widget.SearchView
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bignerdranch.expandablerecyclerview.ExpandableRecyclerAdapter
 import com.korbi.simplebudget.MainActivity
+import com.korbi.simplebudget.SimpleBudgetApp
 import com.korbi.simplebudget.logic.DateHelper
 import com.korbi.simplebudget.logic.Expense
 import com.korbi.simplebudget.logic.ExpenseViewHolder
 import com.korbi.simplebudget.logic.HistoryEntry
 import com.korbi.simplebudget.ui.*
+import kotlinx.android.synthetic.main.income_manager_add_dialog.*
 import org.threeten.bp.LocalDate
 import org.threeten.bp.LocalDateTime
 import org.threeten.bp.format.DateTimeFormatter
@@ -45,11 +50,13 @@ import java.util.*
 
 
 class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.ExpenseAdapterListener,
-                                                        FilterBottomSheet.OnFilterFragmentListener {
+                                                        FilterBottomSheet.OnFilterFragmentListener,
+                                                        HistoryAdapter.ClickRecurrentEntryListener {
 
     private lateinit var historyRecycler: RecyclerView
     private lateinit var db: DBhandler
     private lateinit var historyAdapter: HistoryAdapter
+    private lateinit var pref: SharedPreferences
 
     private var mActionMode: ActionMode? = null
     private var parentPosition = 1 // position to update when update expenses
@@ -61,6 +68,7 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
                               savedInstanceState: Bundle?): View? {
 
         db = DBhandler.getInstance()
+        pref = PreferenceManager.getDefaultSharedPreferences(context)
 
         val rootview = inflater.inflate(R.layout.fragment_history, container, false)
 
@@ -83,6 +91,7 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
 
     override fun onResume() {
         super.onResume()
+        SimpleBudgetApp.handleRecurringEntries()
         updateView(getHistoryEntries((activity as MainActivity).typeSelection,
                                         (activity as MainActivity).dateSelection,
                                         (activity as MainActivity).fromDateSelection,
@@ -109,7 +118,7 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
             }
 
             fun search() {
-                historyAdapter = HistoryAdapter(performSearch(searchView.query.toString()), this@HistoryFragment)
+                historyAdapter = HistoryAdapter(performSearch(searchView.query.toString()), this@HistoryFragment, this@HistoryFragment)
                 historyRecycler.adapter = historyAdapter
                 historyAdapter.sort()
                 historyAdapter.initializeSelectedItems()
@@ -331,7 +340,7 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
     }
 
     private fun updateView(hEntries: MutableList<HistoryEntry>) {
-        historyAdapter = HistoryAdapter(hEntries, this)
+        historyAdapter = HistoryAdapter(hEntries, this, this)
         historyAdapter.setExpandCollapseListener(object : ExpandableRecyclerAdapter.
                                                                 ExpandCollapseListener {
 
@@ -349,8 +358,10 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
         historyAdapter.initializeSelectedItems()
         updateExpandedStateMap()
 
-        (activity as MainActivity).expandedStateMap.forEach {(position, state) ->
-            if (state) historyAdapter.expandParent(position)
+        for (index in historyAdapter.parentList.indices) {
+            when ((activity as MainActivity).expandedStateMap[index]) {
+                true -> historyAdapter.expandParent(index)
+            }
         }
     }
 
@@ -381,6 +392,25 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
             }
         }
         toggleSelection(parentPosition, childPosition)
+    }
+
+    override fun onClickRecurrentEntry(parentPosition: Int, childPosition: Int) {
+        if (!pref.getBoolean(getString(R.string.dont_show_again_key), false)) {
+            val builder = AlertDialog.Builder(context)
+            builder.setTitle(R.string.this_is_recurrent_entry)
+            builder.setMessage(R.string.this_is_recurrent_entry_message)
+            builder.setPositiveButton(R.string.ok) { dialog, _ ->
+                dialog.dismiss()
+            }
+            builder.setNeutralButton(R.string.dont_show_again) {dialog, _ ->
+                with(pref.edit()) {
+                    putBoolean(getString(R.string.dont_show_again_key), true)
+                    apply()
+                }
+                dialog.dismiss()
+            }
+            builder.show()
+        }
     }
 
     private fun updateExpandedStateMap() {

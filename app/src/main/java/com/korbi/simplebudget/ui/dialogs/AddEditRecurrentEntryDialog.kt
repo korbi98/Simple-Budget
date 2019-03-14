@@ -32,13 +32,13 @@ import com.google.android.material.textfield.TextInputLayout
 import com.korbi.simplebudget.R
 import com.korbi.simplebudget.SimpleBudgetApp
 import com.korbi.simplebudget.database.DBhandler
-import com.korbi.simplebudget.logic.CurrencyTextWatcher
-import com.korbi.simplebudget.logic.Expense
-import com.korbi.simplebudget.logic.MONTHLY_ROOT
-import com.korbi.simplebudget.logic.WEEKLY_ROOT
+import com.korbi.simplebudget.logic.*
 import org.threeten.bp.LocalDate
 import org.threeten.bp.format.DateTimeFormatter
+import java.lang.ClassCastException
 import java.text.DecimalFormatSymbols
+
+const val INCOME_INDEX = "id"
 
 class AddEditRecurrentEntryDialog : DialogFragment() {
 
@@ -53,13 +53,25 @@ class AddEditRecurrentEntryDialog : DialogFragment() {
     private lateinit var currencySymbol: String
     private lateinit var monthlyChip: Chip
     private lateinit var weeklyChip: Chip
+    private lateinit var listener: OnSaveListener
     private var noDecimal: Boolean? = null
     private val db = DBhandler.getInstance()
+    private var prefillIncome: Expense? = null
 
     private val dateFormatter = DateTimeFormatter.ofPattern("dd.MM.yy")
 
+    interface OnSaveListener {
+        fun onSave(income: Expense, oldIncome: Expense?)
+    }
+
     @SuppressLint("InflateParams")
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+
+        try {
+            listener = activity as OnSaveListener
+        } catch (e: ClassCastException) {
+            throw ClassCastException("$activity must implement OnSaveListener")
+        }
 
         noDecimal = SimpleBudgetApp.pref.getBoolean(
                 getString(R.string.settings_key_currency_decimal), false)
@@ -108,15 +120,34 @@ class AddEditRecurrentEntryDialog : DialogFragment() {
 
             intervalGroup.check(R.id.chip_monthly)
 
+            prefill()
+
             dialog
         } ?: throw IllegalStateException("Activity cannot be null")
 
     }
 
+    private fun prefill() {
+        if (arguments?.getInt(INCOME_INDEX) != null) {
+            prefillIncome = db.getExpenseByID(arguments!!.getInt(INCOME_INDEX))
+            currencyInput.setText(SimpleBudgetApp.createCurrencyString(prefillIncome!!.cost))
+            categorySpinner.setSelection(prefillIncome!!.category.position)
+            when (prefillIncome!!.interval) {
+                WEEKLY_ROOT -> weeklyChip.isChecked = true
+            }
+            intervalDate = prefillIncome!!.date
+            updateDatePickerText()
+            descriptionInput.setText(prefillIncome!!.description)
+        }
+    }
+
     private fun save() {
 
         val amountString = currencyInput.text.toString().replace(",", ".")
-        val id = db.getLatestID()
+        val id = when (prefillIncome) {
+            null -> db.getLatestCategoryID()
+            else -> prefillIncome!!.id
+        }
         val name = descriptionInput.text.toString()
         val amount = when (noDecimal) {
             false, null -> (amountString.toFloat() * 100).toInt()
@@ -134,7 +165,7 @@ class AddEditRecurrentEntryDialog : DialogFragment() {
         }
 
         val recurrentEntry = Expense(id, name, amount, intervalDate, category!!, interval)
-        db.addExpense(recurrentEntry)
+        listener.onSave(recurrentEntry, prefillIncome)
     }
 
     private fun setupCurrencyInput(dialog: AlertDialog) {
