@@ -20,6 +20,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".ui.fragments.DashboardFragment">
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -38,16 +39,15 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:padding="10dp">
+            android:orientation="vertical">
 
             <LinearLayout
                 android:id="@+id/dashboard_time_selection_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginStart="10dp"
-                android:layout_marginBottom="10dp">
+                android:padding="10dp"
+                android:layout_marginStart="10dp">
 
                 <TextView
                     android:id="@+id/dashboard_time_selection_text"
@@ -66,19 +66,13 @@
 
             </LinearLayout>
 
-            <View
-                android:id="@+id/dashboard_first_divider"
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@android:color/darker_gray"
-                android:layout_gravity="bottom" />
-
             <TableLayout
                 android:id="@+id/dashboard_table"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="50dp"
-                android:layout_gravity="end">
+                android:layout_gravity="end"
+                android:layout_marginBottom="16dp">
 
                 <TableRow>
                     <TextView
@@ -132,19 +126,26 @@
 
             <View
                 android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@android:color/darker_gray"
+                android:layout_height="3dp"
+                android:background="@color/colorPrimaryDark"
                 android:layout_gravity="bottom" />
 
             <com.google.android.material.tabs.TabLayout
                 android:id="@+id/dashboard_tabs"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                app:tabBackground="@color/gray_background"/>
 
             <androidx.viewpager.widget.ViewPager
                 android:id="@+id/dashboard_viewpager"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="match_parent"
+                android:paddingEnd="12dp"
+                android:paddingStart="12dp"
+                android:paddingTop="10dp"
+                android:background="@color/gray_background"/>
 
         </LinearLayout>
 

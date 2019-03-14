@@ -54,7 +54,6 @@ class DashboardFragment : androidx.fragment.app.Fragment() {
     private lateinit var timeSelectionSpinner:Spinner
     private lateinit var actionBarSpinner: Spinner
     private lateinit var timeSelectionLayout: View
-    private lateinit var firstDivider: View
     private lateinit var expensesTextView: TextView
     private lateinit var incomeTextView: TextView
     private lateinit var balanceTextView: TextView
@@ -75,14 +74,13 @@ class DashboardFragment : androidx.fragment.app.Fragment() {
 
         timeSelectionSpinner = rootView.findViewById(R.id.dashboard_time_selection_spinner)
         timeSelectionLayout = rootView.findViewById(R.id.dashboard_time_selection_layout)
-        firstDivider = rootView.findViewById(R.id.dashboard_first_divider)
         expensesTextView = rootView.findViewById(R.id.dashboard_total_expenses)
         incomeTextView = rootView.findViewById(R.id.dashboard_total_income)
         balanceTextView = rootView.findViewById(R.id.dashboard_balance)
 
         val tabLayout = rootView.findViewById<TabLayout>(R.id.dashboard_tabs)
         tabLayout.addTab(tabLayout.newTab().setText(R.string.budget))
-        tabLayout.addTab(tabLayout.newTab().setText(R.string.pi_chart))
+        tabLayout.addTab(tabLayout.newTab().setText(R.string.pie_chart))
 
         val viewPager = rootView.findViewById<ViewPager>(R.id.dashboard_viewpager)
         viewPager.adapter = object : FragmentStatePagerAdapter(fragmentManager!!) {
@@ -187,7 +185,6 @@ class DashboardFragment : androidx.fragment.app.Fragment() {
 
     fun setupTimeSelectionSpinner(intervalType: Int) {
 
-        firstDivider.visibility = View.VISIBLE
         timeSelectionLayout.visibility = View.VISIBLE
         val dh = DateHelper.getInstance()
 
@@ -196,7 +193,6 @@ class DashboardFragment : androidx.fragment.app.Fragment() {
             QUARTERLY_INTERVAL -> dh.getQuarterSpinnerArray()
             YEARLY_INTERVAL -> dh.getYearSpinnerArray()
             ALL_TIME -> {
-                firstDivider.visibility = View.GONE
                 timeSelectionLayout.visibility = View.GONE
                 sumExpenses(ALL_TIME, 0)
                 Array(0){""}

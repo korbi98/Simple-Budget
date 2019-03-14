@@ -66,7 +66,7 @@ class SettingsActivity : AppCompatActivity() {
             val packageName = BuildConfig.APPLICATION_ID
             val versionNumber = BuildConfig.VERSION_CODE
 
-            currency = findPreference<Preference>(getString(R.string.settings_key_currency))
+            currency = findPreference<Preference>(getString(R.string.settings_key_currency))!!
             currencyList = resources.getStringArray(R.array.currencies_with_names)
             currencySymbols = resources.getStringArray(R.array.currencies_symbols)
             pref = PreferenceManager.getDefaultSharedPreferences(context)
@@ -87,10 +87,10 @@ class SettingsActivity : AppCompatActivity() {
             }
 
             val version = findPreference<Preference>(getString(R.string.about_version_number_key))
-            version.summary = versionNumber.toString()
+            version?.summary = versionNumber.toString()
 
             val sendFeedback = findPreference<Preference>(getString(R.string.key_send_feedback))
-            sendFeedback.onPreferenceClickListener = Preference.OnPreferenceClickListener {
+            sendFeedback?.onPreferenceClickListener = Preference.OnPreferenceClickListener {
                 val mailLink = "mailto:info@korbinian-moser.de?" + "subject=Simple Budget feedback"
 
                 val sendMail = Intent(Intent.ACTION_VIEW)
@@ -101,7 +101,7 @@ class SettingsActivity : AppCompatActivity() {
             }
 
             val rateApp = findPreference<Preference>(getString(R.string.about_rate_app_key))
-            rateApp.onPreferenceClickListener = Preference.OnPreferenceClickListener {
+            rateApp?.onPreferenceClickListener = Preference.OnPreferenceClickListener {
                 try {
                     startActivity(Intent(Intent.ACTION_VIEW,
                             Uri.parse("market://details?id=$packageName")))
@@ -114,7 +114,7 @@ class SettingsActivity : AppCompatActivity() {
             }
 
             val otherApps = findPreference<Preference>(getString(R.string.about_other_apps_key))
-            otherApps.onPreferenceClickListener = Preference.OnPreferenceClickListener {
+            otherApps?.onPreferenceClickListener = Preference.OnPreferenceClickListener {
                 try {
                     startActivity(Intent(Intent.ACTION_VIEW,
                             Uri.parse("market://developer?id=Korbinian+Moser")))

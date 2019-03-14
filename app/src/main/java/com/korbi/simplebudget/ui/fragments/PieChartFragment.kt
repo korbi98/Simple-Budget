@@ -21,22 +21,28 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import com.github.mikephil.charting.charts.PieChart
+import com.github.mikephil.charting.data.Entry
+import com.github.mikephil.charting.data.PieData
+import com.github.mikephil.charting.data.PieDataSet
+import com.github.mikephil.charting.data.PieEntry
 import com.korbi.simplebudget.R
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
 
-/**
- * A simple [Fragment] subclass.
- *
- */
 class PiChartFragment : androidx.fragment.app.Fragment() {
+
+    private lateinit var pieChart: PieChart
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_pi_chart, container, false)
+
+        val rootView = inflater.inflate(R.layout.fragment_pie_chart, container, false)
+
+        pieChart = rootView.findViewById(R.id.dashboard_pie_chart)
+        val entries = arrayListOf(PieEntry(40f, 100), PieEntry(96f, 1))
+        val dataset = PieData(PieDataSet(entries, "test"))
+        pieChart.data = dataset
+
+        return rootView
     }
 }
