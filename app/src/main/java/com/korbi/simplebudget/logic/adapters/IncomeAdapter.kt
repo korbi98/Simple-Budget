@@ -23,13 +23,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.korbi.simplebudget.R
 import com.korbi.simplebudget.SimpleBudgetApp
-import com.korbi.simplebudget.logic.RecurrentEntry
+import com.korbi.simplebudget.logic.Expense
 import kotlinx.android.synthetic.main.income_manager_listening.view.*
 
-class IncomeAdapter(private val incomeList: MutableList<RecurrentEntry>) : RecyclerView.Adapter<IncomeAdapter.ViewHolder>() {
+class IncomeAdapter(private val incomeList: MutableList<Expense>) : RecyclerView.Adapter<IncomeAdapter.ViewHolder>() {
 
     private val iconIdArray: TypedArray = SimpleBudgetApp.res.obtainTypedArray(R.array.category_icons)
 
@@ -44,14 +45,20 @@ class IncomeAdapter(private val incomeList: MutableList<RecurrentEntry>) : Recyc
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.incomeNameView.text = incomeList[position].name
+        holder.incomeNameView.text = incomeList[position].description
         val iconId = iconIdArray.getResourceId(incomeList[position].category.icon, -1)
         holder.incomeIconView.setImageResource(iconId)
-        holder.incomeAmountView.text = "200 €"
+        holder.incomeAmountView.text = SimpleBudgetApp.createCurrencyString(incomeList[position].cost)
         holder.incomeIntervalView.text = "On first day of every month"
+
+        if (incomeList[position].cost < 0) {
+            holder.incomeAmountView.setTextColor(ContextCompat.getColor(holder.itemView.context,
+                    R.color.expenseColor))
+        } else {
+            holder.incomeAmountView.setTextColor(ContextCompat.getColor(holder.itemView.context,
+                    R.color.incomeColor))
+        }
     }
-
-
 
     inner class ViewHolder(incomeView: View) : RecyclerView.ViewHolder(incomeView) {
 
@@ -59,7 +66,6 @@ class IncomeAdapter(private val incomeList: MutableList<RecurrentEntry>) : Recyc
         val incomeNameView: TextView = incomeView.income_manager_listening_description
         val incomeIntervalView: TextView = incomeView.income_manager_listening_date
         val incomeAmountView: TextView = incomeView.income_manager_listening_amount
-
 
     }
 }

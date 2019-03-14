@@ -42,7 +42,7 @@ class IncomeManager : AppCompatActivity() {
         incomeRecyclerView.layoutManager = LinearLayoutManager(applicationContext,
                 RecyclerView.VERTICAL, false)
         incomeRecyclerView.setHasFixedSize(true)
-        incomeAdapter = IncomeAdapter(db.getAllRecurringEntries())
+        incomeAdapter = IncomeAdapter(db.getRecurringExpenses())
         incomeRecyclerView.adapter = incomeAdapter
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)

@@ -33,13 +33,12 @@ import com.korbi.simplebudget.R
 import com.korbi.simplebudget.SimpleBudgetApp
 import com.korbi.simplebudget.database.DBhandler
 import com.korbi.simplebudget.logic.CurrencyTextWatcher
-import com.korbi.simplebudget.logic.RecurrentEntry
+import com.korbi.simplebudget.logic.Expense
+import com.korbi.simplebudget.logic.MONTHLY_ROOT
+import com.korbi.simplebudget.logic.WEEKLY_ROOT
 import org.threeten.bp.LocalDate
 import org.threeten.bp.format.DateTimeFormatter
 import java.text.DecimalFormatSymbols
-
-const val MONTHLY = 0
-const val WEEKLY = 1
 
 class AddEditRecurrentEntryDialog : DialogFragment() {
 
@@ -117,7 +116,7 @@ class AddEditRecurrentEntryDialog : DialogFragment() {
     private fun save() {
 
         val amountString = currencyInput.text.toString().replace(",", ".")
-        val id = db.getLatestRecurringEntryID()
+        val id = db.getLatestID()
         val name = descriptionInput.text.toString()
         val amount = when (noDecimal) {
             false, null -> (amountString.toFloat() * 100).toInt()
@@ -130,12 +129,12 @@ class AddEditRecurrentEntryDialog : DialogFragment() {
             else -> db.getAllCategories()[0]
         }
         val interval = when (intervalGroup.checkedChipId) {
-            R.id.chip_weekly -> WEEKLY
-            else -> MONTHLY
+            R.id.chip_weekly -> WEEKLY_ROOT
+            else -> MONTHLY_ROOT
         }
 
-        val recurrentEntry = RecurrentEntry(id, name, amount, category!!, interval, this.intervalDate)
-        db.addRecurringEntry(recurrentEntry)
+        val recurrentEntry = Expense(id, name, amount, intervalDate, category!!, interval)
+        db.addExpense(recurrentEntry)
     }
 
     private fun setupCurrencyInput(dialog: AlertDialog) {

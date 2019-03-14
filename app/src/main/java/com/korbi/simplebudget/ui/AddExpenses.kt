@@ -20,8 +20,6 @@ import android.app.DatePickerDialog
 import android.content.res.TypedArray
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
@@ -38,9 +36,9 @@ import com.korbi.simplebudget.database.DBhandler
 import com.korbi.simplebudget.logic.Category
 import com.korbi.simplebudget.logic.CurrencyTextWatcher
 import com.korbi.simplebudget.logic.Expense
+import com.korbi.simplebudget.logic.NON_RECURRING
 import org.threeten.bp.LocalDate
 import org.threeten.bp.format.DateTimeFormatter
-import java.lang.StringBuilder
 import java.text.DecimalFormatSymbols
 
 const val EXPENSE_INDEX = "prefill_index"
@@ -98,7 +96,7 @@ class AddExpenses : AppCompatActivity() {
 
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE)
         updateDatePickerText()
-        setupcurrencyInput()
+        setupCurrencyInput()
         setupCategoryGroup()
 
         prefill()
@@ -138,7 +136,7 @@ class AddExpenses : AppCompatActivity() {
                 }
                 val id = db.getLatestID()
                 val expense = Expense(id, descriptionEditText.text.toString(), amount,
-                        expenseDate, getSelectedCategory()!!)
+                        expenseDate, getSelectedCategory()!!, NON_RECURRING)
                 db.addExpense(expense)
                 finish()
             }
@@ -185,7 +183,7 @@ class AddExpenses : AppCompatActivity() {
                                             bundle.getInt(EXPENSE_COST),
                                             LocalDate.parse(
                                                     bundle.getString(EXPENSE_DATE), dateFormatter),
-                                            db.getCategoryById(bundle.getInt(EXPENSE_CAT)))
+                                            db.getCategoryById(bundle.getInt(EXPENSE_CAT)), NON_RECURRING)
 
             val multiplier = when (noDecimal) {
                 true -> -1
@@ -200,7 +198,7 @@ class AddExpenses : AppCompatActivity() {
         }
     }
 
-    private fun setupcurrencyInput() {
+    private fun setupCurrencyInput() {
         currencyInput = findViewById(R.id.currencyInput)
 
         val inputLayout = findViewById<TextInputLayout>(R.id.add_expense_input_layout)
