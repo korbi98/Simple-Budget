@@ -22,7 +22,6 @@ import org.threeten.bp.LocalDate
 data class RecurrentEntry(var id: Int,
                           var name: String,
                           var amount: Int,
+                          var category: Category,
                           var interval: Int,
-                          var intervalDate: String,
-                          var startingFrom: LocalDate) {
-}
+                          var intervalDate: LocalDate)

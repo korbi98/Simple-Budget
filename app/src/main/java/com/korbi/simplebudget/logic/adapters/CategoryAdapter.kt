@@ -16,91 +16,109 @@
 
 package com.korbi.simplebudget.logic.adapters
 
-import android.animation.ArgbEvaluator
-import android.animation.ValueAnimator
+import android.annotation.SuppressLint
 import android.content.res.TypedArray
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.util.Log
+import android.view.*
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.korbi.simplebudget.R
 import com.korbi.simplebudget.SimpleBudgetApp
+import com.korbi.simplebudget.database.DBhandler
 import com.korbi.simplebudget.logic.Category
-import kotlinx.android.synthetic.main.category_listening.view.*
+import com.korbi.simplebudget.logic.dragAndDrop.ItemTouchHelperAdapter
+import com.korbi.simplebudget.logic.dragAndDrop.ItemTouchHelperViewHolder
+import kotlinx.android.synthetic.main.category_manager_listening.view.*
+import java.util.*
 
+class CategoryAdapter(private val categoryList: MutableList<Category>,
+                      val startDragListener: OnStartDragListener,
+                      val editListener: OnEditListener) :
+                            RecyclerView.Adapter<CategoryAdapter.ViewHolder>(),
+                            ItemTouchHelperAdapter {
 
-
-class CategoryAdapter(private val categories: MutableList<Category>) :
-                        RecyclerView.Adapter<CategoryAdapter.ViewHolder>() {
-
-    private var selectedCategory: Category? = null
-    private val iconIdArray: TypedArray = SimpleBudgetApp.res.obtainTypedArray(R.array.category_icons)
-
-    init {
-        categories.sortBy { it.position }
+    interface OnEditListener {
+        fun onEdit(category: Category)
+        fun onDelete(category: Category)
     }
 
+    init {
+        categoryList.sortBy { it.position }
+    }
+
+    interface OnStartDragListener {
+        fun onStartDrag(viewHolder: ViewHolder)
+    }
+
+    private val iconIdArray: TypedArray = SimpleBudgetApp.res.obtainTypedArray(R.array.category_icons)
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-
-        val categoryView = LayoutInflater.from(parent.context).inflate(R.layout.category_listening,
-                parent, false)
-
+        val categoryView = LayoutInflater.from(parent.context)
+                .inflate(R.layout.category_manager_listening, parent, false)
         return ViewHolder(categoryView)
     }
 
-    override fun onBindViewHolder(parent: ViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        holder.categoryNameView.text = categoryList[position].name
+        val iconId = iconIdArray.getResourceId(categoryList[position].icon, -1)
 
-        parent.categoryNameView.text = categories[position].name
-        parent.categoryIconView.setImageResource(iconIdArray.getResourceId(categories[position].icon, -1))
-
-        if (selectedCategory == categories[position]) {
-            parent.itemView.setBackgroundResource(R.color.colorPrimaryDark)
-//            val colorStart = ContextCompat.getColor(parent.itemView.context, R.color.gray_background)
-//            val colorEnd = ContextCompat.getColor(parent.itemView.context, R.color.colorPrimaryDark)
-//            val backgroundAnimator = ValueAnimator.ofObject(ArgbEvaluator(), colorStart, colorEnd)
-//            backgroundAnimator.duration = 100
-//            backgroundAnimator.addUpdateListener { valueAnimator ->
-//                parent.itemView.setBackgroundColor(valueAnimator.animatedValue as Int)
-//            }
-//            backgroundAnimator.start()
-        } else {
-            val attrs = IntArray(1){R.attr.selectableItemBackground}
-            val typedArray = parent.itemView.context.obtainStyledAttributes(attrs)
-            val backgroundResource = typedArray.getResourceId(0, 0)
-            typedArray.recycle()
-            parent.itemView.setBackgroundResource(backgroundResource)
-        }
-
+        holder.categoryIconView.setImageResource(iconId)
     }
 
     override fun getItemCount(): Int {
-        return categories.size
+        return categoryList.size
     }
 
-    inner class ViewHolder(categoryView: View) : RecyclerView.ViewHolder(categoryView) {
+    override fun onItemMove(fromPosition: Int, toPosition: Int) {
+        Collections.swap(categoryList, fromPosition, toPosition)
+        notifyItemMoved(fromPosition, toPosition)
 
-        val categoryNameView: TextView = categoryView.category_listening_name
-        val categoryIconView: ImageView = categoryView.category_listening_icon
-
-        init {
-            categoryView.setOnClickListener {
-                selectedCategory = categories[adapterPosition]
-
-                notifyDataSetChanged()
-            }
+        for ((pos, cat) in categoryList.withIndex()) {
+            DBhandler.getInstance().updatePosition(cat, pos)
         }
     }
 
-    fun getSelectedCategory(): Category? {
-        return selectedCategory
-    }
+    @SuppressLint("ClickableViewAccessibility")
+    inner class ViewHolder(categoryView: View) : RecyclerView.ViewHolder(categoryView),
+                                                    ItemTouchHelperViewHolder {
 
-    fun setSelectedCategory(category: Category) {
-        selectedCategory = category
+        val categoryNameView: TextView = categoryView.category_manager_listening_name
+        val categoryIconView: ImageView = categoryView.category_manager_listening_icon
+        private val dragHandle: ImageView = categoryView.category_manager_listening_drag_handle
 
-        notifyItemChanged(categories.indexOf(category))
+        init {
+            dragHandle.setOnTouchListener { _, _ ->
+                startDragListener.onStartDrag(this@ViewHolder)
+                true
+            }
+
+            itemView.setOnCreateContextMenuListener { menu, _, _ ->
+                val edit = menu.add(Menu.NONE, 1, 1, itemView.context.getString(R.string.edit))
+                val delete = menu.add(Menu.NONE, 2, 2, itemView.context.getString(R.string.delete))
+                edit.setOnMenuItemClickListener {
+
+                    editListener.onEdit(categoryList[adapterPosition])
+
+                    true
+                }
+                delete.setOnMenuItemClickListener {
+                    for ((pos, cat) in categoryList.withIndex()) {
+                        DBhandler.getInstance().updatePosition(cat, pos)
+                    }
+                    val categoryToDelete = categoryList[adapterPosition]
+                    editListener.onDelete(categoryToDelete)
+                    true
+                }
+            }
+        }
+
+        override fun onItemClear() {
+            itemView.setBackgroundColor(0)
+        }
+
+        override fun onItemSelected() {
+            itemView.setBackgroundResource(R.color.darker_background)
+        }
     }
 }

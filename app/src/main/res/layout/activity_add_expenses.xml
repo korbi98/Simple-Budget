@@ -51,8 +51,7 @@
                     android:inputType="numberDecimal"
                     android:digits="0123456789,.-"
                     android:textSize="@dimen/currency_input_textsize"
-                    android:imeOptions="actionDone"
-                    tools:ignore="Autofill">
+                    android:imeOptions="actionDone">
 
                     <requestFocus/>
 

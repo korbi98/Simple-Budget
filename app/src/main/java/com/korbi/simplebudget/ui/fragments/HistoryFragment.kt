@@ -69,7 +69,7 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
 
         historyRecycler.layoutManager = LinearLayoutManager(activity,
                                             RecyclerView.VERTICAL, false)
-        historyRecycler.isNestedScrollingEnabled = false
+        historyRecycler.setHasFixedSize(true)
 
         setHasOptionsMenu(true)
         return rootview

@@ -120,7 +120,7 @@ class AddEditCategoryDialog : DialogFragment() {
         val categoryIcon = adapter.getSelected()
         if (categoryIcon != null) {
             val newCategory =if (prefillCategory == null) { //save new category
-                Category(db.getLatestCategoryID() + 1, categoryName, categoryIcon,
+                Category(db.getLatestCategoryID(), categoryName, categoryIcon,
                         db.getAllCategories().size)
             } else { //update category
                 Category(prefillCategory!!.id, categoryName, categoryIcon,

@@ -20,15 +20,30 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.korbi.simplebudget.R
+import com.korbi.simplebudget.database.DBhandler
+import com.korbi.simplebudget.logic.adapters.IncomeAdapter
 import com.korbi.simplebudget.ui.dialogs.AddEditRecurrentEntryDialog
 
 class IncomeManager : AppCompatActivity() {
+
+    private lateinit var incomeRecyclerView: RecyclerView
+    private lateinit var incomeAdapter: IncomeAdapter
+    private val db = DBhandler.getInstance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_regular_income_manager)
         setTitle(R.string.income_manager_titel)
+
+        incomeRecyclerView = findViewById(R.id.income_manager_recycler)
+        incomeRecyclerView.layoutManager = LinearLayoutManager(applicationContext,
+                RecyclerView.VERTICAL, false)
+        incomeRecyclerView.setHasFixedSize(true)
+        incomeAdapter = IncomeAdapter(db.getAllRecurringEntries())
+        incomeRecyclerView.adapter = incomeAdapter
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
     }

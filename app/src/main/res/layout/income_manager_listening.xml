@@ -17,34 +17,49 @@
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="horizontal" android:layout_width="match_parent"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="16dp">
+    android:padding="8dp"
+    android:background="?android:attr/selectableItemBackground">
 
     <ImageView
-        android:id="@+id/category_manager_listening_icon"
+        android:id="@+id/income_manager_listening_icon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
         android:layout_centerVertical="true"
-        android:src="@drawable/ic_dashboard_white_24dp"
-        android:layout_marginEnd="24dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="18dp"
         tools:ignore="ContentDescription" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_toEndOf="@id/income_manager_listening_icon"
+        android:layout_marginEnd="24dp"
+        android:layout_toStartOf="@id/income_manager_listening_amount">
+
+        <TextView
+            android:id="@+id/income_manager_listening_description"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/income_manager_listening_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+    </LinearLayout>
 
     <TextView
-        android:id="@+id/category_manager_listening_name"
+        android:id="@+id/income_manager_listening_amount"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="24dp"
-        android:layout_toEndOf="@id/category_manager_listening_icon"
-        android:layout_toStartOf="@id/category_manager_listening_drag_handle"/>
-
-    <ImageView
-        android:id="@+id/category_manager_listening_drag_handle"
         android:layout_alignParentEnd="true"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:layout_centerVertical="true"
-        android:src="@drawable/ic_drag_handle_black_24dp"
-        tools:ignore="ContentDescription" />
+        android:layout_marginEnd="10dp"
+        android:textSize="16sp"/>
 
 </RelativeLayout>

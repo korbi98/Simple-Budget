@@ -29,7 +29,7 @@ import org.threeten.bp.format.DateTimeFormatter
 import kotlin.collections.ArrayList
 
 private const val DB_NAME = "ExpenseDatabase.db"
-private const val DB_VERSION = 3
+private const val DB_VERSION = 9
 private const val EXPENSE_TABLE = "expenses"
 
 private const val COL_ID = "_id"
@@ -42,7 +42,7 @@ private const val COL_CATEGORY = "category"
 private const val COL_DRAWABLE = "drawable"
 private const val COL_POSITION = "position"
 
-private const val RECURRING_TABLE = "regular"
+private const val INCOME_TABLE = "regular"
 private const val COL_INTERVAL = "interval"
 private const val COL_INTERVAL_DATE = "interval_date"
 private const val COL_STARTING_FROM = "starting_from"
@@ -68,15 +68,20 @@ class DBhandler(context: Context, private val defaultCategories: Array<String>) 
     }
 
     override fun onCreate(db: SQLiteDatabase) {
-        val createExpenseTable = "CREATE TABLE $EXPENSE_TABLE ($COL_ID INTEGER PRIMARY KEY, " +
-                                    "$COL_DESCRIPTION TEXT, $COL_COST INTEGER NOT NULL, " +
-                                    "$COL_DATE DATE, $COL_CATEGORY INTEGER NOT NULL)"
+        val createExpenseTable = "CREATE TABLE $EXPENSE_TABLE " +
+                "($COL_ID INTEGER PRIMARY KEY, " +
+                "$COL_DESCRIPTION TEXT, " +
+                "$COL_COST INTEGER NOT NULL, " +
+                "$COL_DATE DATE, " +
+                "$COL_CATEGORY INTEGER NOT NULL)"
 
         db.execSQL(createExpenseTable)
 
-        val createCategoryTable = "CREATE TABLE $CATEGORY_TABLE ( $COL_ID INTEGER PRIMARY KEY, " +
-                                    "$COL_CATEGORY TEXT, $COL_DRAWABLE INTEGER NOT NULL DEFAULT 0, " +
-                                    "$COL_POSITION INTEGER NOT NULL DEFAULT 0)"
+        val createCategoryTable = "CREATE TABLE $CATEGORY_TABLE " +
+                "( $COL_ID INTEGER PRIMARY KEY, " +
+                "$COL_CATEGORY TEXT, " +
+                "$COL_DRAWABLE INTEGER NOT NULL DEFAULT 0, " +
+                "$COL_POSITION INTEGER NOT NULL DEFAULT 0)"
 
         db.execSQL( createCategoryTable )
 
@@ -88,13 +93,13 @@ class DBhandler(context: Context, private val defaultCategories: Array<String>) 
             db.insert(CATEGORY_TABLE, null, values)
         }
 
-        val createRecurringTable = "CREATE TABLE $RECURRING_TABLE " +
+        val createRecurringTable = "CREATE TABLE $INCOME_TABLE " +
                 "($COL_ID INTEGER PRIMARY KEY, " +
                 "$COL_DESCRIPTION TEXT, " +
                 "$COL_COST INTEGER, " +
+                "$COL_CATEGORY, INTEGER, " +
                 "$COL_INTERVAL INTEGER, " +
-                "$COL_INTERVAL_DATE TEXT, " +
-                "$COL_STARTING_FROM DATE)"
+                "$COL_INTERVAL_DATE DATE)"
         db.execSQL(createRecurringTable)
     }
 
@@ -118,13 +123,25 @@ class DBhandler(context: Context, private val defaultCategories: Array<String>) 
                 }
             }
             3 -> {
-                val createRecurringTable = "CREATE TABLE $RECURRING_TABLE " +
+                val createRecurringTable = "CREATE TABLE $INCOME_TABLE " +
                                                         "($COL_ID INTEGER PRIMARY KEY, " +
                                                         "$COL_DESCRIPTION TEXT, " +
                                                         "$COL_COST INTEGER, " +
                                                         "$COL_INTERVAL INTEGER, " +
                                                         "$COL_INTERVAL_DATE TEXT, " +
                                                         "$COL_STARTING_FROM DATE)"
+                db.execSQL(createRecurringTable)
+            }
+            9 -> {
+                db.execSQL("DROP TABLE $INCOME_TABLE")
+
+                val createRecurringTable = "CREATE TABLE $INCOME_TABLE " +
+                        "($COL_ID INTEGER PRIMARY KEY, " +
+                        "$COL_DESCRIPTION TEXT, " +
+                        "$COL_COST INTEGER, " +
+                        "$COL_CATEGORY INTEGER, " +
+                        "$COL_INTERVAL INTEGER, " +
+                        "$COL_INTERVAL_DATE DATE)"
                 db.execSQL(createRecurringTable)
             }
         }
@@ -137,7 +154,7 @@ class DBhandler(context: Context, private val defaultCategories: Array<String>) 
         values.put(COL_DESCRIPTION, expense.description)
         values.put(COL_COST, expense.cost)
         values.put(COL_DATE, dateFormatter.format(expense.date))
-        values.put(COL_CATEGORY, getCategoryId(expense.category))
+        values.put(COL_CATEGORY, expense.category.id)
 
         db.insert(EXPENSE_TABLE, null, values)
     }
@@ -205,7 +222,7 @@ class DBhandler(context: Context, private val defaultCategories: Array<String>) 
         values.put(COL_DESCRIPTION, expense.description)
         values.put(COL_COST, expense.cost)
         values.put(COL_DATE, dateFormatter.format(expense.date))
-        values.put(COL_CATEGORY, getCategoryId(expense.category))
+        values.put(COL_CATEGORY, expense.category.id)
 
         db.update(EXPENSE_TABLE, values, "$COL_ID = ?", arrayOf(expense.id.toString()))
     }
@@ -245,24 +262,6 @@ class DBhandler(context: Context, private val defaultCategories: Array<String>) 
         db.insert(CATEGORY_TABLE, null, values)
     }
 
-    private fun getCategoryId(category: Category): Int{
-
-        val name = category.name
-        val query = "SELECT * FROM $CATEGORY_TABLE WHERE $COL_CATEGORY = '$name'"
-
-        val db = this.writableDatabase
-        val cursor = db.rawQuery(query, null)
-
-        cursor?.moveToFirst()
-
-        val id: Int
-        id = when {
-            cursor.count != 0 -> cursor.getInt(0)
-            else -> 1
-        }
-        cursor.close()
-        return id
-    }
 
     fun getCategoryById(Id: Int): Category {
 
@@ -350,7 +349,7 @@ class DBhandler(context: Context, private val defaultCategories: Array<String>) 
 
     fun getAllRecurringEntries(): MutableList<RecurrentEntry> {
         val db = this.writableDatabase
-        val cursor = db.rawQuery("SELECT * FROM $RECURRING_TABLE", null)
+        val cursor = db.rawQuery("SELECT * FROM $INCOME_TABLE", null)
         val recurring = mutableListOf<RecurrentEntry>()
 
         if (cursor.moveToFirst()) {
@@ -358,14 +357,28 @@ class DBhandler(context: Context, private val defaultCategories: Array<String>) 
                 val id = cursor.getInt(0)
                 val name = cursor.getString(1)
                 val amount = cursor.getInt(2)
-                val interval = cursor.getInt(3)
-                val intervalDate = cursor.getString(4)
-                val startFrom = LocalDate.parse(cursor.getString(5))
-                recurring.add(RecurrentEntry(id, name, amount, interval, intervalDate, startFrom))
+                val category = getCategoryById(cursor.getInt(3))
+                val interval = cursor.getInt(4)
+                Log.d("insert", cursor.getString(5))
+                val intervalDate = LocalDate.parse(cursor.getString(5))
+                recurring.add(RecurrentEntry(id, name, amount, category, interval, intervalDate))
             } while (cursor.moveToNext())
         }
         cursor.close()
         return recurring
+    }
+
+    fun addRecurringEntry(recurrentEntry: RecurrentEntry) {
+
+        val db = this.writableDatabase
+
+        val values = ContentValues()
+        values.put(COL_DESCRIPTION, recurrentEntry.name)
+        values.put(COL_COST, recurrentEntry.amount)
+        values.put(COL_CATEGORY, recurrentEntry.category.id)
+        values.put(COL_INTERVAL, recurrentEntry.interval)
+        values.put(COL_INTERVAL_DATE, dateFormatter.format(recurrentEntry.intervalDate))
+        db.insert(INCOME_TABLE, null, values)
     }
 
     fun updateRecurringEntry(entry: RecurrentEntry): Int {
@@ -374,25 +387,25 @@ class DBhandler(context: Context, private val defaultCategories: Array<String>) 
         val values = ContentValues()
         values.put(COL_DESCRIPTION, entry.name)
         values.put(COL_COST, entry.amount)
+        values.put(COL_CATEGORY, entry.category.id)
         values.put(COL_INTERVAL, entry.interval)
-        values.put(COL_INTERVAL_DATE, entry.intervalDate)
-        values.put(COL_STARTING_FROM, dateFormatter.format(entry.startingFrom))
+        values.put(COL_INTERVAL_DATE, dateFormatter.format(entry.intervalDate))
 
-        return db.update(RECURRING_TABLE, values, "$COL_ID = ?",
+        return db.update(INCOME_TABLE, values, "$COL_ID = ?",
                 arrayOf(entry.id.toString()))
     }
 
     fun deleteRecurringEntry(entry: RecurrentEntry): Int {
         val db = this.writableDatabase
         val query = "$COL_ID = ${entry.id}"
-        return db.delete(RECURRING_TABLE, query, null)
+        return db.delete(INCOME_TABLE, query, null)
     }
 
     fun getLatestRecurringEntryID(): Int {
         val latestID: Int
         val db = this.writableDatabase
 
-        val cursor = db.rawQuery("SELECT max($COL_ID) FROM $RECURRING_TABLE", null)
+        val cursor = db.rawQuery("SELECT max($COL_ID) FROM $INCOME_TABLE", null)
         cursor.moveToFirst()
         latestID = cursor.getInt(0)
 

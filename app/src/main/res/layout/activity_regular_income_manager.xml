@@ -22,7 +22,7 @@
     tools:context=".ui.IncomeManager">
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recurrent_entry_recycler"
+        android:id="@+id/income_manager_recycler"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 

@@ -27,17 +27,17 @@ import androidx.recyclerview.widget.RecyclerView
 import com.korbi.simplebudget.R
 import com.korbi.simplebudget.database.DBhandler
 import com.korbi.simplebudget.logic.Category
-import com.korbi.simplebudget.logic.adapters.CategoryManagerAdapter
+import com.korbi.simplebudget.logic.adapters.CategoryAdapter
 import com.korbi.simplebudget.logic.dragAndDrop.ItemTouchHelperCallback
 import com.korbi.simplebudget.ui.dialogs.AddEditCategoryDialog
 import com.korbi.simplebudget.ui.dialogs.CAT_INDEX
 
 class ManageCategories : AppCompatActivity(), AddEditCategoryDialog.OnSaveListener,
-                                                CategoryManagerAdapter.OnEditListener,
-                                                CategoryManagerAdapter.OnStartDragListener {
+                                                CategoryAdapter.OnEditListener,
+                                                CategoryAdapter.OnStartDragListener {
 
     private lateinit var categoryRecycler: RecyclerView
-    private lateinit var categoryAdapter: CategoryManagerAdapter
+    private lateinit var categoryAdapter: CategoryAdapter
     private lateinit var itemTouchHelper: ItemTouchHelper
     private val db = DBhandler.getInstance()
     private lateinit var categoryList: MutableList<Category>
@@ -52,7 +52,7 @@ class ManageCategories : AppCompatActivity(), AddEditCategoryDialog.OnSaveListen
         categoryRecycler.setHasFixedSize(true)
         categoryRecycler.layoutManager = LinearLayoutManager(applicationContext,
                 RecyclerView.VERTICAL, false)
-        categoryAdapter = CategoryManagerAdapter(categoryList, this, this)
+        categoryAdapter = CategoryAdapter(categoryList, this, this)
         categoryRecycler.adapter = categoryAdapter
 
         val callback = ItemTouchHelperCallback(categoryAdapter)
@@ -127,7 +127,7 @@ class ManageCategories : AppCompatActivity(), AddEditCategoryDialog.OnSaveListen
         val dialog = builder.create()
         dialog.create()
 
-        categorySpinner = dialog.findViewById<Spinner>(R.id.category_manager_migration_spinner)
+        categorySpinner = dialog.findViewById(R.id.category_manager_migration_spinner)
         val categoryNameList = newCatList.map { it.name }.toMutableList()
         categoryNameList.add(0, getString(R.string.none))
         categorySpinner?.adapter = ArrayAdapter<String>(this,
@@ -136,7 +136,7 @@ class ManageCategories : AppCompatActivity(), AddEditCategoryDialog.OnSaveListen
         dialog.show()
     }
 
-    override fun onStartDrag(viewHolder: CategoryManagerAdapter.ViewHolder) {
+    override fun onStartDrag(viewHolder: CategoryAdapter.ViewHolder) {
         itemTouchHelper.startDrag(viewHolder)
     }
 

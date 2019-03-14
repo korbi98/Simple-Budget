@@ -118,6 +118,10 @@
     <string name="from">From</string>
     <string name="from_after_to_error">Date is after last date!</string>
     <string name="to_before_from_error">Date is before first date!</string>
+    <string name="monthly">Monthly</string>
+    <string name="weekly">Weekly</string>
+    <string name="start_date_hint">Starting from</string>
+    <string name="interval">Interval</string>
 
 
     <string-array name="default_categories">

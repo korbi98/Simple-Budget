@@ -42,7 +42,7 @@ class CurrencyDialog : DialogFragment() {
 
     private lateinit var listener: OnDismissListener
     private lateinit var chipGroup: ChipGroup
-    private lateinit var currencyEditText: EditText
+    private lateinit var currencyInput: EditText
     private lateinit var leftSideCheckBox: CheckBox
     private lateinit var noDecimalCheckBox: CheckBox
     private lateinit var pref: SharedPreferences
@@ -81,7 +81,7 @@ class CurrencyDialog : DialogFragment() {
             val dialog = builder.create()
             dialog.create()
 
-            currencyEditText = dialog.findViewById(R.id.settings_currency_custom)
+            currencyInput = dialog.findViewById(R.id.settings_currency_custom)
             leftSideCheckBox = dialog.findViewById(R.id.settings_currency_before_amount)
             noDecimalCheckBox = dialog.findViewById(R.id.settings_currency_decimal)
             chipGroup = dialog.findViewById(R.id.settings_currency_chip_group)
@@ -105,11 +105,11 @@ class CurrencyDialog : DialogFragment() {
                 chipGroup.addView(chip as View)
                 if (index != currenciesWithText.lastIndex) {
                     chip.setOnCheckedChangeListener { _, isChecked ->
-                        if (isChecked) currencyEditText.text.clear()
+                        if (isChecked) currencyInput.text.clear()
                     }
                 } else {
                     chip.setOnCheckedChangeListener { _, isChecked ->
-                        if (!isChecked) currencyEditText.text.clear()
+                        if (!isChecked) currencyInput.text.clear()
                     }
                 }
             }
@@ -117,11 +117,11 @@ class CurrencyDialog : DialogFragment() {
             if (currencySymbols.contains(currentCurrency)) {
                 chipList[currencySymbols.indexOf(currentCurrency)].isChecked = true
             } else {
-                currencyEditText.setText(currentCurrency)
+                currencyInput.setText(currentCurrency)
                 chipList.last().isChecked = true
             }
 
-            currencyEditText.addTextChangedListener(object : TextWatcher {
+            currencyInput.addTextChangedListener(object : TextWatcher {
                 override fun afterTextChanged(s: Editable?) {
                     if (!s.isNullOrEmpty()) {
                         chipList.last().isChecked = true
@@ -150,7 +150,7 @@ class CurrencyDialog : DialogFragment() {
     private fun storeCurrencySettings(chipList: MutableList<Chip>) {
         val currencyList = resources.getStringArray(R.array.currencies_symbols)
         val currency = when {
-            !currencyEditText.text.isEmpty() -> currencyEditText.text.toString()
+            !currencyInput.text.isEmpty() -> currencyInput.text.toString()
             getCheckedItem(chipList) == NO_SELECTION -> currencyList[0]
             else -> {
                 currencyList[getCheckedItem(chipList)]
@@ -170,7 +170,7 @@ class CurrencyDialog : DialogFragment() {
     private fun checkIfEnableOK(dialog: AlertDialog, chipList: MutableList<Chip>) {
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).isEnabled =
                 (getCheckedItem(chipList) != chipList.lastIndex ||
-                        !(currencyEditText.text.isEmpty())) &&
+                        !(currencyInput.text.isEmpty())) &&
                 getCheckedItem(chipList) != NO_SELECTION
     }
 

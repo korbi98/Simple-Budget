@@ -249,7 +249,7 @@ class DashboardFragment : androidx.fragment.app.Fragment() {
 
         expensesTextView.text = SimpleBudgetApp.createCurrencyString(totalExpenses)
         incomeTextView.text = SimpleBudgetApp.createCurrencyString(totalIncome)
-        balanceTextView .text = SimpleBudgetApp.createCurrencyString(balance)
+        balanceTextView.text = SimpleBudgetApp.createCurrencyString(balance)
 
         when  {
             balance < 0 -> balanceTextView.setTextColor(ContextCompat.getColor(context!!,

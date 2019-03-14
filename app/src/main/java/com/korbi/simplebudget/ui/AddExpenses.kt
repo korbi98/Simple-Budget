@@ -36,6 +36,7 @@ import com.korbi.simplebudget.R
 import com.korbi.simplebudget.SimpleBudgetApp
 import com.korbi.simplebudget.database.DBhandler
 import com.korbi.simplebudget.logic.Category
+import com.korbi.simplebudget.logic.CurrencyTextWatcher
 import com.korbi.simplebudget.logic.Expense
 import org.threeten.bp.LocalDate
 import org.threeten.bp.format.DateTimeFormatter
@@ -54,7 +55,7 @@ class AddExpenses : AppCompatActivity() {
     private var expenseDate = LocalDate.now()
 
     private lateinit var descriptionEditText: EditText
-    private lateinit var currencyEditText: EditText
+    private lateinit var currencyInput: EditText
     private lateinit var currencyEditLayout: TextInputLayout
     private lateinit var categoryGroup: ChipGroup
     private lateinit var categoryChips: MutableList<Chip>
@@ -97,7 +98,7 @@ class AddExpenses : AppCompatActivity() {
 
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE)
         updateDatePickerText()
-        setupCurrencyEditText()
+        setupcurrencyInput()
         setupCategoryGroup()
 
         prefill()
@@ -105,10 +106,10 @@ class AddExpenses : AppCompatActivity() {
 
     fun save(@Suppress("UNUSED_PARAMETER")view: View) {
 
-        val amountString = currencyEditText.text.toString().replace(",", ".")
+        val amountString = currencyInput.text.toString().replace(",", ".")
 
         when {
-            currencyEditText.text.toString().isEmpty() ->
+            currencyInput.text.isNullOrBlank() || amountString == "." ->
                 currencyEditLayout.error = getString(R.string.no_amount_warning)
 
             getSelectedCategory() == null -> {
@@ -191,7 +192,7 @@ class AddExpenses : AppCompatActivity() {
                 false, null -> -100
             }
 
-            currencyEditText.setText(SimpleBudgetApp.decimalFormat.format(expenseToUpdate.cost.
+            currencyInput.setText(SimpleBudgetApp.decimalFormat.format(expenseToUpdate.cost.
                                                             toFloat()/multiplier).toString())
             descriptionEditText.setText(expenseToUpdate.description)
             datePickerTextView.setText(bundle.getString(EXPENSE_DATE))
@@ -199,8 +200,8 @@ class AddExpenses : AppCompatActivity() {
         }
     }
 
-    private fun setupCurrencyEditText() {
-        currencyEditText = findViewById(R.id.currencyInput)
+    private fun setupcurrencyInput() {
+        currencyInput = findViewById(R.id.currencyInput)
 
         val inputLayout = findViewById<TextInputLayout>(R.id.add_expense_input_layout)
         inputLayout.hint = getString(R.string.amount_input_hint) + " $currencySymbol"
@@ -210,57 +211,10 @@ class AddExpenses : AppCompatActivity() {
             else -> ","
         }
 
-        currencyEditText.addTextChangedListener(object : TextWatcher {
-            override fun afterTextChanged(s: Editable?) {
+        currencyInput.addTextChangedListener(CurrencyTextWatcher(currencyInput, inputLayout,
+                currencySymbol, separator, forbiddenSeparator, null))
 
-                if (!s.isNullOrBlank()) currencyEditLayout.error = ""
-
-                var hasSeparator = false
-                var separatorPosition:Int? = null
-                val originalString = s.toString()
-                val newStringBuilder = StringBuilder()
-
-                for ((position, char) in originalString.withIndex()) {
-
-                    var c = char.toString()
-                    if (c == separator) {
-                        if (!hasSeparator) {
-                            hasSeparator = true
-                            separatorPosition = position
-                        } else if (hasSeparator) c = ""
-                    }
-
-                    if (position == 1 && originalString[0].toString() == "0" &&
-                            !"., $currencySymbol".contains(c)) {
-                        newStringBuilder.append(separator)
-                    }
-                    if (position == 2 && originalString.contains("-0") &&
-                            !"., $currencySymbol".contains(c)) {
-                        newStringBuilder.append(separator)
-                    }
-                    if (c == forbiddenSeparator || (position != 0 && c == "-") ||
-                            (position > 10) || (separatorPosition != null
-                                    && position > (separatorPosition + 2))) {
-                        c = ""
-                    }
-
-                    newStringBuilder.append(c)
-                }
-
-                val newString = newStringBuilder.toString()
-
-                if (newString != originalString) {
-                    currencyEditText.setText(newString)
-                    currencyEditText.setSelection(currencyEditText.text.length)
-                }
-            }
-
-
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-        })
-
-        currencyEditText.setOnEditorActionListener { v, actionId, _ ->
+        currencyInput.setOnEditorActionListener { v, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
                 save(v)
                 true
