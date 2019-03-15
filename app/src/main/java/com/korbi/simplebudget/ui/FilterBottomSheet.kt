@@ -98,24 +98,30 @@ class FilterBottomSheet :  BottomSheetDialogFragment() {
         categoryGroup = rootView.findViewById(R.id.filter_category_chip_group)
         categoryChips = mutableListOf()
 
-        typeGroup.setOnCheckedChangeListener { _, checkedId ->
+        typeGroup.setOnCheckedChangeListener { group, checkedId ->
             typeSelection = when (checkedId) {
                 R.id.chip_both -> TYPE_BOTH
                 R.id.chip_expense -> TYPE_EXPENSE
                 R.id.chip_income -> TYPE_INCOME
-                else -> typeSelection
+                else -> {
+                    group.check(R.id.chip_both)
+                    TYPE_BOTH
+                }
             }
             filter()
         }
 
-        dateGroup.setOnCheckedChangeListener { _, checkedId ->
+        dateGroup.setOnCheckedChangeListener { group, checkedId ->
             dateSelection = when (checkedId) {
                 R.id.chip_last30 -> SELECT_LAST30
                 R.id.chip_last90 -> SELECT_LAST90
                 R.id.chip_this_year -> SELECT_YEAR
                 R.id.chip_all_time -> SELECT_ALL
                 R.id.chip_specific_time -> SELECT_CUSTOM
-                else -> dateSelection
+                else -> {
+                    group.check(R.id.chip_all_time)
+                    SELECT_ALL
+                }
             }
             checkIfShowCustomSelection()
             filter()
