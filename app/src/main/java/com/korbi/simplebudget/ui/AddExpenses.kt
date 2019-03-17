@@ -211,7 +211,7 @@ class AddExpenses : AppCompatActivity() {
         }
 
         currencyInput.addTextChangedListener(CurrencyTextWatcher(currencyInput, inputLayout,
-                currencySymbol, separator, forbiddenSeparator, null))
+                separator, forbiddenSeparator, null, true))
 
         currencyInput.setOnEditorActionListener { v, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {

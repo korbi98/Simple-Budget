@@ -17,32 +17,181 @@
 package com.korbi.simplebudget.ui.fragments
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
+import android.widget.*
+import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.github.mikephil.charting.highlight.ChartHighlighter
+import com.google.android.material.chip.Chip
+import com.google.android.material.textfield.TextInputLayout
 import com.korbi.simplebudget.R
+import com.korbi.simplebudget.SimpleBudgetApp
+import com.korbi.simplebudget.logic.Category
+import com.korbi.simplebudget.logic.CurrencyTextWatcher
+import com.korbi.simplebudget.logic.Expense
 import com.korbi.simplebudget.logic.adapters.BudgetAdapter
+import com.korbi.simplebudget.ui.dialogs.BudgetDialog
+import com.korbi.simplebudget.ui.dialogs.CAT_INDEX
+import java.text.DecimalFormatSymbols
 
+const val SET_TOTAL_BUDGET = -100
 
-class BudgetFragment : androidx.fragment.app.Fragment() {
+class BudgetFragment : androidx.fragment.app.Fragment(),
+                        DashboardFragment.DateSelectionListener,
+                        BudgetAdapter.OnLongItemClickListener {
 
     private lateinit var budgetRecycler: RecyclerView
+    private lateinit var budgetAdapter: BudgetAdapter
+    private lateinit var totalBudgetLayout: RelativeLayout
+    private lateinit var totalBudgetAmount: TextView
+    private lateinit var totalBudgetProgress: ProgressBar
+    private lateinit var emptyMessage: TextView
+    private var totalBudget = 0
+    private var totalBudgetInterval = MONTHLY_INTERVAL
+    private var selectedInterval = WEEKLY_INTERVAL
+    private var expenseList = mutableListOf<Expense>()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
 
         val rootview = inflater.inflate(R.layout.fragment_budget, container, false)
 
+        emptyMessage = rootview.findViewById(R.id.budget_fragment_empty_message)
+
         budgetRecycler = rootview.findViewById(R.id.dashboard_budget_recycler)
         budgetRecycler.setHasFixedSize(true)
         budgetRecycler.layoutManager = LinearLayoutManager(context,
                                         RecyclerView.VERTICAL, false)
-        val budgetAdapter = BudgetAdapter()
+        budgetAdapter = BudgetAdapter(expenseList, 0, this)
         budgetRecycler.adapter = budgetAdapter
 
+        totalBudgetAmount = rootview.findViewById(R.id.budget_total_budget)
+        totalBudgetProgress = rootview.findViewById(R.id.budget_total_progress)
+        totalBudgetLayout = rootview.findViewById(R.id.budget_total_layout)
+        totalBudgetLayout.setOnLongClickListener {
+            showBudgetDialog(SET_TOTAL_BUDGET)
+            true
+        }
+
         return rootview
+    }
+
+    override fun onResume() {
+        super.onResume()
+        updateView()
+    }
+
+    override fun onDateSelectionChange(expenses: MutableList<Expense>, intervalType: Int) {
+        expenseList = expenses
+        selectedInterval = intervalType
+        updateView()
+    }
+
+    override fun onLongClick(category: Category) {
+        showBudgetDialog(category.id)
+    }
+
+    fun updateView() {
+        emptyMessage.visibility = when (expenseList.isEmpty()) {
+            true -> View.VISIBLE
+            false -> View.GONE
+        }
+
+        totalBudget = SimpleBudgetApp.pref
+                .getInt(getString(R.string.total_budget_key), 0)
+        totalBudgetInterval = SimpleBudgetApp.pref
+                .getInt(getString(R.string.total_budget_interval_key), MONTHLY_INTERVAL)
+
+        budgetAdapter.setExpenses(expenseList)
+        budgetAdapter.setInterval(selectedInterval)
+
+        totalBudgetAmount.text = getBudgetText()
+        totalBudgetProgress.progress = getBudgetProgress()
+
+        budgetAdapter.updateCategories()
+    }
+
+    fun getListener(): DashboardFragment.DateSelectionListener {
+        return this
+    }
+
+    private fun showBudgetDialog(id: Int) {
+        val dialog = BudgetDialog()
+        val args = Bundle()
+        args.putInt(CAT_INDEX, id)
+        dialog.arguments = args
+        dialog.show(childFragmentManager, "budgetDialog")
+    }
+
+    private fun getBudgetText(): String {
+
+        val categoryExpenses = expenseList.filter { it.cost < 0}
+        val categoryTotalSum = -categoryExpenses.sumBy { it.cost }
+        val budget = getIntervalBudget(selectedInterval)
+
+        var budgetString = SimpleBudgetApp.createCurrencyString(categoryTotalSum)
+
+        budgetString = if (budget != 0) {
+            val str = SimpleBudgetApp.createCurrencyString(budget)
+            "$budgetString / $str"
+        } else {
+            getString(R.string.no_budget_set_info)
+        }
+        return budgetString
+    }
+
+    private fun getBudgetProgress(): Int {
+
+        val categoryExpenses = expenseList.filter { it.cost < 0}
+        val categoryTotalSum = -categoryExpenses.sumBy { it.cost }
+        val budget = getIntervalBudget(selectedInterval)
+
+        return when {
+            categoryTotalSum > 0 && budget != 0 -> {
+                if (categoryTotalSum < budget) {
+                    ((categoryTotalSum.toFloat() / budget.toFloat())*100).toInt()
+                } else {
+                    100
+                }
+            }
+            else -> 0
+        }
+    }
+
+    private fun getIntervalBudget(interval: Int): Int {
+
+        return when (interval) {
+            ALL_TIME -> 0
+            YEARLY_INTERVAL -> {
+                when (totalBudgetInterval) {
+                    WEEKLY_INTERVAL -> totalBudget * 52
+                    else -> totalBudget * 12
+                }
+            }
+            QUARTERLY_INTERVAL -> {
+                when (totalBudgetInterval) {
+                    WEEKLY_INTERVAL -> totalBudget * 13
+                    else -> totalBudget * 4
+                }
+            }
+            MONTHLY_INTERVAL -> {
+                when (totalBudgetInterval) {
+                    WEEKLY_INTERVAL -> totalBudget * 4
+                    else -> totalBudget
+                }
+            }
+            else -> {
+                when (totalBudgetInterval) {
+                    WEEKLY_INTERVAL -> totalBudget
+                    else -> {
+                        (totalBudget / 4.33f).toInt()
+                    }
+                }
+            }
+        }
     }
 }

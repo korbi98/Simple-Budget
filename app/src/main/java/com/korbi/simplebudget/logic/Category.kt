@@ -20,7 +20,9 @@ package com.korbi.simplebudget.logic
 data class Category(var id: Int,
                     var name: String,
                     var icon: Int,
-                    var position: Int) {
+                    var position: Int,
+                    var budget: Int,
+                    var interval: Int) {
 
     override fun equals(other: Any?): Boolean {
         other as Category

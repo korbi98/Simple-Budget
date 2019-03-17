@@ -26,7 +26,7 @@ import org.threeten.bp.format.DateTimeFormatter
 import kotlin.collections.ArrayList
 
 private const val DB_NAME = "ExpenseDatabase.db"
-private const val DB_VERSION = 11
+private const val DB_VERSION = 1
 private const val EXPENSE_TABLE = "expenses"
 
 private const val COL_ID = "_id"
@@ -39,6 +39,7 @@ private const val CATEGORY_TABLE = "categories"
 private const val COL_CATEGORY = "category"
 private const val COL_DRAWABLE = "drawable"
 private const val COL_POSITION = "position"
+private const val COL_BUDGET = "budget"
 
 class DBhandler(context: Context, private val defaultCategories: Array<String>) :
                                     SQLiteOpenHelper(context, DB_NAME, null, DB_VERSION) {
@@ -75,7 +76,9 @@ class DBhandler(context: Context, private val defaultCategories: Array<String>) 
                 "( $COL_ID INTEGER PRIMARY KEY, " +
                 "$COL_CATEGORY TEXT, " +
                 "$COL_DRAWABLE INTEGER NOT NULL DEFAULT 0, " +
-                "$COL_POSITION INTEGER NOT NULL DEFAULT 0)"
+                "$COL_POSITION INTEGER NOT NULL DEFAULT 0, " +
+                "$COL_BUDGET INTEGER, " +
+                "$COL_INTERVAL INTEGER DEFAULT 1)"
 
         db.execSQL( createCategoryTable )
 
@@ -86,27 +89,9 @@ class DBhandler(context: Context, private val defaultCategories: Array<String>) 
             values.put(COL_POSITION, index)
             db.insert(CATEGORY_TABLE, null, values)
         }
-
     }
 
-    override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-        when (newVersion) {
-
-            11 -> {
-                db.execSQL("DROP TABLE $EXPENSE_TABLE")
-
-                val createExpenseTable = "CREATE TABLE $EXPENSE_TABLE " +
-                        "($COL_ID INTEGER PRIMARY KEY, " +
-                        "$COL_DESCRIPTION TEXT, " +
-                        "$COL_COST INTEGER NOT NULL, " +
-                        "$COL_DATE DATE, " +
-                        "$COL_CATEGORY INTEGER NOT NULL, " +
-                        "$COL_INTERVAL INTEGER NOT NULL DEFAULT 0)"
-
-                db.execSQL(createExpenseTable)
-            }
-        }
-    }
+    override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {}
 
     fun addExpense(expense: Expense) {
         val db = this.writableDatabase
@@ -288,8 +273,10 @@ class DBhandler(context: Context, private val defaultCategories: Array<String>) 
         val name = cursor.getString(1)
         val drawable = cursor.getInt(2)
         val position = cursor.getInt(3)
+        val budget = cursor.getInt(4)
+        val interval = cursor.getInt(5)
         cursor.close()
-        return Category(id, name, drawable, position)
+        return Category(id, name, drawable, position, budget, interval)
     }
 
     fun getAllCategories(): MutableList<Category> {
@@ -303,7 +290,9 @@ class DBhandler(context: Context, private val defaultCategories: Array<String>) 
                 val name = cursor.getString(1)
                 val drawable = cursor.getInt(2)
                 val position = cursor.getInt(3)
-                categories.add(Category(id, name, drawable, position))
+                val budget = cursor.getInt(4)
+                val interval = cursor.getInt(5)
+                categories.add(Category(id, name, drawable, position, budget, interval))
             } while (cursor.moveToNext())
         }
         cursor.close()
@@ -324,6 +313,8 @@ class DBhandler(context: Context, private val defaultCategories: Array<String>) 
         values.put(COL_CATEGORY, category.name)
         values.put(COL_DRAWABLE, category.icon)
         values.put(COL_POSITION, category.position)
+        values.put(COL_BUDGET, category.budget)
+        values.put(COL_INTERVAL, category.interval)
 
         return db.update(CATEGORY_TABLE, values, "$COL_ID = ?",
                 arrayOf(category.id.toString()))

@@ -102,7 +102,6 @@ class AddEditRecurrentEntryDialog : DialogFragment() {
             intervalDateInput = dialog.findViewById(R.id.income_manager_dialog_interval_start_from_edit)!!
             descriptionInput = dialog.findViewById(R.id.income_manager_dialog_description)!!
 
-
             dialog.getButton(Dialog.BUTTON_POSITIVE).isEnabled = false
 
             setupCurrencyInput(dialog)
@@ -178,11 +177,8 @@ class AddEditRecurrentEntryDialog : DialogFragment() {
         }
 
         currencyInput.addTextChangedListener(CurrencyTextWatcher(currencyInput, inputLayout,
-                currencySymbol, separator, forbiddenSeparator, dialog))
+                separator, forbiddenSeparator, dialog, true))
 
-        currencyInput.onFocusChangeListener = View.OnFocusChangeListener { v, hasFocus ->
-
-        }
     }
 
     private fun setupCategorySpinner() {

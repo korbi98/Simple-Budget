@@ -17,19 +17,19 @@
 package com.korbi.simplebudget.ui.fragments
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
 import com.github.mikephil.charting.charts.PieChart
-import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
 import com.korbi.simplebudget.R
+import com.korbi.simplebudget.logic.Expense
 
 
-class PiChartFragment : androidx.fragment.app.Fragment() {
+class PieChartFragment : androidx.fragment.app.Fragment(),  DashboardFragment.DateSelectionListener {
 
     private lateinit var pieChart: PieChart
 
@@ -38,11 +38,20 @@ class PiChartFragment : androidx.fragment.app.Fragment() {
 
         val rootView = inflater.inflate(R.layout.fragment_pie_chart, container, false)
 
+
         pieChart = rootView.findViewById(R.id.dashboard_pie_chart)
         val entries = arrayListOf(PieEntry(40f, 100), PieEntry(96f, 1))
         val dataset = PieData(PieDataSet(entries, "test"))
         pieChart.data = dataset
 
         return rootView
+    }
+
+    override fun onDateSelectionChange(expenses: MutableList<Expense>, intervalType: Int) {
+
+    }
+
+    fun getListener(): DashboardFragment.DateSelectionListener {
+        return this
     }
 }

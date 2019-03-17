@@ -17,6 +17,8 @@
 package com.korbi.simplebudget.logic.adapters
 
 import android.content.res.TypedArray
+import android.preference.PreferenceManager
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -27,16 +29,22 @@ import androidx.recyclerview.widget.RecyclerView
 import com.korbi.simplebudget.R
 import com.korbi.simplebudget.SimpleBudgetApp
 import com.korbi.simplebudget.database.DBhandler
+import com.korbi.simplebudget.logic.Category
+import com.korbi.simplebudget.logic.Expense
+import com.korbi.simplebudget.ui.fragments.*
 import kotlinx.android.synthetic.main.budget_listening.view.*
 
-class BudgetAdapter() : RecyclerView.Adapter<BudgetAdapter.ViewHolder>() {
+class BudgetAdapter(private var expenses: MutableList<Expense>,
+                    private var interval: Int,
+                    private val listener: OnLongItemClickListener) :
+                                        RecyclerView.Adapter<BudgetAdapter.ViewHolder>() {
 
     private val db = DBhandler.getInstance()
-    private val categories = db.getAllCategories()
+    private var categories = db.getAllCategories()
     private val iconIdArray: TypedArray = SimpleBudgetApp.res.obtainTypedArray(R.array.category_icons)
 
-    init {
-        categories.sortBy { it.position }
+    interface OnLongItemClickListener {
+        fun onLongClick(category: Category)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -49,12 +57,99 @@ class BudgetAdapter() : RecyclerView.Adapter<BudgetAdapter.ViewHolder>() {
         holder.categoryNameView.text = categories[position].name
         val iconId = iconIdArray.getResourceId(categories[position].icon, -1)
         holder.categoryIconView.setImageResource(iconId)
-        holder.categoryBudgetView.text = "200€ of 350€"
-        holder.categoryProgressView.progress = 66
+        holder.categoryBudgetView.text = getBudgetText(categories[position])
+        holder.categoryProgressView.progress = getBudgetProgress(categories[position])
     }
 
     override fun getItemCount(): Int {
         return categories.size
+    }
+
+    private fun getBudgetProgress(category: Category): Int {
+
+        val categoryExpenses = expenses.filter { it.category == category && it.cost < 0}
+        val categoryTotalSum = -categoryExpenses.sumBy { it.cost }
+        val budget = getIntervalBudget(category, interval)
+
+        return when {
+            categoryTotalSum > 0 && budget != 0 -> {
+                if (categoryTotalSum < budget) {
+                    ((categoryTotalSum.toFloat() / budget.toFloat())*100).toInt()
+                } else {
+                    100
+                }
+            }
+            else -> 0
+        }
+    }
+
+    private fun getBudgetText(category: Category): String {
+
+        val categoryExpenses = expenses.filter { it.category == category && it.cost < 0}
+        val categoryTotalSum = -categoryExpenses.sumBy { it.cost }
+        val budget = getIntervalBudget(category, interval)
+
+        var budgetString = SimpleBudgetApp.createCurrencyString(categoryTotalSum)
+
+        budgetString = if (budget != 0) {
+            val str = SimpleBudgetApp.createCurrencyString(budget)
+            "$budgetString / $str"
+        } else {
+            "$budgetString / ${SimpleBudgetApp.res.getString(R.string.no_budget_set_info_short)}"
+        }
+        return budgetString
+    }
+
+    fun setInterval(interval: Int) {
+        this.interval = interval
+    }
+
+    fun setExpenses(expenses: MutableList<Expense>) {
+        this.expenses = expenses
+    }
+
+    private fun isCategoryEmpty(category: Category): Boolean {
+        return expenses.none { it.category == category && it.cost < 0}
+    }
+
+    fun updateCategories() {
+        categories = db.getAllCategories().filter { !isCategoryEmpty(it) } .toMutableList()
+
+        categories.sortBy { it.position }
+        notifyDataSetChanged()
+    }
+
+    private fun getIntervalBudget(category: Category, interval: Int): Int {
+
+        return when (interval) {
+            ALL_TIME -> 0
+            YEARLY_INTERVAL -> {
+                when (category.interval) {
+                    WEEKLY_INTERVAL -> category.budget * 52
+                    else -> category.budget * 12
+                }
+            }
+            QUARTERLY_INTERVAL -> {
+                when (category.interval) {
+                    WEEKLY_INTERVAL -> category.budget * 13
+                    else -> category.budget * 4
+                }
+            }
+            MONTHLY_INTERVAL -> {
+                when (category.interval) {
+                    WEEKLY_INTERVAL -> category.budget * 4
+                    else -> category.budget
+                }
+            }
+            else -> {
+                when (category.interval) {
+                    WEEKLY_INTERVAL -> category.budget
+                    else -> {
+                        (category.budget / 4.33f).toInt()
+                    }
+                }
+            }
+        }
     }
 
     inner class ViewHolder(budgetView: View) : RecyclerView.ViewHolder(budgetView) {
@@ -63,5 +158,12 @@ class BudgetAdapter() : RecyclerView.Adapter<BudgetAdapter.ViewHolder>() {
         val categoryNameView: TextView = budgetView.budget_listening_category_name
         val categoryProgressView: ProgressBar = budgetView.budget_listening_category_progress
         val categoryBudgetView: TextView = budgetView.budget_listening_category_budget
+
+        init {
+            budgetView.setOnLongClickListener {
+                listener.onLongClick(categories[adapterPosition])
+                true
+            }
+        }
     }
 }

@@ -134,6 +134,19 @@
     <string name="dont_show_again_key">dont_show_key</string>
     <string name="dont_show_again_settings">Don\'t show dialog in history</string>
     <string name="dont_show_again_settings_message">Don\'t show info dialog about selecting recurring income/expense</string>
+    <string name="dialog_budget_title">Set budget for</string>
+    <string name="dialog_budget_message">To remove a budget set it to</string>
+    <string name="total_budget">Total budget</string>
+    <string name="dialog_budget_total_title">Set total budget</string>
+    <string name="total_budget_key">total_budget_key</string>
+    <string name="total_budget_interval_key">total_budget_interval</string>
+    <string name="dashboard_time_selection_key">dashboard_time_selection_key</string>
+    <string name="empty_history_view_message">Nothing to show here!\nChange filter/search criteria\n
+        or add expenses from the Dashboard</string>
+    <string name="empty_budget_list_message">Nothing to show here!\nAdd expenses to set a budget for
+        individual categories</string>
+    <string name="no_budget_set_info">Click to set budget</string>
+    <string name="no_budget_set_info_short">No budget</string>
 
 
     <string-array name="default_categories">

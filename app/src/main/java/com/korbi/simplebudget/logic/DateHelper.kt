@@ -30,7 +30,7 @@ import org.threeten.bp.format.TextStyle
 import org.threeten.bp.temporal.IsoFields
 import java.util.*
 
-
+// TODO fix datestring array
 class DateHelper {
 
     private val dateFormatter = DateTimeFormatter.ofPattern("dd.MM.yy")
@@ -60,7 +60,7 @@ class DateHelper {
 
         while (date2.isAfter(date1.minusWeeks(1))) {
             val firstDayOfWeek = date2.with( DayOfWeek.MONDAY )
-            val lastDayOfWeek = date2.with( DayOfWeek.SUNDAY)
+            val lastDayOfWeek = date2.with( DayOfWeek.SUNDAY )
             weeks.add(arrayOf(firstDayOfWeek, lastDayOfWeek))
 
             date2 = date2.minusWeeks(1)
@@ -115,11 +115,12 @@ class DateHelper {
                                 getString(R.string.this_week))
         val weekList = getWeeks()
 
-        if (weekList.size > 1) {
+        if (weekList.size > 1 && !db.getExpensesByDate(weekList[1][0], weekList[1][1]).isEmpty()) {
             weekStringArray.add(SimpleBudgetApp.res.getString(R.string.last_week))
         }
+
         if (weekList.size > 2) {
-            weekList.subList(2, weekList.size).forEach {
+            weekList.subList(3, weekList.size).forEach {
                 if (!db.getExpensesByDate(it[0], it[1]).isEmpty()) {
                     val dateString = dateFormatter.format(it[0]) + " - " +
                                         dateFormatter.format(it[1])

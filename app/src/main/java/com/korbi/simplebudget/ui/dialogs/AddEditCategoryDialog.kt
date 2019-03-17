@@ -121,10 +121,11 @@ class AddEditCategoryDialog : DialogFragment() {
         if (categoryIcon != null) {
             val newCategory =if (prefillCategory == null) { //save new category
                 Category(db.getLatestCategoryID(), categoryName, categoryIcon,
-                        db.getAllCategories().size)
+                        db.getAllCategories().size, 0, 0)
             } else { //update category
                 Category(prefillCategory!!.id, categoryName, categoryIcon,
-                            prefillCategory!!.position)
+                            prefillCategory!!.position, prefillCategory!!.budget,
+                            prefillCategory!!.interval)
             }
             listener.onSave(newCategory, prefillCategory)
         }

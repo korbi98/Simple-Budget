@@ -30,6 +30,7 @@ import com.korbi.simplebudget.logic.adapters.HistoryAdapter
 import android.view.*
 import android.widget.CheckBox
 import android.widget.SearchView
+import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bignerdranch.expandablerecyclerview.ExpandableRecyclerAdapter
 import com.korbi.simplebudget.MainActivity
@@ -53,25 +54,23 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
                                                         FilterBottomSheet.OnFilterFragmentListener,
                                                         HistoryAdapter.ClickRecurrentEntryListener {
 
+    private lateinit var emptyMessage: TextView
     private lateinit var historyRecycler: RecyclerView
-    private lateinit var db: DBhandler
     private lateinit var historyAdapter: HistoryAdapter
-    private lateinit var pref: SharedPreferences
+    private lateinit var mOptionsMenu: Menu
 
+    private val db = DBhandler.getInstance()
     private var mActionMode: ActionMode? = null
     private var parentPosition = 1 // position to update when update expenses
-    private lateinit var mOptionsMenu: Menu
 
     private val dateFormatter = DateTimeFormatter.ofPattern("dd.MM.yy")
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
 
-        db = DBhandler.getInstance()
-        pref = PreferenceManager.getDefaultSharedPreferences(context)
-
         val rootview = inflater.inflate(R.layout.fragment_history, container, false)
 
+        emptyMessage = rootview.findViewById(R.id.history_fragment_empty_message)
         historyRecycler = rootview.findViewById(R.id.historyList)
         historyRecycler.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(context)
 
@@ -340,6 +339,11 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
     }
 
     private fun updateView(hEntries: MutableList<HistoryEntry>) {
+        emptyMessage.visibility = when (hEntries.none { it.childList.isNotEmpty() }) {
+            true -> View.VISIBLE
+            false -> View.GONE
+        }
+
         historyAdapter = HistoryAdapter(hEntries, this, this)
         historyAdapter.setExpandCollapseListener(object : ExpandableRecyclerAdapter.
                                                                 ExpandCollapseListener {
@@ -395,7 +399,7 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
     }
 
     override fun onClickRecurrentEntry(parentPosition: Int, childPosition: Int) {
-        if (!pref.getBoolean(getString(R.string.dont_show_again_key), false)) {
+        if (!SimpleBudgetApp.pref.getBoolean(getString(R.string.dont_show_again_key), false)) {
             val builder = AlertDialog.Builder(context)
             builder.setTitle(R.string.this_is_recurrent_entry)
             builder.setMessage(R.string.this_is_recurrent_entry_message)
@@ -403,7 +407,7 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
                 dialog.dismiss()
             }
             builder.setNeutralButton(R.string.dont_show_again) {dialog, _ ->
-                with(pref.edit()) {
+                with(SimpleBudgetApp.pref.edit()) {
                     putBoolean(getString(R.string.dont_show_again_key), true)
                     apply()
                 }

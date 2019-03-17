@@ -46,7 +46,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:padding="10dp"
+                android:paddingTop="10dp"
+                android:paddingEnd="10dp"
+                android:paddingStart="10dp"
                 android:layout_marginStart="10dp">
 
                 <TextView
@@ -71,6 +73,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="50dp"
+                android:layout_marginTop="8dp"
                 android:layout_gravity="end"
                 android:layout_marginBottom="16dp">
 
@@ -85,7 +88,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/default_value"
-                        android:textSize="24sp"
+                        android:textSize="22sp"
                         android:layout_gravity="end"
                         android:layout_marginEnd="20dp"
                         android:textColor="@color/expenseColor" />
@@ -102,7 +105,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/default_value"
-                        android:textSize="20sp"
+                        android:textSize="18sp"
                         android:layout_gravity="end"
                         android:textColor="@color/incomeColor" />
                 </TableRow>
@@ -118,7 +121,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/default_value"
-                        android:textSize="20sp"
+                        android:textSize="18sp"
                         android:layout_gravity="end"/>
                 </TableRow>
 
@@ -134,8 +137,6 @@
                 android:id="@+id/dashboard_tabs"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingStart="12dp"
-                android:paddingEnd="12dp"
                 app:tabBackground="@color/gray_background"/>
 
             <androidx.viewpager.widget.ViewPager

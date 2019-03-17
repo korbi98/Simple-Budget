@@ -18,6 +18,8 @@ package com.korbi.simplebudget.ui.fragments
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
+import android.util.SparseArray
 import android.view.*
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
@@ -34,32 +36,38 @@ import com.korbi.simplebudget.R
 import com.korbi.simplebudget.SimpleBudgetApp
 import com.korbi.simplebudget.database.DBhandler
 import com.korbi.simplebudget.logic.DateHelper
+import com.korbi.simplebudget.logic.Expense
 import com.korbi.simplebudget.ui.AddExpenses
 import com.korbi.simplebudget.ui.IncomeManager
 import com.korbi.simplebudget.ui.ManageCategories
 import com.korbi.simplebudget.ui.SettingsActivity
 import org.threeten.bp.LocalDate
 import org.threeten.bp.YearMonth
-import java.text.DecimalFormat
 
 
-private const val ALL_TIME = 4
-private const val YEARLY_INTERVAL = 3
-private const val QUARTERLY_INTERVAL = 2
-private const val MONTHLY_INTERVAL = 1
-private const val WEEKLY_INTERVAL = 0
+const val ALL_TIME = 4
+const val YEARLY_INTERVAL = 3
+const val QUARTERLY_INTERVAL = 2
+const val MONTHLY_INTERVAL = 1
+const val WEEKLY_INTERVAL = 0
 
 class DashboardFragment : androidx.fragment.app.Fragment() {
 
+    private lateinit var listener: DateSelectionListener
     private lateinit var timeSelectionSpinner:Spinner
     private lateinit var actionBarSpinner: Spinner
     private lateinit var timeSelectionLayout: View
     private lateinit var expensesTextView: TextView
     private lateinit var incomeTextView: TextView
     private lateinit var balanceTextView: TextView
+    private val registeredFragments = SparseArray<Fragment>()
 
     private val db = DBhandler.getInstance()
     private val dh = DateHelper.getInstance()
+
+    interface DateSelectionListener {
+        fun onDateSelectionChange(expenses: MutableList<Expense>, intervalType: Int)
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -83,19 +91,33 @@ class DashboardFragment : androidx.fragment.app.Fragment() {
         tabLayout.addTab(tabLayout.newTab().setText(R.string.pie_chart))
 
         val viewPager = rootView.findViewById<ViewPager>(R.id.dashboard_viewpager)
-        viewPager.adapter = object : FragmentStatePagerAdapter(fragmentManager!!) {
+        viewPager.adapter = object : FragmentStatePagerAdapter(childFragmentManager) {
 
             override fun getCount(): Int {
                 return 2
             }
 
-            override fun getItem(position: Int): Fragment {
-                return when (position) {
-                    1 -> PiChartFragment()
-                    else -> BudgetFragment()
-                }
+            override fun instantiateItem(container: ViewGroup, position: Int): Any {
+                val fragment = super.instantiateItem(container, position) as Fragment
+                registeredFragments.put(position, fragment)
+                return fragment
             }
 
+            override fun destroyItem(container: ViewGroup, position: Int, `object`: Any) {
+                registeredFragments.remove(position)
+                super.destroyItem(container, position, `object`)
+            }
+
+            override fun getItem(position: Int): Fragment {
+                 return when (position) {
+                    1 -> PieChartFragment()
+                    else -> {
+                        val fragment = BudgetFragment()
+                        setListener(fragment.getListener())
+                        fragment
+                    }
+                }
+            }
         }
 
         viewPager.addOnPageChangeListener(TabLayout.TabLayoutOnPageChangeListener(tabLayout))
@@ -104,19 +126,29 @@ class DashboardFragment : androidx.fragment.app.Fragment() {
 
             override fun onTabSelected(tab: TabLayout.Tab) {
                 viewPager.currentItem = tab.position
+
+                when (viewPager.currentItem) {
+                    1 -> setListener((registeredFragments[1] as PieChartFragment).getListener())
+                    else -> setListener((registeredFragments[viewPager.currentItem]
+                            as BudgetFragment).getListener())
+                }
             }
 
             override fun onTabReselected(p0: TabLayout.Tab?) {}
             override fun onTabUnselected(p0: TabLayout.Tab?) {}
-
         })
 
         timeSelectionSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onNothingSelected(parent: AdapterView<*>?) {parent?.setSelection(0)}
 
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int,
+                                        id: Long) {
                 if (!db.getExpensesByDate(db.getOldestDate(), db.getNewestDate()).isEmpty()) {
-                    sumExpenses(actionBarSpinner.selectedItemPosition, position)
+                    sumExpenses(getExpensesForInterval(actionBarSpinner.selectedItemPosition,
+                            position))
+                    listener.onDateSelectionChange(
+                            getExpensesForInterval(actionBarSpinner.selectedItemPosition, position),
+                            actionBarSpinner.selectedItemPosition)
                 }
             }
         }
@@ -134,12 +166,20 @@ class DashboardFragment : androidx.fragment.app.Fragment() {
         actionBarSpinner.adapter = ArrayAdapter.createFromResource(context!!,
                 R.array.dashboard_time_interval, android.R.layout.simple_spinner_dropdown_item)
 
+        actionBarSpinner.setSelection(
+                SimpleBudgetApp.pref.getInt(
+                        getString(R.string.dashboard_time_selection_key), MONTHLY_INTERVAL))
+
         actionBarSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onNothingSelected(parent: AdapterView<*>?) {}
 
             override fun onItemSelected(parent: AdapterView<*>?,
                                         view: View?, position: Int, id: Long) {
                 setupTimeSelectionSpinner(position)
+                with(SimpleBudgetApp.pref.edit()) {
+                    putInt(getString(R.string.dashboard_time_selection_key), position)
+                    apply()
+                }
             }
         }
 
@@ -150,11 +190,19 @@ class DashboardFragment : androidx.fragment.app.Fragment() {
         SimpleBudgetApp.handleRecurringEntries()
         if (this::actionBarSpinner.isInitialized) {
             setupTimeSelectionSpinner(actionBarSpinner.selectedItemPosition)
-            sumExpenses(actionBarSpinner.selectedItemPosition,
-                    timeSelectionSpinner.selectedItemPosition)
+            sumExpenses(getExpensesForInterval(actionBarSpinner.selectedItemPosition,
+                    timeSelectionSpinner.selectedItemPosition))
+            listener.onDateSelectionChange(getExpensesForInterval(
+                    actionBarSpinner.selectedItemPosition,
+                    timeSelectionSpinner.selectedItemPosition),
+                    actionBarSpinner.selectedItemPosition)
         } else {
             if (!db.getExpensesByDate(db.getOldestDate(), db.getNewestDate()).isEmpty()) {
-                sumExpenses(0, 0)
+                sumExpenses(getExpensesForInterval(WEEKLY_INTERVAL, 0))
+                if (::listener.isInitialized) {
+                    listener.onDateSelectionChange(
+                            getExpensesForInterval(WEEKLY_INTERVAL, 0), 0)
+                }
             }
         }
     }
@@ -194,7 +242,8 @@ class DashboardFragment : androidx.fragment.app.Fragment() {
             YEARLY_INTERVAL -> dh.getYearSpinnerArray()
             ALL_TIME -> {
                 timeSelectionLayout.visibility = View.GONE
-                sumExpenses(ALL_TIME, 0)
+                sumExpenses(getExpensesForInterval(ALL_TIME, 0))
+                listener.onDateSelectionChange(getExpensesForInterval(ALL_TIME, 0), ALL_TIME)
                 Array(0){""}
             }
 
@@ -205,10 +254,9 @@ class DashboardFragment : androidx.fragment.app.Fragment() {
                 android.R.layout.simple_spinner_dropdown_item, optionsArray)
     }
 
-    fun sumExpenses(intervalType: Int, selectedInterval: Int) {
+    fun getExpensesForInterval (intervalType: Int, selectedInterval: Int): MutableList<Expense> {
         var startDate = db.getOldestDate()
         var endDate = db.getNewestDate()
-        val decimalFormat = DecimalFormat("#0.00")
 
         when (intervalType) {
             WEEKLY_INTERVAL -> {
@@ -238,7 +286,10 @@ class DashboardFragment : androidx.fragment.app.Fragment() {
             }
         }
 
-        val expenses = db.getExpensesByDate(startDate, endDate)
+        return db.getExpensesByDate(startDate, endDate)
+    }
+
+    fun sumExpenses(expenses: MutableList<Expense>) {
 
         val totalExpenses = expenses.filter { it.cost < 0 } .sumBy { it.cost }
         val totalIncome = expenses.filter {it.cost > 0} .sumBy { it.cost }
@@ -258,4 +309,7 @@ class DashboardFragment : androidx.fragment.app.Fragment() {
         }
     }
 
+    fun setListener(listener: DateSelectionListener) {
+        this.listener = listener
+    }
 }
