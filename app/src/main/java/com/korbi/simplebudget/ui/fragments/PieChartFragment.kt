@@ -48,6 +48,8 @@ import java.text.DecimalFormat
 
 class PieChartFragment : androidx.fragment.app.Fragment(),  DashboardFragment.DateSelectionListener {
 
+    //TODO prevent overlap of pie labels
+
     private lateinit var pieChart: PieChart
     private var expenseList = mutableListOf<Expense>()
     private val colors = intArrayOf(
@@ -107,14 +109,14 @@ class PieChartFragment : androidx.fragment.app.Fragment(),  DashboardFragment.Da
             pieEntries.add(data)
         }
         val dataSet = PieDataSet(pieEntries, "")
-        dataSet.valueTextSize = 12f
+        dataSet.valueTextSize = 10f
         dataSet.valueTextColor = Color.WHITE
         dataSet.sliceSpace = 2f
         dataSet.setColors(colors, 255)
         dataSet.selectionShift = 0f
         pieChart.setUsePercentValues(true)
         pieChart.centerText = getString(R.string.distribution)
-        pieChart.setCenterTextSize(18f)
+        pieChart.setCenterTextSize(14f)
         pieChart.setCenterTextColor(Color.WHITE)
         pieChart.data = PieData(dataSet)
         pieChart.data.setValueFormatter { value, _, _, _ ->
@@ -150,7 +152,7 @@ class PieChartFragment : androidx.fragment.app.Fragment(),  DashboardFragment.Da
     private fun setUpPie() {
 
         pieChart.isRotationEnabled = false
-        pieChart.holeRadius = 40f
+        pieChart.holeRadius = 45f
         pieChart.setHoleColor(ContextCompat.getColor(context!!, R.color.gray_background))
         pieChart.setTransparentCircleAlpha(0)
         pieChart.description.text = ""
@@ -180,7 +182,8 @@ class PieChartFragment : androidx.fragment.app.Fragment(),  DashboardFragment.Da
 
     fun updateView() {
         val dashboard = requireParentFragment() as DashboardFragment
-        val expenses = if (dashboard.actionBarSinnerInizialized()) {
+        val expenses = if (dashboard.actionBarSinnerInizialized() &&
+                dashboard.getInterval() != -1) {
             dashboard.getExpensesForInterval(dashboard.getIntervalType(), dashboard.getInterval())
         } else {
             dashboard.getExpensesForInterval(SimpleBudgetApp.pref.getInt(

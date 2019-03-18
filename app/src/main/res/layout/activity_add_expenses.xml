@@ -112,7 +112,6 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:ems="20"
-                android:onClick="setDate"
                 android:focusable="false"/>
 
         </com.google.android.material.textfield.TextInputLayout>

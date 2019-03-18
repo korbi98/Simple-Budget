@@ -98,13 +98,14 @@ class BudgetFragment : androidx.fragment.app.Fragment(),
     fun updateView() {
 
         val dashboard = requireParentFragment() as DashboardFragment
-        expenseList = if (dashboard.actionBarSinnerInizialized()) {
+        expenseList = if (dashboard.actionBarSinnerInizialized() && dashboard.getInterval() != -1) {
             dashboard.getExpensesForInterval(dashboard.getIntervalType(), dashboard.getInterval())
         } else {
             dashboard.getExpensesForInterval(SimpleBudgetApp.pref.getInt(
                     getString(R.string.dashboard_time_selection_key), 1), 0)
         }
-        selectedInterval = when (dashboard.actionBarSinnerInizialized()) {
+        selectedInterval = when (dashboard.actionBarSinnerInizialized() &&
+                dashboard.getInterval() != -1) {
             true -> dashboard.getIntervalType()
             false -> SimpleBudgetApp.pref.getInt(
                     getString(R.string.dashboard_time_selection_key), 1)

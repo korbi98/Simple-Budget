@@ -18,11 +18,12 @@ package com.korbi.simplebudget.logic
 
 import android.animation.ObjectAnimator
 import android.content.Context
-import android.widget.TextView
 import com.bignerdranch.expandablerecyclerview.ParentViewHolder
-import com.korbi.simplebudget.R
 import android.view.View
-import android.widget.ImageView
+import androidx.core.content.ContextCompat
+import com.korbi.simplebudget.R
+import com.korbi.simplebudget.SimpleBudgetApp
+import kotlinx.android.synthetic.main.history_date_listening.view.*
 
 
 class HistoryViewHolder(private val historyEntryView: View) : ParentViewHolder<HistoryEntry,
@@ -30,8 +31,10 @@ class HistoryViewHolder(private val historyEntryView: View) : ParentViewHolder<H
 
     val context: Context = historyEntryView.context
 
-    private val entryDate = historyEntryView.findViewById<TextView>(R.id.history_date_listing_date)
-    private val expandArrow = historyEntryView.findViewById<ImageView>(R.id.history_date_listing_arrow_expand)
+    private val entryDate = historyEntryView.history_date_listing_date
+    private val expandArrow = historyEntryView.history_date_listing_arrow_expand
+    private val totalAmountView = historyEntryView.history_date_total_expense
+    private val divider = historyEntryView.listDivider
 
     override fun collapseView() {
         super.collapseView()
@@ -48,7 +51,20 @@ class HistoryViewHolder(private val historyEntryView: View) : ParentViewHolder<H
     }
 
     fun bind (week: String) {
+        val totalAmount = parent.childList.sumBy { it.cost }
         entryDate.text = week
+        totalAmountView.text = SimpleBudgetApp.createCurrencyString(totalAmount)
+
+        totalAmountView.setTextColor(when {
+            totalAmount < 0 -> ContextCompat.getColor(context,R.color.expenseColor)
+            totalAmount > 0 -> ContextCompat.getColor(context,R.color.incomeColor)
+            else -> ContextCompat.getColor(context,R.color.neutralColor)
+        })
+
+        divider.visibility = when (adapterPosition) {
+            0 -> View.GONE
+            else -> View.VISIBLE
+        }
 
         if (isExpanded) {
             val rotate = ObjectAnimator.ofFloat(expandArrow, "rotation", 0f, 90f)

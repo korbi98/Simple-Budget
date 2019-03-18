@@ -84,6 +84,9 @@ class AddExpenses : AppCompatActivity() {
 
         currencyEditLayout = findViewById(R.id.add_expense_input_layout)
         datePickerTextView = findViewById(R.id.datePicker)
+        datePickerTextView.setOnClickListener {
+            setDate()
+        }
         descriptionEditText = findViewById(R.id.descriptionInput)
         categoryGroup = findViewById(R.id.add_expense_category_group)
         categoryChips = mutableListOf()
@@ -92,7 +95,6 @@ class AddExpenses : AppCompatActivity() {
         val actionBar = supportActionBar
         actionBar?.setDisplayShowCustomEnabled(true)
         actionBar?.customView = actionBarLayout
-
 
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE)
         updateDatePickerText()
@@ -144,7 +146,7 @@ class AddExpenses : AppCompatActivity() {
         }
     }
 
-    fun setDate(@Suppress("UNUSED_PARAMETER")view: View) {
+    fun setDate() {
         //LocalDate.monthValue goes from 1 to 12 while the datePicker takes values from 0 to 11
         val year = expenseDate.year
         val month = expenseDate.monthValue - 1

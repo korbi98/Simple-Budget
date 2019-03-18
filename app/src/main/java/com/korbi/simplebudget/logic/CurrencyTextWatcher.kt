@@ -67,7 +67,10 @@ class CurrencyTextWatcher(private val inputView: EditText,
                     !"., ".contains(c)) {
                 newStringBuilder.append(separator)
             }
-            if (c == forbiddenSeparator || (position != 0 && c == "-") ||
+            if (c == forbiddenSeparator) {
+                c = separator
+            }
+            if ((position != 0 && c == "-") ||
                     (position > 10) || (separatorPosition != null
                             && position > (separatorPosition + 2))) {
                 c = ""

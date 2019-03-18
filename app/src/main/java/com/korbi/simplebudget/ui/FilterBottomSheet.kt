@@ -178,7 +178,7 @@ class FilterBottomSheet :  BottomSheetDialogFragment() {
                                         R.color.custom_choice_chip_selector)
             chip.text = cat.name
             chip.setChipIconTintResource(R.color.text_color_white)
-            chip.setCheckedIconResource(R.drawable.ic_done_white_24px)
+            //chip.setCheckedIconResource(R.drawable.ic_done_white_24px)
             chip.setChipIconResource(iconIdArray.getResourceId(cat.icon ,-1))
             chip.setOnCheckedChangeListener { _, isChecked ->
                 chip.isChipIconVisible = !isChecked
