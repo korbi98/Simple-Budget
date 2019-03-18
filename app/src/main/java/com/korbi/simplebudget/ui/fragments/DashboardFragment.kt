@@ -260,16 +260,24 @@ class DashboardFragment : androidx.fragment.app.Fragment() {
 
         when (intervalType) {
             WEEKLY_INTERVAL -> {
-                val week = dh.getWeeks().filter {
+                var weeks = dh.getWeeks()
+                weeks = weeks.subList(1, weeks.size) .filter {
                     !db.getExpensesByDate(it[0], it[1]).isEmpty()
-                } [selectedInterval]
+                } .toMutableList()
+                weeks.add(0, dh.getWeeks()[0])
+
+                val week = weeks[selectedInterval]
                 startDate = week[0]
                 endDate = week[1]
             }
             MONTHLY_INTERVAL -> {
-                val month = dh.getMonths().filter {
+                var months = dh.getMonths()
+                months = months.subList(1, months.size).filter {
                     !db.getExpensesByDate(it.atDay(1), it.atEndOfMonth()).isEmpty()
-                } [selectedInterval]
+                } .toMutableList()
+                months.add(0, dh.getMonths()[0])
+
+                val month = months[selectedInterval]
                 startDate = month.atDay(1)
                 endDate = month.atEndOfMonth()
             }
@@ -285,7 +293,6 @@ class DashboardFragment : androidx.fragment.app.Fragment() {
                 endDate = LocalDate.of(dh.getYears()[selectedInterval], 12, 31)
             }
         }
-
         return db.getExpensesByDate(startDate, endDate)
     }
 
