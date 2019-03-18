@@ -66,7 +66,7 @@ class DashboardFragment : androidx.fragment.app.Fragment() {
     private val dh = DateHelper.getInstance()
 
     interface DateSelectionListener {
-        fun onDateSelectionChange(expenses: MutableList<Expense>, intervalType: Int)
+        fun onDateSelectionChange()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -88,7 +88,7 @@ class DashboardFragment : androidx.fragment.app.Fragment() {
 
         val tabLayout = rootView.findViewById<TabLayout>(R.id.dashboard_tabs)
         tabLayout.addTab(tabLayout.newTab().setText(R.string.budget))
-        tabLayout.addTab(tabLayout.newTab().setText(R.string.pie_chart))
+        tabLayout.addTab(tabLayout.newTab().setText(R.string.distribution))
 
         val viewPager = rootView.findViewById<ViewPager>(R.id.dashboard_viewpager)
         viewPager.adapter = object : FragmentStatePagerAdapter(childFragmentManager) {
@@ -128,9 +128,17 @@ class DashboardFragment : androidx.fragment.app.Fragment() {
                 viewPager.currentItem = tab.position
 
                 when (viewPager.currentItem) {
-                    1 -> setListener((registeredFragments[1] as PieChartFragment).getListener())
-                    else -> setListener((registeredFragments[viewPager.currentItem]
-                            as BudgetFragment).getListener())
+                    1 -> {
+                        val pie = registeredFragments[1] as PieChartFragment
+                        setListener(pie.getListener())
+                        pie.updateView()
+                    }
+                    else -> {
+                        val budget = registeredFragments[viewPager.currentItem]
+                                as BudgetFragment
+                        budget.getListener()
+                        budget.updateView()
+                    }
                 }
             }
 
@@ -146,9 +154,7 @@ class DashboardFragment : androidx.fragment.app.Fragment() {
                 if (!db.getExpensesByDate(db.getOldestDate(), db.getNewestDate()).isEmpty()) {
                     sumExpenses(getExpensesForInterval(actionBarSpinner.selectedItemPosition,
                             position))
-                    listener.onDateSelectionChange(
-                            getExpensesForInterval(actionBarSpinner.selectedItemPosition, position),
-                            actionBarSpinner.selectedItemPosition)
+                    listener.onDateSelectionChange()
                 }
             }
         }
@@ -192,16 +198,12 @@ class DashboardFragment : androidx.fragment.app.Fragment() {
             setupTimeSelectionSpinner(actionBarSpinner.selectedItemPosition)
             sumExpenses(getExpensesForInterval(actionBarSpinner.selectedItemPosition,
                     timeSelectionSpinner.selectedItemPosition))
-            listener.onDateSelectionChange(getExpensesForInterval(
-                    actionBarSpinner.selectedItemPosition,
-                    timeSelectionSpinner.selectedItemPosition),
-                    actionBarSpinner.selectedItemPosition)
+            listener.onDateSelectionChange()
         } else {
             if (!db.getExpensesByDate(db.getOldestDate(), db.getNewestDate()).isEmpty()) {
                 sumExpenses(getExpensesForInterval(WEEKLY_INTERVAL, 0))
                 if (::listener.isInitialized) {
-                    listener.onDateSelectionChange(
-                            getExpensesForInterval(WEEKLY_INTERVAL, 0), 0)
+                    listener.onDateSelectionChange()
                 }
             }
         }
@@ -243,7 +245,7 @@ class DashboardFragment : androidx.fragment.app.Fragment() {
             ALL_TIME -> {
                 timeSelectionLayout.visibility = View.GONE
                 sumExpenses(getExpensesForInterval(ALL_TIME, 0))
-                listener.onDateSelectionChange(getExpensesForInterval(ALL_TIME, 0), ALL_TIME)
+                listener.onDateSelectionChange()
                 Array(0){""}
             }
 
@@ -318,5 +320,17 @@ class DashboardFragment : androidx.fragment.app.Fragment() {
 
     fun setListener(listener: DateSelectionListener) {
         this.listener = listener
+    }
+
+    fun getIntervalType(): Int {
+        return actionBarSpinner.selectedItemPosition
+    }
+
+    fun getInterval(): Int {
+        return  timeSelectionSpinner.selectedItemPosition
+    }
+
+    fun actionBarSinnerInizialized(): Boolean {
+        return ::actionBarSpinner.isInitialized
     }
 }

@@ -16,6 +16,7 @@
 
 package com.korbi.simplebudget.ui.fragments
 
+import android.content.res.ColorStateList
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -23,6 +24,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.github.mikephil.charting.highlight.ChartHighlighter
@@ -52,7 +54,7 @@ class BudgetFragment : androidx.fragment.app.Fragment(),
     private lateinit var emptyMessage: TextView
     private var totalBudget = 0
     private var totalBudgetInterval = MONTHLY_INTERVAL
-    private var selectedInterval = WEEKLY_INTERVAL
+    private var selectedInterval = MONTHLY_INTERVAL
     private var expenseList = mutableListOf<Expense>()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -66,7 +68,7 @@ class BudgetFragment : androidx.fragment.app.Fragment(),
         budgetRecycler.setHasFixedSize(true)
         budgetRecycler.layoutManager = LinearLayoutManager(context,
                                         RecyclerView.VERTICAL, false)
-        budgetAdapter = BudgetAdapter(expenseList, 0, this)
+        budgetAdapter = BudgetAdapter(expenseList, selectedInterval, this)
         budgetRecycler.adapter = budgetAdapter
 
         totalBudgetAmount = rootview.findViewById(R.id.budget_total_budget)
@@ -85,9 +87,7 @@ class BudgetFragment : androidx.fragment.app.Fragment(),
         updateView()
     }
 
-    override fun onDateSelectionChange(expenses: MutableList<Expense>, intervalType: Int) {
-        expenseList = expenses
-        selectedInterval = intervalType
+    override fun onDateSelectionChange() {
         updateView()
     }
 
@@ -96,6 +96,20 @@ class BudgetFragment : androidx.fragment.app.Fragment(),
     }
 
     fun updateView() {
+
+        val dashboard = requireParentFragment() as DashboardFragment
+        expenseList = if (dashboard.actionBarSinnerInizialized()) {
+            dashboard.getExpensesForInterval(dashboard.getIntervalType(), dashboard.getInterval())
+        } else {
+            dashboard.getExpensesForInterval(SimpleBudgetApp.pref.getInt(
+                    getString(R.string.dashboard_time_selection_key), 1), 0)
+        }
+        selectedInterval = when (dashboard.actionBarSinnerInizialized()) {
+            true -> dashboard.getIntervalType()
+            false -> SimpleBudgetApp.pref.getInt(
+                    getString(R.string.dashboard_time_selection_key), 1)
+        }
+
         emptyMessage.visibility = when (expenseList.isEmpty()) {
             true -> View.VISIBLE
             false -> View.GONE
@@ -111,6 +125,17 @@ class BudgetFragment : androidx.fragment.app.Fragment(),
 
         totalBudgetAmount.text = getBudgetText()
         totalBudgetProgress.progress = getBudgetProgress()
+
+        if (getBudgetProgress() > 100) {
+            totalBudgetAmount.setTextColor(ContextCompat.getColor(context!!, R.color.expenseColor))
+            totalBudgetProgress.progressTintList = ColorStateList.valueOf(
+                    ContextCompat.getColor(context!!, R.color.expenseColor))
+        } else {
+            totalBudgetAmount.setTextColor(ContextCompat.getColor(context!!,
+                    R.color.text_color_white_secondary))
+            totalBudgetProgress.progressTintList = ColorStateList.valueOf(
+                    ContextCompat.getColor(context!!, R.color.colorPrimary))
+        }
 
         budgetAdapter.updateCategories()
     }
@@ -152,11 +177,7 @@ class BudgetFragment : androidx.fragment.app.Fragment(),
 
         return when {
             categoryTotalSum > 0 && budget != 0 -> {
-                if (categoryTotalSum < budget) {
-                    ((categoryTotalSum.toFloat() / budget.toFloat())*100).toInt()
-                } else {
-                    100
-                }
+                ((categoryTotalSum.toFloat() / budget.toFloat())*100).toInt()
             }
             else -> 0
         }

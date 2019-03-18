@@ -291,7 +291,6 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
         // filter date selection
         val currentDate = LocalDate.now()
 
-        //TODO implement specific time range
         val dateFilteredList: List<Expense> = when (dateSelection) {
             SELECT_LAST30 -> {
                 typeFilteredList.filter { it.date.isAfter(currentDate.minusDays(30)) }

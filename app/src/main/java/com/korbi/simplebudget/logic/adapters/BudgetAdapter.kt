@@ -16,6 +16,7 @@
 
 package com.korbi.simplebudget.logic.adapters
 
+import android.content.res.ColorStateList
 import android.content.res.TypedArray
 import android.preference.PreferenceManager
 import android.util.Log
@@ -25,6 +26,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.korbi.simplebudget.R
 import com.korbi.simplebudget.SimpleBudgetApp
@@ -59,6 +61,17 @@ class BudgetAdapter(private var expenses: MutableList<Expense>,
         holder.categoryIconView.setImageResource(iconId)
         holder.categoryBudgetView.text = getBudgetText(categories[position])
         holder.categoryProgressView.progress = getBudgetProgress(categories[position])
+        if (getBudgetProgress(categories[position]) > 100) {
+            holder.categoryBudgetView.setTextColor(ContextCompat.getColor(holder.itemView.context,
+                    R.color.expenseColor))
+            holder.categoryProgressView.progressTintList = ColorStateList.valueOf(
+                    ContextCompat.getColor(holder.itemView.context, R.color.expenseColor))
+        } else {
+            holder.categoryBudgetView.setTextColor(ContextCompat.getColor(holder.itemView.context,
+                    R.color.text_color_white_secondary))
+            holder.categoryProgressView.progressTintList = ColorStateList.valueOf(
+                    ContextCompat.getColor(holder.itemView.context, R.color.colorPrimary))
+        }
     }
 
     override fun getItemCount(): Int {
@@ -67,17 +80,12 @@ class BudgetAdapter(private var expenses: MutableList<Expense>,
 
     private fun getBudgetProgress(category: Category): Int {
 
-        val categoryExpenses = expenses.filter { it.category == category && it.cost < 0}
-        val categoryTotalSum = -categoryExpenses.sumBy { it.cost }
+        val categoryTotalSum = getCategoryExpenses(category)
         val budget = getIntervalBudget(category, interval)
 
         return when {
             categoryTotalSum > 0 && budget != 0 -> {
-                if (categoryTotalSum < budget) {
-                    ((categoryTotalSum.toFloat() / budget.toFloat())*100).toInt()
-                } else {
-                    100
-                }
+                ((categoryTotalSum.toFloat() / budget.toFloat())*100).toInt()
             }
             else -> 0
         }
@@ -85,11 +93,9 @@ class BudgetAdapter(private var expenses: MutableList<Expense>,
 
     private fun getBudgetText(category: Category): String {
 
-        val categoryExpenses = expenses.filter { it.category == category && it.cost < 0}
-        val categoryTotalSum = -categoryExpenses.sumBy { it.cost }
         val budget = getIntervalBudget(category, interval)
 
-        var budgetString = SimpleBudgetApp.createCurrencyString(categoryTotalSum)
+        var budgetString = SimpleBudgetApp.createCurrencyString(getCategoryExpenses(category))
 
         budgetString = if (budget != 0) {
             val str = SimpleBudgetApp.createCurrencyString(budget)
@@ -112,10 +118,15 @@ class BudgetAdapter(private var expenses: MutableList<Expense>,
         return expenses.none { it.category == category && it.cost < 0}
     }
 
+    private fun getCategoryExpenses(category: Category): Int {
+        val categoryExpenses = expenses.filter { it.category == category && it.cost < 0}
+        return -categoryExpenses.sumBy { it.cost }
+    }
+
     fun updateCategories() {
         categories = db.getAllCategories().filter { !isCategoryEmpty(it) } .toMutableList()
 
-        categories.sortBy { it.position }
+        categories.sortWith(compareBy({ -getBudgetProgress(it) }, { -getCategoryExpenses(it) }))
         notifyDataSetChanged()
     }
 

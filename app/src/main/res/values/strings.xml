@@ -147,6 +147,9 @@
         individual categories</string>
     <string name="no_budget_set_info">Click to set budget</string>
     <string name="no_budget_set_info_short">No budget</string>
+    <string name="pie_chart_legend">Category distribution</string>
+    <string name="distribution">Distribution</string>
+    <string name="other">Other</string>
 
 
     <string-array name="default_categories">
