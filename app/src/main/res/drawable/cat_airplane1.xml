@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <!--
   ~ Copyright 2019 Korbinian Moser
   ~
@@ -15,12 +14,9 @@
   ~ limitations under the License.
   -->
 
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
-
-    <item android:id="@+id/expense_menu_edit"
-        android:title="@string/edit"
-        android:icon="@drawable/ic_edit_white_24dp" />
-    <item android:id="@+id/expense_menu_delete"
-        android:title="@string/delete"
-        android:icon="@drawable/ic_delete_white_24dp"/>
-</menu>
+<vector android:height="32dp" android:tint="#FFFFFF"
+    android:viewportHeight="24.0" android:viewportWidth="24.0"
+    android:width="32dp" xmlns:android="http://schemas.android.com/apk/res/android">
+    <path android:fillColor="#FF000000" android:pathData="M10.18,9"/>
+    <path android:fillColor="#FF000000" android:pathData="M21,16v-2l-8,-5V3.5c0,-0.83 -0.67,-1.5 -1.5,-1.5S10,2.67 10,3.5V9l-8,5v2l8,-2.5V19l-2,1.5V22l3.5,-1 3.5,1v-1.5L13,19v-5.5l8,2.5z"/>
+</vector>

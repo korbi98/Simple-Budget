@@ -18,14 +18,67 @@
 <resources>
 
     <integer-array name="category_icons">
-        <item>@drawable/ic_drag_handle_black_24dp</item>
-        <item>@drawable/ic_dashboard_white_24dp</item>
-        <item>@drawable/ic_add_white_24dp</item>
-        <item>@drawable/ic_filter_list_white_24dp</item>
-        <item>@drawable/ic_search_white_24dp</item>
-        <item>@drawable/ic_clear_white_24px</item>
-        <item>@drawable/ic_arrow_right_white_24dp</item>
-        <item>@drawable/ic_statistic_white_24dp</item>
+
+        <item>@drawable/cat_food2</item>
+        <item>@drawable/cat_car</item>
+        <item>@drawable/cat_hospital</item>
+        <item>@drawable/cat_shopping_bag</item>
+        <item>@drawable/cat_home</item>
+        <item>@drawable/cat_explore</item>
+
+        <item>@drawable/cat_food1</item>
+        <item>@drawable/cat_coffee</item>
+        <item>@drawable/cat_grocery_shop</item>
+        <item>@drawable/cat_fridge</item>
+        <item>@drawable/cat_bar</item>
+
+        <item>@drawable/cat_fitness</item>
+        <item>@drawable/cat_running</item>
+        <item>@drawable/cat_beach</item>
+        <item>@drawable/cat_bed</item>
+        <item>@drawable/cat_book</item>
+        <item>@drawable/cat_brush</item>
+        <item>@drawable/cat_business_bag</item>
+        <item>@drawable/cat_camera</item>
+        <item>@drawable/cat_color_palette</item>
+        <item>@drawable/cat_earphones</item>
+        <item>@drawable/cat_flower</item>
+        <item>@drawable/cat_education</item>
+        <item>@drawable/cat_mountain</item>
+        <item>@drawable/cat_pool</item>
+        <item>@drawable/cat_sofa</item>
+        <item>@drawable/cat_tools</item>
+        <item>@drawable/cat_travel_bag</item>
+        <item>@drawable/cat_pets</item>
+
+        <item>@drawable/cat_airplane1</item>
+        <item>@drawable/cat_airplane2</item>
+        <item>@drawable/cat_bike</item>
+        <item>@drawable/cat_boat</item>
+        <item>@drawable/cat_bus</item>
+        <item>@drawable/cat_train</item>
+
+        <item>@drawable/cat_taxi</item>
+        <item>@drawable/cat_truck</item>
+        <item>@drawable/cat_large_car</item>
+        <item>@drawable/cat_motorcycle</item>
+        <item>@drawable/cat_gas_station</item>
+
+        <item>@drawable/cat_city</item>
+        <item>@drawable/cat_house_high</item>
+
+        <item>@drawable/cat_movie</item>
+        <item>@drawable/cat_music</item>
+        <item>@drawable/cat_phone</item>
+
+        <item>@drawable/cat_dollar</item>
+        <item>@drawable/cat_euro</item>
+        <item>@drawable/cat_money</item>
+
+        <item>@drawable/cat_healing</item>
+        <item>@drawable/cat_laptop</item>
+        <item>@drawable/cat_mail</item>
+
     </integer-array>
 
 </resources>
