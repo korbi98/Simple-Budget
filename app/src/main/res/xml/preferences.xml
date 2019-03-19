@@ -27,6 +27,14 @@
             android:title="@string/currency"
             app:iconSpaceReserved="false"/>
 
+        <ListPreference
+            android:key="@string/settings_key_history_grouping"
+            android:title="@string/settings_history_grouping"
+            android:entries="@array/history_grouping_interval"
+            android:entryValues="@array/history_grouping_interval_values"
+            android:defaultValue="1"
+            app:iconSpaceReserved="false" />
+
         <CheckBoxPreference
             android:key="@string/dont_show_again_key"
             android:title="@string/dont_show_again_settings"

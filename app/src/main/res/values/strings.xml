@@ -151,6 +151,8 @@
     <string name="distribution">Distribution</string>
     <string name="other">Other</string>
     <string name="total_expenses">Total expenses</string>
+    <string name="settings_key_history_grouping">settings_key_history_grouping</string>
+    <string name="settings_history_grouping">Grouping in History and Widget</string>
 
 
     <string-array name="default_categories">
@@ -168,6 +170,16 @@
         <item>Quarterly</item>
         <item>Yearly</item>
         <item>All time</item>
+    </string-array>
+
+    <string-array name="history_grouping_interval">
+        <item>Monthly</item>
+        <item>Weekly</item>
+    </string-array>
+
+    <string-array name="history_grouping_interval_values">
+        <item>1</item>
+        <item>0</item>
     </string-array>
     
     <string-array name="ordinals">

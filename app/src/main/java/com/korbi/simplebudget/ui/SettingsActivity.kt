@@ -22,6 +22,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.preference.PreferenceManager
 import androidx.appcompat.app.AppCompatActivity
+import androidx.preference.ListPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import com.korbi.simplebudget.BuildConfig
@@ -66,7 +67,7 @@ class SettingsActivity : AppCompatActivity() {
             val packageName = BuildConfig.APPLICATION_ID
             val versionNumber = BuildConfig.VERSION_CODE
 
-            currency = findPreference<Preference>(getString(R.string.settings_key_currency))!!
+            currency = findPreference(getString(R.string.settings_key_currency))!!
             currencyList = resources.getStringArray(R.array.currencies_with_names)
             currencySymbols = resources.getStringArray(R.array.currencies_symbols)
             pref = PreferenceManager.getDefaultSharedPreferences(context)
@@ -84,6 +85,12 @@ class SettingsActivity : AppCompatActivity() {
                 dialog.setTargetFragment(this, 0)
                 dialog.show(fragmentManager!!, "currency_dialog")
                 true
+            }
+
+            val historyGrouping = findPreference<ListPreference>(
+                    getString(R.string.settings_key_history_grouping))
+            historyGrouping?.setSummaryProvider {
+                (it as ListPreference).entry
             }
 
             val version = findPreference<Preference>(getString(R.string.about_version_number_key))

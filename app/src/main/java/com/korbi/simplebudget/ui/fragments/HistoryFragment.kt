@@ -18,17 +18,13 @@ package com.korbi.simplebudget.ui.fragments
 
 import android.app.AlertDialog
 import android.content.Intent
-import android.content.SharedPreferences
 import android.os.Bundle
-import android.preference.PreferenceManager
-import android.util.Log
 import androidx.recyclerview.widget.RecyclerView
 
 import com.korbi.simplebudget.R
 import com.korbi.simplebudget.database.DBhandler
 import com.korbi.simplebudget.logic.adapters.HistoryAdapter
 import android.view.*
-import android.widget.CheckBox
 import android.widget.SearchView
 import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -40,13 +36,10 @@ import com.korbi.simplebudget.logic.Expense
 import com.korbi.simplebudget.logic.ExpenseViewHolder
 import com.korbi.simplebudget.logic.HistoryEntry
 import com.korbi.simplebudget.ui.*
-import kotlinx.android.synthetic.main.income_manager_add_dialog.*
 import org.threeten.bp.LocalDate
-import org.threeten.bp.LocalDateTime
 import org.threeten.bp.format.DateTimeFormatter
-import org.threeten.bp.temporal.TemporalAdjuster
+import org.threeten.bp.format.TextStyle
 import org.threeten.bp.temporal.TemporalAdjusters
-
 import java.util.*
 
 
@@ -184,14 +177,37 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
 
         val historyEntries = mutableListOf<HistoryEntry>()
 
-        for (week in DateHelper.getInstance().getWeeks()) {
+        val historyGrouping = SimpleBudgetApp.pref.getString(
+                getString(R.string.settings_key_history_grouping), "1")
 
-            val dateString = dateFormatter.format(week[0]) + " - " + dateFormatter.format(week[1])
+        when (historyGrouping) {
+            MONTHLY_INTERVAL.toString() -> {
+                for (month in DateHelper.getInstance().getMonths()) {
 
-            var expenses = db.getExpensesByDate(week[0], week[1])
-            expenses = filterExpenses(expenses, type, date, fromDate, toDate, categories)
+                    val dateString =
+                            month.month.getDisplayName(TextStyle.FULL, Locale.getDefault()) + " " +
+                                    month.year.toString()
 
-            historyEntries.add(HistoryEntry(expenses, dateString))
+                    var expenses =
+                            db.getExpensesByDate(month.atDay(1), month.atEndOfMonth())
+                    expenses = filterExpenses(expenses, type, date, fromDate, toDate, categories)
+
+                    historyEntries.add(HistoryEntry(expenses, dateString))
+                }
+            }
+
+            WEEKLY_INTERVAL.toString() -> {
+                for (week in DateHelper.getInstance().getWeeks()) {
+
+                    val dateString =
+                            "${dateFormatter.format(week[0])} - ${dateFormatter.format(week[1])}"
+
+                    var expenses = db.getExpensesByDate(week[0], week[1])
+                    expenses = filterExpenses(expenses, type, date, fromDate, toDate, categories)
+
+                    historyEntries.add(HistoryEntry(expenses, dateString))
+                }
+            }
         }
         return historyEntries
     }

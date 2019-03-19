@@ -146,7 +146,7 @@ class AddExpenses : AppCompatActivity() {
         }
     }
 
-    fun setDate() {
+    private fun setDate() {
         //LocalDate.monthValue goes from 1 to 12 while the datePicker takes values from 0 to 11
         val year = expenseDate.year
         val month = expenseDate.monthValue - 1

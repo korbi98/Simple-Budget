@@ -137,7 +137,6 @@ class PieChartFragment : androidx.fragment.app.Fragment(),  DashboardFragment.Da
         pieChart.data.setValueFormatter(PercentFormatter())
 
         setUpPie()
-        Log.d("test", "test")
     }
 
     private fun isCategoryEmpty(category: Category, expenses: MutableList<Expense>): Boolean {
