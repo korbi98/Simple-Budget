@@ -35,6 +35,7 @@ import com.korbi.simplebudget.logic.Category
 import com.korbi.simplebudget.logic.Expense
 import com.korbi.simplebudget.ui.fragments.*
 import kotlinx.android.synthetic.main.budget_listening.view.*
+import java.text.DecimalFormat
 
 class BudgetAdapter(private var expenses: MutableList<Expense>,
                     private var interval: Int,
@@ -82,10 +83,23 @@ class BudgetAdapter(private var expenses: MutableList<Expense>,
 
         val categoryTotalSum = getCategoryExpenses(category)
         val budget = getIntervalBudget(category, interval)
+        val maxCategory = categories.maxBy { getCategoryExpenses(it) }
+        val maxAmount = if (maxCategory != null) {
+            getCategoryExpenses(maxCategory)
+        } else {
+            0
+        }
 
         return when {
+            interval == ALL_TIME -> {
+                if (maxAmount != 0) {
+                    (categoryTotalSum.toFloat() / maxAmount.toFloat() * 100).toInt()
+                } else {
+                    0
+                }
+            }
             categoryTotalSum > 0 && budget != 0 -> {
-                ((categoryTotalSum.toFloat() / budget.toFloat())*100).toInt()
+                ((categoryTotalSum.toFloat() / budget.toFloat()) * 100).toInt()
             }
             else -> 0
         }
@@ -93,19 +107,44 @@ class BudgetAdapter(private var expenses: MutableList<Expense>,
 
     private fun getBudgetText(category: Category): String {
 
+        val decimalFormat = DecimalFormat(SimpleBudgetApp.res.getString(R.string.number_format))
+
+        val onLeft = SimpleBudgetApp.pref.getBoolean(
+                SimpleBudgetApp.res.getString(R.string.settings_key_currency_left), false)
+        val noDecimal = SimpleBudgetApp.pref.getBoolean(
+                SimpleBudgetApp.res.getString(R.string.settings_key_currency_decimal), false)
+
         val budget = getIntervalBudget(category, interval)
-
-        var budgetString = SimpleBudgetApp.createCurrencyString(getCategoryExpenses(category))
-
-        budgetString = when {
-            interval == ALL_TIME -> budgetString
-            budget != 0 -> {
-                val str = SimpleBudgetApp.createCurrencyString(budget)
-                "$budgetString / $str"
-            }
-            else -> "$budgetString / ${SimpleBudgetApp.res.getString(R.string.no_budget_set_info_short)}"
+        val catExpenses = when (noDecimal) {
+            true -> getCategoryExpenses(category).toString()
+            false -> decimalFormat.format(getCategoryExpenses(category)/100)
         }
-        return budgetString
+
+        val currencySymbol = SimpleBudgetApp.pref.getString(
+                SimpleBudgetApp.res.getString(R.string.settings_key_currency),
+                SimpleBudgetApp.res.getStringArray(R.array.currencies_symbols)[0])
+
+        return when {
+            interval == ALL_TIME -> {
+                SimpleBudgetApp.createCurrencyString(getCategoryExpenses(category))
+            }
+            budget != 0 -> {
+                val budgetStr = when (noDecimal) {
+                    true -> budget.toString()
+                    false -> decimalFormat.format(budget/100)
+                }
+                when (onLeft) {
+                    true -> "$currencySymbol $catExpenses / $budgetStr"
+                    false -> "$catExpenses / $budgetStr $currencySymbol"
+                }
+            }
+            else -> {
+                when (onLeft) {
+                    true -> "$currencySymbol $catExpenses / -"
+                    false -> "$catExpenses / - $currencySymbol"
+                }
+            }
+        }
     }
 
     fun setInterval(interval: Int) {

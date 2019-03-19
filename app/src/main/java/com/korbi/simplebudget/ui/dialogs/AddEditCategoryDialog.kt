@@ -177,7 +177,11 @@ class AddEditCategoryDialog : DialogFragment() {
                     iconView.setImageResource(iconIDs.getResourceId(position, -1))
                     v
                 }
-                else -> convertView
+                else -> {
+                    val iconView = convertView.findViewById<ImageView>(R.id.icon_grid_icon)
+                    iconView.setImageResource(iconIDs.getResourceId(position, -1))
+                    convertView
+                }
             }
 
             if (position != selectedItem) {
@@ -187,14 +191,7 @@ class AddEditCategoryDialog : DialogFragment() {
                 typedArray.recycle()
                 view.setBackgroundResource(backgroundResource)
             } else {
-                val colorStart = ContextCompat.getColor(context!!, R.color.gray_background)
-                val colorEnd = ContextCompat.getColor(context!!, R.color.colorPrimaryDark)
-                val backgroundAnimator = ValueAnimator.ofObject(ArgbEvaluator(), colorStart, colorEnd)
-                backgroundAnimator.duration = 400
-                backgroundAnimator.addUpdateListener { valueAnimator ->
-                    view.setBackgroundColor(valueAnimator.animatedValue as Int)
-                }
-                backgroundAnimator.start()
+                view.setBackgroundColor(ContextCompat.getColor(context!!, R.color.colorPrimaryDark))
             }
 
             return view

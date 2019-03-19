@@ -179,6 +179,7 @@ class BudgetFragment : androidx.fragment.app.Fragment(),
         val budget = getIntervalBudget(selectedInterval)
 
         return when {
+            selectedInterval == ALL_TIME -> 100
             categoryTotalSum > 0 && budget != 0 -> {
                 ((categoryTotalSum.toFloat() / budget.toFloat())*100).toInt()
             }

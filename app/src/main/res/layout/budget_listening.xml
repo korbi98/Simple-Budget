@@ -20,18 +20,17 @@
     android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginEnd="64dp"
     android:paddingTop="16dp"
     android:paddingBottom="16dp"
     android:paddingStart="16dp"
-    android:paddingEnd="12dp"
+    android:paddingEnd="92dp"
     android:background="?android:attr/selectableItemBackground">
 
     <ImageView
         android:id="@+id/budget_listening_category_icon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
+        android:layout_marginEnd="12dp"
         android:layout_centerVertical="true"
         tools:ignore="ContentDescription" />
 
