@@ -195,6 +195,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="0.5"
+            android:layout_marginStart="8dp"
             android:textColorHint="@android:color/darker_gray"
             app:errorEnabled="true">
 
@@ -204,7 +205,6 @@
                 android:layout_height="wrap_content"
                 android:backgroundTint="@android:color/darker_gray"
                 android:textColor="@android:color/primary_text_dark"
-                android:layout_marginStart="8dp"
                 android:hint="@string/to"
                 android:focusable="false"/>
 

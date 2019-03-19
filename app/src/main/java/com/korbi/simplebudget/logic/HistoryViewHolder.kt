@@ -18,6 +18,7 @@ package com.korbi.simplebudget.logic
 
 import android.animation.ObjectAnimator
 import android.content.Context
+import android.util.Log
 import com.bignerdranch.expandablerecyclerview.ParentViewHolder
 import android.view.View
 import androidx.core.content.ContextCompat
@@ -61,7 +62,7 @@ class HistoryViewHolder(private val historyEntryView: View) : ParentViewHolder<H
             else -> ContextCompat.getColor(context,R.color.neutralColor)
         })
 
-        divider.visibility = when (adapterPosition) {
+        divider.visibility = when (parentAdapterPosition) {
             0 -> View.GONE
             else -> View.VISIBLE
         }
@@ -73,7 +74,6 @@ class HistoryViewHolder(private val historyEntryView: View) : ParentViewHolder<H
         }
 
         historyEntryView.setOnClickListener {
-
             if (isExpanded) {
                 collapseView()
             } else {

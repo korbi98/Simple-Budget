@@ -198,6 +198,7 @@ class AddExpenses : AppCompatActivity() {
             descriptionEditText.setText(expenseToUpdate.description)
             datePickerTextView.setText(bundle.getString(EXPENSE_DATE))
             categoryChips[expenseToUpdate.category.position].isChecked = true
+            expenseDate = LocalDate.parse(bundle.getString(EXPENSE_DATE), dateFormatter)
         }
     }
 

@@ -17,7 +17,7 @@
 package com.korbi.simplebudget.ui.fragments
 
 import android.graphics.Color
-import android.graphics.Color.rgb
+import android.icu.util.CurrencyAmount
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -29,17 +29,13 @@ import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
 import com.korbi.simplebudget.R
 import com.korbi.simplebudget.logic.Expense
-import android.widget.Toast
 import androidx.core.content.ContextCompat
-import com.github.mikephil.charting.components.Description
 import com.github.mikephil.charting.components.Legend
 import com.github.mikephil.charting.components.LegendEntry
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.formatter.PercentFormatter
 import com.github.mikephil.charting.highlight.Highlight
-import com.korbi.simplebudget.MainActivity
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener
-import com.github.mikephil.charting.utils.ColorTemplate
 import com.korbi.simplebudget.SimpleBudgetApp
 import com.korbi.simplebudget.database.DBhandler
 import com.korbi.simplebudget.logic.Category
@@ -51,7 +47,6 @@ class PieChartFragment : androidx.fragment.app.Fragment(),  DashboardFragment.Da
     //TODO prevent overlap of pie labels
 
     private lateinit var pieChart: PieChart
-    private var expenseList = mutableListOf<Expense>()
     private val colors = intArrayOf(
             Color.parseColor("#16a085"),
             Color.parseColor("#95a5a6"),
@@ -82,11 +77,14 @@ class PieChartFragment : androidx.fragment.app.Fragment(),  DashboardFragment.Da
         val totalExpense = expenses.filter { it.cost < 0 } .sumBy { it.cost } .toFloat()
 
         val pieEntries = mutableListOf<PieEntry>()
+        val legendEntries = mutableListOf<LegendEntry>()
         val categories = DBhandler.getInstance().getAllCategories().filter {
             !isCategoryEmpty(it, expenses)
         }
 
         var other = 0f
+        var otherExpenses = 0
+        var colorIndex = 0
 
         for (category in categories) {
             val catExpenses = expenses.filter {
@@ -96,18 +94,33 @@ class PieChartFragment : androidx.fragment.app.Fragment(),  DashboardFragment.Da
             val percentage = catExpenses.toFloat() / totalExpense
             if (percentage < 0.03) {
                 other += percentage
+                otherExpenses += catExpenses
             } else {
+                if (colorIndex > categories.lastIndex) colorIndex = 0
+
                 val data = PieEntry(percentage)
-                data.label = category.name
+
+                data.label = getCurrencyString(catExpenses)
+
                 pieEntries.add(data)
+                legendEntries.add(LegendEntry(category.name,
+                                Legend.LegendForm.DEFAULT,
+                                10f, 0f, null,
+                                colors[colorIndex]))
+                colorIndex += 1
             }
         }
 
         if (other > 0f) {
             val data = PieEntry(other)
-            data.label = getString(R.string.other)
+            data.label = getCurrencyString(otherExpenses)
             pieEntries.add(data)
+            legendEntries.add(LegendEntry(getString(R.string.other),
+                    Legend.LegendForm.DEFAULT,
+                    10f, 0f, null,
+                    colors[colorIndex]))
         }
+
         val dataSet = PieDataSet(pieEntries, "")
         dataSet.valueTextSize = 10f
         dataSet.valueTextColor = Color.WHITE
@@ -118,27 +131,13 @@ class PieChartFragment : androidx.fragment.app.Fragment(),  DashboardFragment.Da
         pieChart.centerText = getString(R.string.distribution)
         pieChart.setCenterTextSize(14f)
         pieChart.setCenterTextColor(Color.WHITE)
+        pieChart.legend.setCustom(legendEntries)
         pieChart.data = PieData(dataSet)
-        pieChart.data.setValueFormatter { value, _, _, _ ->
 
-            val percentFormat = DecimalFormat("#0.0")
-            val currencyFormat = DecimalFormat("#")
-            val currencySymbol = SimpleBudgetApp.pref
-                    .getString(getString(R.string.settings_key_currency), "$")
-            val percentValue = "${percentFormat.format(value)} %"
-            var amountString = when (SimpleBudgetApp.pref
-                    .getBoolean(getString(R.string.settings_key_currency_decimal), false)) {
-                true -> currencyFormat.format(-value/100*totalExpense)
-                false -> currencyFormat.format(-value/10000*totalExpense)
-            }
-            amountString = when (SimpleBudgetApp.pref
-                    .getBoolean(getString(R.string.settings_key_currency_left), false)) {
-                true -> "$currencySymbol$amountString"
-                false -> "$amountString$currencySymbol"
-            }
-            "$amountString ($percentValue)"
-        }
+        pieChart.data.setValueFormatter(PercentFormatter())
+
         setUpPie()
+        Log.d("test", "test")
     }
 
     private fun isCategoryEmpty(category: Category, expenses: MutableList<Expense>): Boolean {
@@ -164,15 +163,6 @@ class PieChartFragment : androidx.fragment.app.Fragment(),  DashboardFragment.Da
         legend.verticalAlignment = Legend.LegendVerticalAlignment.TOP
         legend.isWordWrapEnabled = true
 
-        pieChart.setOnChartValueSelectedListener(object : OnChartValueSelectedListener {
-            override fun onValueSelected(e: Entry, h: Highlight) {
-
-            }
-
-            override fun onNothingSelected() {
-
-            }
-        })
         pieChart.invalidate()
     }
 
@@ -182,14 +172,30 @@ class PieChartFragment : androidx.fragment.app.Fragment(),  DashboardFragment.Da
 
     fun updateView() {
         val dashboard = requireParentFragment() as DashboardFragment
-        val expenses = if (dashboard.actionBarSinnerInizialized() &&
+        val expenses = if (dashboard.actionBarSinnerInitialized() &&
                 dashboard.getInterval() != -1) {
             dashboard.getExpensesForInterval(dashboard.getIntervalType(), dashboard.getInterval())
         } else {
             dashboard.getExpensesForInterval(SimpleBudgetApp.pref.getInt(
                     getString(R.string.dashboard_time_selection_key), 1), 0)
         }
-
         createPieData(expenses)
+    }
+
+    private fun getCurrencyString(amount: Int): String {
+        val currencyFormat = DecimalFormat("#")
+        val currencySymbol = SimpleBudgetApp.pref
+                .getString(getString(R.string.settings_key_currency), "$")
+
+        val amountString = when (SimpleBudgetApp.pref
+                .getBoolean(getString(R.string.settings_key_currency_decimal), false)) {
+            true -> currencyFormat.format(-amount)
+            false -> currencyFormat.format(-amount/100)
+        }
+        return when (SimpleBudgetApp.pref
+                .getBoolean(getString(R.string.settings_key_currency_left), false)) {
+            true -> "$currencySymbol$amountString"
+            false -> "$amountString$currencySymbol"
+        }
     }
 }

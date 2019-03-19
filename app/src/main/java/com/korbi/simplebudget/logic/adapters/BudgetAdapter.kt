@@ -97,11 +97,13 @@ class BudgetAdapter(private var expenses: MutableList<Expense>,
 
         var budgetString = SimpleBudgetApp.createCurrencyString(getCategoryExpenses(category))
 
-        budgetString = if (budget != 0) {
-            val str = SimpleBudgetApp.createCurrencyString(budget)
-            "$budgetString / $str"
-        } else {
-            "$budgetString / ${SimpleBudgetApp.res.getString(R.string.no_budget_set_info_short)}"
+        budgetString = when {
+            interval == ALL_TIME -> budgetString
+            budget != 0 -> {
+                val str = SimpleBudgetApp.createCurrencyString(budget)
+                "$budgetString / $str"
+            }
+            else -> "$budgetString / ${SimpleBudgetApp.res.getString(R.string.no_budget_set_info_short)}"
         }
         return budgetString
     }

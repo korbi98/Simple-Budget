@@ -60,6 +60,7 @@ class DashboardFragment : androidx.fragment.app.Fragment() {
     private lateinit var expensesTextView: TextView
     private lateinit var incomeTextView: TextView
     private lateinit var balanceTextView: TextView
+    private lateinit var tabLayout: TabLayout
     private val registeredFragments = SparseArray<Fragment>()
 
     private val db = DBhandler.getInstance()
@@ -86,7 +87,7 @@ class DashboardFragment : androidx.fragment.app.Fragment() {
         incomeTextView = rootView.findViewById(R.id.dashboard_total_income)
         balanceTextView = rootView.findViewById(R.id.dashboard_balance)
 
-        val tabLayout = rootView.findViewById<TabLayout>(R.id.dashboard_tabs)
+        tabLayout = rootView.findViewById<TabLayout>(R.id.dashboard_tabs)
         tabLayout.addTab(tabLayout.newTab().setText(R.string.budget))
         tabLayout.addTab(tabLayout.newTab().setText(R.string.distribution))
 
@@ -136,7 +137,7 @@ class DashboardFragment : androidx.fragment.app.Fragment() {
                     else -> {
                         val budget = registeredFragments[viewPager.currentItem]
                                 as BudgetFragment
-                        budget.getListener()
+                        setListener(budget.getListener())
                         budget.updateView()
                     }
                 }
@@ -151,11 +152,8 @@ class DashboardFragment : androidx.fragment.app.Fragment() {
 
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int,
                                         id: Long) {
-                if (!db.getExpensesByDate(db.getOldestDate(), db.getNewestDate()).isEmpty()) {
-                    sumExpenses(getExpensesForInterval(actionBarSpinner.selectedItemPosition,
-                            position))
-                    listener.onDateSelectionChange()
-                }
+                sumExpenses(getExpensesForInterval(actionBarSpinner.selectedItemPosition, position))
+                listener.onDateSelectionChange()
             }
         }
 
@@ -245,7 +243,11 @@ class DashboardFragment : androidx.fragment.app.Fragment() {
             ALL_TIME -> {
                 timeSelectionLayout.visibility = View.GONE
                 sumExpenses(getExpensesForInterval(ALL_TIME, 0))
-                listener.onDateSelectionChange()
+
+                if (::listener.isInitialized) {
+                    listener.onDateSelectionChange()
+                }
+
                 Array(0){""}
             }
 
@@ -330,7 +332,7 @@ class DashboardFragment : androidx.fragment.app.Fragment() {
         return  timeSelectionSpinner.selectedItemPosition
     }
 
-    fun actionBarSinnerInizialized(): Boolean {
+    fun actionBarSinnerInitialized(): Boolean {
         return ::actionBarSpinner.isInitialized
     }
 }

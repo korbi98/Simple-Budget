@@ -18,27 +18,20 @@ package com.korbi.simplebudget.ui.fragments
 
 import android.content.res.ColorStateList
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.github.mikephil.charting.highlight.ChartHighlighter
-import com.google.android.material.chip.Chip
-import com.google.android.material.textfield.TextInputLayout
 import com.korbi.simplebudget.R
 import com.korbi.simplebudget.SimpleBudgetApp
 import com.korbi.simplebudget.logic.Category
-import com.korbi.simplebudget.logic.CurrencyTextWatcher
 import com.korbi.simplebudget.logic.Expense
 import com.korbi.simplebudget.logic.adapters.BudgetAdapter
 import com.korbi.simplebudget.ui.dialogs.BudgetDialog
 import com.korbi.simplebudget.ui.dialogs.CAT_INDEX
-import java.text.DecimalFormatSymbols
 
 const val SET_TOTAL_BUDGET = -100
 
@@ -49,6 +42,7 @@ class BudgetFragment : androidx.fragment.app.Fragment(),
     private lateinit var budgetRecycler: RecyclerView
     private lateinit var budgetAdapter: BudgetAdapter
     private lateinit var totalBudgetLayout: RelativeLayout
+    private lateinit var totalBudgetTextView: TextView
     private lateinit var totalBudgetAmount: TextView
     private lateinit var totalBudgetProgress: ProgressBar
     private lateinit var emptyMessage: TextView
@@ -71,6 +65,7 @@ class BudgetFragment : androidx.fragment.app.Fragment(),
         budgetAdapter = BudgetAdapter(expenseList, selectedInterval, this)
         budgetRecycler.adapter = budgetAdapter
 
+        totalBudgetTextView = rootview.findViewById(R.id.budget_total_text)
         totalBudgetAmount = rootview.findViewById(R.id.budget_total_budget)
         totalBudgetProgress = rootview.findViewById(R.id.budget_total_progress)
         totalBudgetLayout = rootview.findViewById(R.id.budget_total_layout)
@@ -98,13 +93,13 @@ class BudgetFragment : androidx.fragment.app.Fragment(),
     fun updateView() {
 
         val dashboard = requireParentFragment() as DashboardFragment
-        expenseList = if (dashboard.actionBarSinnerInizialized() && dashboard.getInterval() != -1) {
+        expenseList = if (dashboard.actionBarSinnerInitialized() && dashboard.getInterval() != -1) {
             dashboard.getExpensesForInterval(dashboard.getIntervalType(), dashboard.getInterval())
         } else {
             dashboard.getExpensesForInterval(SimpleBudgetApp.pref.getInt(
                     getString(R.string.dashboard_time_selection_key), 1), 0)
         }
-        selectedInterval = when (dashboard.actionBarSinnerInizialized() &&
+        selectedInterval = when (dashboard.actionBarSinnerInitialized() &&
                 dashboard.getInterval() != -1) {
             true -> dashboard.getIntervalType()
             false -> SimpleBudgetApp.pref.getInt(
@@ -126,6 +121,11 @@ class BudgetFragment : androidx.fragment.app.Fragment(),
 
         totalBudgetAmount.text = getBudgetText()
         totalBudgetProgress.progress = getBudgetProgress()
+
+        totalBudgetTextView.text = when (selectedInterval) {
+            ALL_TIME -> getString(R.string.total_expenses)
+            else -> getString(R.string.total_budget)
+        }
 
         if (getBudgetProgress() > 100) {
             totalBudgetAmount.setTextColor(ContextCompat.getColor(context!!, R.color.expenseColor))
@@ -161,11 +161,13 @@ class BudgetFragment : androidx.fragment.app.Fragment(),
 
         var budgetString = SimpleBudgetApp.createCurrencyString(categoryTotalSum)
 
-        budgetString = if (budget != 0) {
-            val str = SimpleBudgetApp.createCurrencyString(budget)
-            "$budgetString / $str"
-        } else {
-            getString(R.string.no_budget_set_info)
+        budgetString = when {
+            selectedInterval == ALL_TIME -> budgetString
+            budget != 0 -> {
+                val str = SimpleBudgetApp.createCurrencyString(budget)
+                "$budgetString / $str"
+            }
+            else -> getString(R.string.no_budget_set_info)
         }
         return budgetString
     }

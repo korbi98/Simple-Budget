@@ -124,7 +124,7 @@
     <string name="interval">Interval</string>
     <string name="delete_regular_income_expense">Delete regular income/expense?</string>
     <string name="delete_regular_income_expense_message">You can stop the income/expense from occurring in the future or delete also entries from the past</string>
-    <string name="stop_in_future">Stop in Future</string>
+    <string name="stop_in_future">Stop</string>
     <string name="delete_all">Delete all</string>
     <string name="every">Every</string>
     <string name="of_month">day of month</string>
@@ -150,6 +150,7 @@
     <string name="pie_chart_legend">Category distribution</string>
     <string name="distribution">Distribution</string>
     <string name="other">Other</string>
+    <string name="total_expenses">Total expenses</string>
 
 
     <string-array name="default_categories">

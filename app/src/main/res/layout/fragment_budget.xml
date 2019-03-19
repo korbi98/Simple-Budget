@@ -43,6 +43,8 @@
             android:id="@+id/budget_total_budget"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textAlignment="viewEnd"
+            android:layout_toEndOf="@id/budget_total_text"
             android:layout_alignParentEnd="true" />
 
         <ProgressBar
