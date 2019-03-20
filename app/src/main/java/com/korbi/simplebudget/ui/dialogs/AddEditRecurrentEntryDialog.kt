@@ -38,6 +38,7 @@ import org.threeten.bp.LocalDate
 import org.threeten.bp.format.DateTimeFormatter
 import java.lang.ClassCastException
 import java.text.DecimalFormatSymbols
+import kotlin.math.round
 
 const val INCOME_INDEX = "id"
 
@@ -151,7 +152,7 @@ class AddEditRecurrentEntryDialog : DialogFragment() {
         }
         val name = descriptionInput.text.toString()
         val amount = when (noDecimal) {
-            false, null -> (amountString.toFloat() * 100).toInt()
+            false, null -> round(amountString.toFloat() * 100).toInt()
             true -> amountString.toInt()
         }
         val category = when {

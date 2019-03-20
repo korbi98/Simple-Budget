@@ -241,7 +241,6 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
         override fun onDestroyActionMode(mode: ActionMode?) {
             mActionMode = null
             historyAdapter.initializeSelectedItems()
-            historyAdapter.notifyDataSetChanged()
             historyAdapter.resetCurrentIndex()
         }
     }
@@ -270,6 +269,7 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
         alertDialog.setTitle(getString(R.string.delete_expenses_message))
                 .setPositiveButton(getString(R.string.yes)) { _, _ ->
                     db.deleteExpenses(historyAdapter.getAndDeleteSelectedIndices())
+                    mActionMode?.finish()
                 }
                 .setNegativeButton(getString(R.string.no)) { dialog, _ ->
                     dialog.cancel()

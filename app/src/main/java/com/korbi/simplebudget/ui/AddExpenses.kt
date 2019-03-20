@@ -20,6 +20,7 @@ import android.app.DatePickerDialog
 import android.content.res.TypedArray
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
@@ -40,6 +41,7 @@ import com.korbi.simplebudget.logic.NON_RECURRING
 import org.threeten.bp.LocalDate
 import org.threeten.bp.format.DateTimeFormatter
 import java.text.DecimalFormatSymbols
+import kotlin.math.round
 
 const val EXPENSE_INDEX = "prefill_index"
 const val EXPENSE_DESC = "prefill_desc"
@@ -119,7 +121,9 @@ class AddExpenses : AppCompatActivity() {
 
             (this::expenseToUpdate.isInitialized) -> { // update existing expense
                 val amount = when (noDecimal) {
-                    false, null -> (amountString.toFloat() * -100).toInt()
+                    false, null -> {
+                        round(amountString.toFloat() * -100).toInt()
+                    }
                     true -> amountString.toInt()
                 }
                 expenseToUpdate.description = descriptionEditText.text.toString()
@@ -134,7 +138,7 @@ class AddExpenses : AppCompatActivity() {
             else -> { // save new expense
 
                 val amount = when (noDecimal) {
-                    false, null -> (amountString.toFloat() * -100).toInt()
+                    false, null -> round(amountString.toFloat() * -100).toInt()
                     true -> amountString.toInt()
                 }
                 val id = db.getLatestID()
