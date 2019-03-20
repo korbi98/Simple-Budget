@@ -20,6 +20,7 @@ import android.annotation.SuppressLint
 import android.app.DatePickerDialog
 import android.app.Dialog
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.EditText
@@ -128,6 +129,7 @@ class AddEditRecurrentEntryDialog : DialogFragment() {
 
     private fun prefill() {
         if (arguments?.getInt(INCOME_INDEX) != null) {
+            Log.d("incomeprefill", arguments!!.getInt(INCOME_INDEX).toString())
             prefillIncome = db.getExpenseByID(arguments!!.getInt(INCOME_INDEX))
             currencyInput.setText(SimpleBudgetApp.createCurrencyString(prefillIncome!!.cost))
             categorySpinner.setSelection(prefillIncome!!.category.position)
@@ -144,7 +146,7 @@ class AddEditRecurrentEntryDialog : DialogFragment() {
 
         val amountString = currencyInput.text.toString().replace(",", ".")
         val id = when (prefillIncome) {
-            null -> db.getLatestCategoryID()
+            null -> db.getLatestID()
             else -> prefillIncome!!.id
         }
         val name = descriptionInput.text.toString()

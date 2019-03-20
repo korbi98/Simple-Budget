@@ -32,7 +32,7 @@ import com.korbi.simplebudget.logic.dragAndDrop.ItemTouchHelperViewHolder
 import kotlinx.android.synthetic.main.category_manager_listening.view.*
 import java.util.*
 
-class CategoryAdapter(private val categoryList: MutableList<Category>,
+class CategoryAdapter(val categoryList: MutableList<Category>,
                       val startDragListener: OnStartDragListener,
                       val editListener: OnEditListener) :
                             RecyclerView.Adapter<CategoryAdapter.ViewHolder>(),
@@ -72,6 +72,7 @@ class CategoryAdapter(private val categoryList: MutableList<Category>,
 
     override fun onItemMove(fromPosition: Int, toPosition: Int) {
         Collections.swap(categoryList, fromPosition, toPosition)
+
         notifyItemMoved(fromPosition, toPosition)
 
         for ((pos, cat) in categoryList.withIndex()) {

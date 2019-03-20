@@ -18,6 +18,7 @@ package com.korbi.simplebudget.ui
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
@@ -85,10 +86,14 @@ class ManageCategories : AppCompatActivity(), AddEditCategoryDialog.OnSaveListen
         }
     }
 
-    override fun onSave(category: Category, oldCategory: Category?) {
-        if (oldCategory != null) {
+    override fun onSave(category: Category, isUpdate: Boolean) {
+        if (isUpdate) {
+            categoryList.forEach {
+                Log.d("categoryaftermove", it.name)
+            }
+
             db.updateCategory(category)
-            categoryList[categoryList.indexOf(oldCategory)] = category
+            categoryList[category.position] = category
             categoryAdapter.notifyItemChanged(categoryList.indexOf(category))
         } else {
             db.addCategory(category)

@@ -92,6 +92,7 @@ class IncomeManager : AppCompatActivity(), AddEditRecurrentEntryDialog.OnSaveLis
     }
 
     override fun onEdit(income: Expense) {
+
         val dialog = AddEditRecurrentEntryDialog()
         val args = Bundle()
         args.putInt(INCOME_INDEX, income.id)

@@ -153,6 +153,8 @@
     <string name="total_expenses">Total expenses</string>
     <string name="settings_key_history_grouping">settings_key_history_grouping</string>
     <string name="settings_history_grouping">Grouping in History and Widget</string>
+    <string name="settings_key_start_week_sunday">key_start_week_sunday</string>
+    <string name="settings_start_week_sunday">Start week on Sunday instead of Monday</string>
 
 
     <string-array name="default_categories">

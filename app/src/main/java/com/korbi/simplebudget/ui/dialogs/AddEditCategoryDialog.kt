@@ -53,7 +53,7 @@ class AddEditCategoryDialog : DialogFragment() {
     private var prefillCategory: Category? = null
 
     interface OnSaveListener {
-        fun onSave(category: Category, oldCategory: Category?)
+        fun onSave(category: Category, isUpdate: Boolean)
     }
 
     @SuppressLint("InflateParams")
@@ -127,7 +127,7 @@ class AddEditCategoryDialog : DialogFragment() {
                             prefillCategory!!.position, prefillCategory!!.budget,
                             prefillCategory!!.interval)
             }
-            listener.onSave(newCategory, prefillCategory)
+            listener.onSave(newCategory, prefillCategory != null)
         }
 
     }

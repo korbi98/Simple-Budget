@@ -70,6 +70,7 @@ class SimpleBudgetApp : Application() {
                     }
                     else -> LocalDate.now()
                 }
+
                 while (date.isBefore( maxDate )) {
                     when (recurring.interval) {
                         WEEKLY_ROOT -> date = date.plusWeeks(1)

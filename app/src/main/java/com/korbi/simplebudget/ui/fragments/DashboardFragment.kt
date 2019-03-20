@@ -265,9 +265,12 @@ class DashboardFragment : androidx.fragment.app.Fragment() {
         when (intervalType) {
             WEEKLY_INTERVAL -> {
                 var weeks = dh.getWeeks()
-                weeks = weeks.subList(1, weeks.size) .filter {
-                    !db.getExpensesByDate(it[0], it[1]).isEmpty()
-                } .toMutableList()
+                if (weeks.size > 0) {
+                    weeks = weeks.subList(1, weeks.size) .filter {
+                        !db.getExpensesByDate(it[0], it[1]).isEmpty()
+                    } .toMutableList()
+                }
+                Log.d("test", dh.getWeeks().size.toString())
                 weeks.add(0, dh.getWeeks()[0])
 
                 val week = weeks[selectedInterval]
@@ -276,9 +279,11 @@ class DashboardFragment : androidx.fragment.app.Fragment() {
             }
             MONTHLY_INTERVAL -> {
                 var months = dh.getMonths()
-                months = months.subList(1, months.size).filter {
-                    !db.getExpensesByDate(it.atDay(1), it.atEndOfMonth()).isEmpty()
-                } .toMutableList()
+                if (months.size > 0) {
+                    months = months.subList(1, months.size).filter {
+                        !db.getExpensesByDate(it.atDay(1), it.atEndOfMonth()).isEmpty()
+                    } .toMutableList()
+                }
                 months.add(0, dh.getMonths()[0])
 
                 val month = months[selectedInterval]

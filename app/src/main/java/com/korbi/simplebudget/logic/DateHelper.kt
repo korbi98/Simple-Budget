@@ -55,16 +55,33 @@ class DateHelper {
 
         val weeks = mutableListOf<Array<LocalDate>>()
 
-        var date2 = LocalDate.now().with( DayOfWeek.MONDAY )
-        val date1 = db.getOldestDate()
+        var date2 = when {
+            LocalDate.now().isBefore(db.getNewestDate()) -> db.getNewestDate().with (DayOfWeek.MONDAY )
+            else -> LocalDate.now().with( DayOfWeek.MONDAY )
+        }
+        var date1 = db.getOldestDate()
 
-        while (date2.isAfter(date1.minusWeeks(1))) {
-            val firstDayOfWeek = date2.with( DayOfWeek.MONDAY )
-            val lastDayOfWeek = date2.with( DayOfWeek.SUNDAY )
+        val startOnSunday = SimpleBudgetApp.pref.getBoolean(
+                SimpleBudgetApp.res.getString(R.string.settings_key_start_week_sunday), false)
+
+        if (startOnSunday) date1 = date1.minusWeeks(1)
+
+        do {
+
+            val firstDayOfWeek = when (startOnSunday) {
+                false-> date2.with( DayOfWeek.MONDAY )
+                true -> date2.with( DayOfWeek.SUNDAY )
+            }
+            val lastDayOfWeek = when (startOnSunday) {
+                false -> date2.with( DayOfWeek.SUNDAY )
+                true -> date2.with( DayOfWeek.SATURDAY ).plusWeeks(1)
+            }
+
             weeks.add(arrayOf(firstDayOfWeek, lastDayOfWeek))
 
             date2 = date2.minusWeeks(1)
         }
+        while (date2.isAfter(date1.minusWeeks(1)))
         return weeks
     }
 
@@ -75,10 +92,11 @@ class DateHelper {
         var date2 = YearMonth.from(LocalDate.now())
         val date1 = YearMonth.from(db.getOldestDate())
 
-        while (date2.isAfter(date1.minusMonths(1))) {
+        do {
             months.add(date2)
             date2 = date2.minusMonths(1)
         }
+        while (date2.isAfter(date1.minusMonths(1)))
         return months
     }
 
@@ -93,11 +111,11 @@ class DateHelper {
             7,8,9 -> date2 = date2.withMonth(7)
             10,11,12 -> date2 = date2.withMonth(10)
         }
-
-        while (date2.isAfter(date1.minusMonths(3))) {
+        do {
             quarterList.add(arrayOf(date2.get(IsoFields.QUARTER_OF_YEAR), date2.year))
             date2 = date2.minusMonths(3)
         }
+        while (date2.isAfter(date1.minusMonths(3)))
         return quarterList
     }
 
@@ -110,6 +128,7 @@ class DateHelper {
         return yearList
     }
 
+    //TODO fix function when newest date is before today
     fun getWeekSpinnerArray(): Array<String> {
         val weekStringArray = mutableListOf<String>(SimpleBudgetApp.res.
                                 getString(R.string.this_week))

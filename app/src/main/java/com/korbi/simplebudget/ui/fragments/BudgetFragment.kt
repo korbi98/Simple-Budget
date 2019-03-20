@@ -106,9 +106,15 @@ class BudgetFragment : androidx.fragment.app.Fragment(),
                     getString(R.string.dashboard_time_selection_key), 1)
         }
 
-        emptyMessage.visibility = when (expenseList.isEmpty()) {
-            true -> View.VISIBLE
-            false -> View.GONE
+        when (expenseList.isEmpty()) {
+            true -> {
+                budgetRecycler.visibility = View.GONE
+                emptyMessage.visibility = View.VISIBLE
+            }
+            false -> {
+                budgetRecycler.visibility = View.VISIBLE
+                emptyMessage.visibility = View.GONE
+            }
         }
 
         totalBudget = SimpleBudgetApp.pref

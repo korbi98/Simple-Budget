@@ -117,7 +117,7 @@ class BudgetAdapter(private var expenses: MutableList<Expense>,
         val budget = getIntervalBudget(category, interval)
         val catExpenses = when (noDecimal) {
             true -> getCategoryExpenses(category).toString()
-            false -> decimalFormat.format(getCategoryExpenses(category)/100)
+            false -> decimalFormat.format(getCategoryExpenses(category).toFloat()/100)
         }
 
         val currencySymbol = SimpleBudgetApp.pref.getString(
@@ -131,7 +131,7 @@ class BudgetAdapter(private var expenses: MutableList<Expense>,
             budget != 0 -> {
                 val budgetStr = when (noDecimal) {
                     true -> budget.toString()
-                    false -> decimalFormat.format(budget/100)
+                    false -> decimalFormat.format(budget.toFloat()/100)
                 }
                 when (onLeft) {
                     true -> "$currencySymbol $catExpenses / $budgetStr"
