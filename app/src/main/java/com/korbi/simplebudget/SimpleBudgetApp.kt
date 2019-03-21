@@ -16,7 +16,12 @@
 
 package com.korbi.simplebudget
 
+import android.app.Activity
 import android.app.Application
+import android.appwidget.AppWidgetManager
+import android.content.ComponentName
+import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.content.res.Resources
 import android.graphics.drawable.Drawable
@@ -27,6 +32,7 @@ import com.korbi.simplebudget.database.DBhandler
 import com.korbi.simplebudget.logic.Expense
 import com.korbi.simplebudget.logic.MONTHLY_ROOT
 import com.korbi.simplebudget.logic.WEEKLY_ROOT
+import com.korbi.simplebudget.widget.SimpleBudgetWidget
 import org.threeten.bp.LocalDate
 import java.text.DecimalFormat
 
@@ -87,6 +93,15 @@ class SimpleBudgetApp : Application() {
                     }
                 }
             }
+        }
+
+        fun updateWidgetIntent(context: Context, application: Application): Intent {
+            val intent = Intent(context, SimpleBudgetWidget::class.java)
+            intent.action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
+            val ids = AppWidgetManager.getInstance(application)
+                    .getAppWidgetIds(ComponentName(application, SimpleBudgetWidget::class.java))
+            intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids)
+            return intent
         }
     }
 

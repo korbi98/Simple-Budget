@@ -83,9 +83,18 @@ class MainActivity : AppCompatActivity() {
         showFragment(DashboardFragment())
     }
 
+    override fun onPause() {
+        super.onPause()
+        updateWidget()
+    }
+
     private fun showFragment(fragment: androidx.fragment.app.Fragment) {
         val transaction = supportFragmentManager.beginTransaction()
         transaction.replace(R.id.fragment_container, fragment)
         transaction.commit()
+    }
+
+    private fun updateWidget() {
+        sendBroadcast(SimpleBudgetApp.updateWidgetIntent(this, application))
     }
 }

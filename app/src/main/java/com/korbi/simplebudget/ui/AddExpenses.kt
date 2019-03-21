@@ -136,6 +136,7 @@ class AddExpenses : AppCompatActivity() {
                 expenseToUpdate.date = expenseDate
                 expenseToUpdate.category = getSelectedCategory()!!
                 db.updateExpense(expenseToUpdate)
+                updateWidget()
                 setResult(1)
                 finish()
             }
@@ -150,6 +151,7 @@ class AddExpenses : AppCompatActivity() {
                 val expense = Expense(id, descriptionEditText.text.toString(), amount,
                         expenseDate, getSelectedCategory()!!, NON_RECURRING)
                 db.addExpense(expense)
+                updateWidget()
                 finish()
             }
         }
@@ -267,5 +269,9 @@ class AddExpenses : AppCompatActivity() {
             }
             else -> null
         }
+    }
+
+    private fun updateWidget() {
+        sendBroadcast(SimpleBudgetApp.updateWidgetIntent(this, application))
     }
 }

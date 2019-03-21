@@ -27,6 +27,7 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import com.korbi.simplebudget.BuildConfig
 import com.korbi.simplebudget.R
+import com.korbi.simplebudget.SimpleBudgetApp
 import com.korbi.simplebudget.ui.dialogs.CurrencyDialog
 
 
@@ -90,6 +91,7 @@ class SettingsActivity : AppCompatActivity() {
             val historyGrouping = findPreference<ListPreference>(
                     getString(R.string.settings_key_history_grouping))
             historyGrouping?.setSummaryProvider {
+                updateWidget()
                 (it as ListPreference).entry
             }
 
@@ -143,6 +145,11 @@ class SettingsActivity : AppCompatActivity() {
                 }
                 else -> symbol
             }
+        }
+
+        private fun updateWidget() {
+            activity?.sendBroadcast(
+                    SimpleBudgetApp.updateWidgetIntent(context!!, activity!!.application))
         }
     }
 }

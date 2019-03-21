@@ -269,6 +269,7 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
         alertDialog.setTitle(getString(R.string.delete_expenses_message))
                 .setPositiveButton(getString(R.string.yes)) { _, _ ->
                     db.deleteExpenses(historyAdapter.getAndDeleteSelectedIndices())
+                    updateWidget()
                     mActionMode?.finish()
                 }
                 .setNegativeButton(getString(R.string.no)) { dialog, _ ->
@@ -445,5 +446,10 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
                 (activity as MainActivity).typeSelection != TYPE_BOTH ||
                         (activity as MainActivity).dateSelection != SELECT_ALL ||
                 !(activity as MainActivity).categorySelection.none { !it }
+    }
+
+    private fun updateWidget() {
+        activity?.sendBroadcast(
+                SimpleBudgetApp.updateWidgetIntent(context!!, activity!!.application))
     }
 }
