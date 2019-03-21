@@ -17,14 +17,12 @@
 package com.korbi.simplebudget.logic
 
 
-import android.app.Application
-import android.content.Context
-import android.content.res.Resources
-import android.util.Log
 import com.korbi.simplebudget.R
 import com.korbi.simplebudget.SimpleBudgetApp
 import com.korbi.simplebudget.database.DBhandler
-import org.threeten.bp.*
+import org.threeten.bp.DayOfWeek
+import org.threeten.bp.LocalDate
+import org.threeten.bp.YearMonth
 import org.threeten.bp.format.DateTimeFormatter
 import org.threeten.bp.format.TextStyle
 import org.threeten.bp.temporal.IsoFields
@@ -89,7 +87,7 @@ class DateHelper {
 
         val months = mutableListOf<YearMonth>()
 
-        var date2 = YearMonth.from(LocalDate.now())
+        var date2 = YearMonth.from(db.getNewestDate())
         val date1 = YearMonth.from(db.getOldestDate())
 
         do {
@@ -130,40 +128,43 @@ class DateHelper {
 
     //TODO fix function when newest date is before today
     fun getWeekSpinnerArray(): Array<String> {
-        val weekStringArray = mutableListOf<String>(SimpleBudgetApp.res.
-                                getString(R.string.this_week))
+        val weekStringArray = mutableListOf<String>()
         val weekList = getWeeks()
+        val now = LocalDate.now()
 
-        if (weekList.size > 1 && !db.getExpensesByDate(weekList[1][0], weekList[1][1]).isEmpty()) {
-            weekStringArray.add(SimpleBudgetApp.res.getString(R.string.last_week))
-        }
-
-        if (weekList.size > 2) {
-            weekList.subList(2, weekList.size).forEach {
-                if (!db.getExpensesByDate(it[0], it[1]).isEmpty()) {
+        weekList.forEach {
+            if (isBetween(now, it[0], it[1])) {
+                weekStringArray.add(SimpleBudgetApp.res.getString(R.string.this_week))
+            }
+            else if (!db.getExpensesByDate(it[0], it[1]).isEmpty()) {
+                if (isBetween(now.minusWeeks(1), it[0], it[1])) {
+                    weekStringArray.add(SimpleBudgetApp.res.getString(R.string.last_week))
+                } else {
                     val dateString = dateFormatter.format(it[0]) + " - " +
-                                        dateFormatter.format(it[1])
+                            dateFormatter.format(it[1])
                     weekStringArray.add(dateString)
                 }
             }
         }
+
         return weekStringArray.toTypedArray()
     }
 
     fun getMonthSpinnerArray(): Array<String> {
-        val monthStringArray = mutableListOf<String>(SimpleBudgetApp.res.
-                                getString(R.string.this_month))
+        val monthStringArray = mutableListOf<String>()
         val monthList = getMonths()
 
-        if (monthList.size > 1) {
-            monthList.subList(1, monthList.size).forEach {
-                if (!db.getExpensesByDate(it.atDay(1), it.atEndOfMonth()).isEmpty()) {
-                    monthStringArray.add(
-                            it.month.getDisplayName(TextStyle.FULL, Locale.getDefault()) + " " +
-                                    it.year.toString())
-                }
+        monthList.forEach {
+            if (isBetween(LocalDate.now(), it.atDay(1), it.atEndOfMonth())) {
+                monthStringArray.add(SimpleBudgetApp.res.getString(R.string.this_month))
+            }
+             else if (!db.getExpensesByDate(it.atDay(1), it.atEndOfMonth()).isEmpty()) {
+                monthStringArray.add(
+                        it.month.getDisplayName(TextStyle.FULL, Locale.getDefault()) + " " +
+                                it.year.toString())
             }
         }
+
         return monthStringArray.toTypedArray()
     }
 
@@ -198,5 +199,10 @@ class DateHelper {
 
     fun getYearSpinnerArray(): Array<String> {
         return getYears().map { it.toString() }.toTypedArray()
+    }
+
+    private fun isBetween(now: LocalDate, start: LocalDate, end: LocalDate): Boolean {
+        return now.isAfter(start.minusDays(1)) &&
+                now.isBefore(end.plusDays(1))
     }
 }
