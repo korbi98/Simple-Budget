@@ -33,6 +33,7 @@ import androidx.core.content.ContextCompat
 import com.github.mikephil.charting.components.Legend
 import com.github.mikephil.charting.components.LegendEntry
 import com.github.mikephil.charting.data.Entry
+import com.github.mikephil.charting.formatter.IValueFormatter
 import com.github.mikephil.charting.formatter.PercentFormatter
 import com.github.mikephil.charting.highlight.Highlight
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener
@@ -43,8 +44,6 @@ import java.text.DecimalFormat
 
 
 class PieChartFragment : androidx.fragment.app.Fragment(),  DashboardFragment.DateSelectionListener {
-
-    //TODO prevent overlap of pie labels
 
     private lateinit var pieChart: PieChart
     private val colors = intArrayOf(
@@ -113,12 +112,14 @@ class PieChartFragment : androidx.fragment.app.Fragment(),  DashboardFragment.Da
 
         if (other > 0f) {
             val data = PieEntry(other)
-            data.label = getCurrencyString(otherExpenses)
             pieEntries.add(data)
             legendEntries.add(LegendEntry(getString(R.string.other),
                     Legend.LegendForm.DEFAULT,
                     10f, 0f, null,
                     colors[colorIndex]))
+            if (other > 0.0249) {
+                data.label = getCurrencyString(otherExpenses)
+            }
         }
 
         val dataSet = PieDataSet(pieEntries, "")
@@ -134,7 +135,16 @@ class PieChartFragment : androidx.fragment.app.Fragment(),  DashboardFragment.Da
         pieChart.legend.setCustom(legendEntries)
         pieChart.data = PieData(dataSet)
 
-        pieChart.data.setValueFormatter(PercentFormatter())
+        pieChart.data.setValueFormatter { value, _, _, _ ->
+
+            val formatter = DecimalFormat("#0.0")
+
+            if (value < 2.5) {
+                ""
+            } else {
+                "${formatter.format(value)} %"
+            }
+        }
 
         setUpPie()
     }
