@@ -16,11 +16,13 @@
 
 package com.korbi.simplebudget.ui
 
+import android.annotation.SuppressLint
 import android.app.DatePickerDialog
 import android.content.res.TypedArray
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
@@ -68,6 +70,7 @@ class AddExpenses : AppCompatActivity() {
 
     private val dateFormatter = DateTimeFormatter.ofPattern("dd.MM.yy")
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_expenses)
@@ -86,9 +89,11 @@ class AddExpenses : AppCompatActivity() {
 
         currencyEditLayout = findViewById(R.id.add_expense_input_layout)
         datePickerTextView = findViewById(R.id.datePicker)
+        datePickerTextView.inputType = 0
         datePickerTextView.setOnClickListener {
             setDate()
         }
+
         descriptionEditText = findViewById(R.id.descriptionInput)
         categoryGroup = findViewById(R.id.add_expense_category_group)
         categoryChips = mutableListOf()

@@ -21,7 +21,6 @@ import android.app.DatePickerDialog
 import android.app.Dialog
 import android.os.Bundle
 import android.util.Log
-import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.EditText
 import android.widget.Spinner
@@ -101,7 +100,9 @@ class AddEditRecurrentEntryDialog : DialogFragment() {
             inputLayout = dialog.findViewById(R.id.income_manager_input_layout)!!
             categorySpinner = dialog.findViewById(R.id.income_manager_dialog_category_spinner)!!
             intervalGroup = dialog.findViewById(R.id.income_manager_dialog_interval_group)!!
-            intervalDateInput = dialog.findViewById(R.id.income_manager_dialog_interval_start_from_edit)!!
+            intervalDateInput =
+                    dialog.findViewById(R.id.income_manager_dialog_interval_start_from_edit)!!
+            intervalDateInput.inputType = 0
             descriptionInput = dialog.findViewById(R.id.income_manager_dialog_description)!!
 
             dialog.getButton(Dialog.BUTTON_POSITIVE).isEnabled = false
