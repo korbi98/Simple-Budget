@@ -42,6 +42,7 @@ import com.korbi.simplebudget.ui.IncomeManager
 import com.korbi.simplebudget.ui.ManageCategories
 import com.korbi.simplebudget.ui.SettingsActivity
 import org.threeten.bp.LocalDate
+import org.threeten.bp.Year
 import org.threeten.bp.YearMonth
 
 
@@ -250,12 +251,22 @@ class DashboardFragment : androidx.fragment.app.Fragment() {
 
                 Array(0){""}
             }
-
             else -> dh.getMonthSpinnerArray()
+        }
+        val position = when (intervalType) {
+            WEEKLY_INTERVAL -> optionsArray.indexOf(getString(R.string.this_week))
+            MONTHLY_INTERVAL -> optionsArray.indexOf(getString(R.string.this_month))
+            QUARTERLY_INTERVAL -> optionsArray.indexOf(getString(R.string.this_quarter))
+            YEARLY_INTERVAL -> optionsArray.indexOf(Year.now().toString())
+            else -> 0
         }
 
         timeSelectionSpinner.adapter = ArrayAdapter<String>(context!!,
                 android.R.layout.simple_spinner_dropdown_item, optionsArray)
+
+        if (position != -1) {
+            timeSelectionSpinner.setSelection(position)
+        }
     }
 
     fun getExpensesForInterval (intervalType: Int, selectedInterval: Int): MutableList<Expense> {

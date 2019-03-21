@@ -17,11 +17,13 @@
 package com.korbi.simplebudget.logic
 
 
+import android.util.Log
 import com.korbi.simplebudget.R
 import com.korbi.simplebudget.SimpleBudgetApp
 import com.korbi.simplebudget.database.DBhandler
 import org.threeten.bp.DayOfWeek
 import org.threeten.bp.LocalDate
+import org.threeten.bp.Year
 import org.threeten.bp.YearMonth
 import org.threeten.bp.format.DateTimeFormatter
 import org.threeten.bp.format.TextStyle
@@ -100,7 +102,7 @@ class DateHelper {
 
     fun getQuarters(): MutableList<Array<Int>> {
         val quarterList = mutableListOf<Array<Int>>()
-        var date2 = YearMonth.from(LocalDate.now())
+        var date2 = YearMonth.from(db.getNewestDate())
         val date1 = YearMonth.from(db.getOldestDate())
 
         when (date2.monthValue) {
@@ -120,7 +122,7 @@ class DateHelper {
     fun getYears(): MutableList<Int> {
         val yearList = mutableListOf<Int>()
         val oldestDate = db.getOldestDate()
-        val currentDate = LocalDate.now()
+        val currentDate = db.getNewestDate()
 
         (currentDate.year downTo oldestDate.year).forEach { yearList.add(it) }
         return yearList
@@ -169,36 +171,52 @@ class DateHelper {
     }
 
     fun getQuarterSpinnerArray(): Array<String> {
-        val quarterStringArray = mutableListOf<String>(SimpleBudgetApp.res.
-                                getString(R.string.this_quarter))
+        val quarterStringArray = mutableListOf<String>()
         val quarterList = getQuarters()
 
-        if (quarterList.size > 1) {
-            quarterList.subList(1, quarterList.size).forEach {
-                val dateString = when (it[0]) {
-                    1 -> {
-                        SimpleBudgetApp.res.getString(R.string.first_quarter)+" "+it[1].toString()
-                    }
-                    2 -> {
-                        SimpleBudgetApp.res.getString(R.string.second_quarter)+" "+it[1].toString()
-                    }
-                    3 -> {
-                        SimpleBudgetApp.res.getString(R.string.third_quarter)+" "+it[1].toString()
-                    }
-                    4 -> {
-                        SimpleBudgetApp.res.getString(R.string.fourth_quarter)+" "+it[1].toString()
-                    }
-                    else -> "invalid number"
+        quarterList.forEach {
+            val dateString = when (it[0]) {
+                1 -> {
+                    SimpleBudgetApp.res.getString(R.string.first_quarter)+" "+it[1].toString()
                 }
-                quarterStringArray.add(dateString)
+                2 -> {
+                    SimpleBudgetApp.res.getString(R.string.second_quarter)+" "+it[1].toString()
+                }
+                3 -> {
+                    SimpleBudgetApp.res.getString(R.string.third_quarter)+" "+it[1].toString()
+                }
+                4 -> {
+                    SimpleBudgetApp.res.getString(R.string.fourth_quarter)+" "+it[1].toString()
+                }
+                else -> "invalid number"
             }
+            quarterStringArray.add(dateString)
         }
 
-        return quarterStringArray.toTypedArray()
+        return quarterStringArray.map {
+            if (it == currentQuarterString()) {
+                SimpleBudgetApp.res.getString(R.string.this_quarter)
+            } else it
+        }.toTypedArray()
     }
 
     fun getYearSpinnerArray(): Array<String> {
         return getYears().map { it.toString() }.toTypedArray()
+    }
+
+    private fun currentQuarterString(): String {
+        return when (YearMonth.now().monthValue) {
+            4,5,6 -> {
+                SimpleBudgetApp.res.getString(R.string.second_quarter)+" "+ Year.now().toString()
+            }
+            7,8,9 -> {
+                SimpleBudgetApp.res.getString(R.string.third_quarter)+" "+ Year.now().toString()
+            }
+            10,11,12 -> {
+                SimpleBudgetApp.res.getString(R.string.fourth_quarter)+" "+ Year.now().toString()
+            }
+            else -> SimpleBudgetApp.res.getString(R.string.first_quarter)+" "+ Year.now().toString()
+        }
     }
 
     private fun isBetween(now: LocalDate, start: LocalDate, end: LocalDate): Boolean {
