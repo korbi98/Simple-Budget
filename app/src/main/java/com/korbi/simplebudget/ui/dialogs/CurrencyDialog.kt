@@ -36,7 +36,7 @@ import com.korbi.simplebudget.R
 import java.lang.ClassCastException
 import java.lang.IllegalStateException
 
-private const val NO_SELECTION = 100
+const val NO_SELECTION = 100
 
 class CurrencyDialog : DialogFragment() {
 
@@ -51,13 +51,8 @@ class CurrencyDialog : DialogFragment() {
         fun onDialogDismiss()
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        try {
-            listener = targetFragment as OnDismissListener
-        } catch (e: ClassCastException) {
-            throw ClassCastException("$context must implement OnDismissListener")
-        }
+    fun setListener(listener: OnDismissListener) {
+        this.listener = listener
     }
 
     @SuppressLint("InflateParams")

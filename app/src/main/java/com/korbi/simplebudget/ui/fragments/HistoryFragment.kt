@@ -310,14 +310,21 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
 
         val dateFilteredList: List<Expense> = when (dateSelection) {
             SELECT_LAST30 -> {
-                typeFilteredList.filter { it.date.isAfter(currentDate.minusDays(30)) }
+                typeFilteredList.filter {
+                    it.date.isAfter(currentDate.minusDays(31)) &&
+                            it.date.isBefore(currentDate.plusDays(1))
+                }
             }
             SELECT_LAST90 -> {
-                typeFilteredList.filter { it.date.isAfter(currentDate.minusDays(90)) }
+                typeFilteredList.filter {
+                    it.date.isAfter(currentDate.minusDays(91)) &&
+                            it.date.isBefore(currentDate.plusDays(1))
+                }
             }
             SELECT_YEAR -> {
                 typeFilteredList.filter {
-                    it.date.isAfter(currentDate.with(TemporalAdjusters.firstDayOfYear()))
+                    it.date.isAfter(currentDate.with(TemporalAdjusters.firstDayOfYear()))&&
+                            it.date.isBefore(currentDate.plusDays(1))
                 }
             }
             SELECT_CUSTOM -> {

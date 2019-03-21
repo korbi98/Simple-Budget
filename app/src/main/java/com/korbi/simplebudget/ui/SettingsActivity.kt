@@ -84,6 +84,7 @@ class SettingsActivity : AppCompatActivity() {
             currency.onPreferenceClickListener = Preference.OnPreferenceClickListener {
                 val dialog = CurrencyDialog()
                 dialog.setTargetFragment(this, 0)
+                dialog.setListener(this)
                 dialog.show(fragmentManager!!, "currency_dialog")
                 true
             }

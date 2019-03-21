@@ -25,6 +25,7 @@ import com.korbi.simplebudget.database.DBhandler
 import com.korbi.simplebudget.logic.DateHelper
 import com.korbi.simplebudget.ui.SELECT_ALL
 import com.korbi.simplebudget.ui.TYPE_BOTH
+import com.korbi.simplebudget.ui.dialogs.SetupDialog
 import com.korbi.simplebudget.ui.fragments.*
 import kotlinx.android.synthetic.main.activity_main.*
 import org.threeten.bp.LocalDate
@@ -80,6 +81,11 @@ class MainActivity : AppCompatActivity() {
         fromDateSelection = LocalDate.now()
         toDateSelection = LocalDate.now()
 
+        if (SimpleBudgetApp.pref.getBoolean(
+                        getString(R.string.settings_key_initial_start), true)) {
+            SetupDialog().show(supportFragmentManager, "setup_dialog")
+        }
+
         showFragment(DashboardFragment())
     }
 
@@ -88,7 +94,7 @@ class MainActivity : AppCompatActivity() {
         updateWidget()
     }
 
-    private fun showFragment(fragment: androidx.fragment.app.Fragment) {
+    fun showFragment(fragment: androidx.fragment.app.Fragment) {
         val transaction = supportFragmentManager.beginTransaction()
         transaction.replace(R.id.fragment_container, fragment)
         transaction.commit()

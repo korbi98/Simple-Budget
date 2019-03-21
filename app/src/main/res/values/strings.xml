@@ -84,7 +84,7 @@
     <string name="default_value">0.00$</string>
     <string name="settings_key_currency">currency</string>
     <string name="currency">Currency</string>
-    <string name="settings_currency_custom">Enter custum currecy symbol</string>
+    <string name="settings_currency_custom">Enter custom currency symbol</string>
     <string name="settings_currency_before_amount">Currency symbol before amount</string>
     <string name="settings_currency_no_decimal">No decimal values</string>
     <string name="settings_currency_dialog_titel">Choose your currency</string>
@@ -97,7 +97,8 @@
     <string name="select_icon">Select icon:</string>
     <string name="add_edit_category_dialog_titel">Add/Edit Category</string>
     <string name="number_format">#0.00</string>
-    <string name="migrate_expenses_message">Choose a category to migrate existing expenses to. If you choose none, all expenses in the category will be deleted!</string>
+    <string name="migrate_expenses_message">Choose a category to migrate existing expenses to.
+        If you choose none, all expenses in the category will be deleted!</string>
     <string name="none">None</string>
     <string name="migrate_to_category">Migrate to category:</string>
     <string name="delete_category">Delete category?</string>
@@ -141,10 +142,10 @@
     <string name="total_budget_key">total_budget_key</string>
     <string name="total_budget_interval_key">total_budget_interval</string>
     <string name="dashboard_time_selection_key">dashboard_time_selection_key</string>
-    <string name="empty_history_view_message">Nothing to show here!\nChange filter/search criteria\n
-        or add expenses from the Dashboard</string>
-    <string name="empty_budget_list_message">Nothing to show here!\nAdd expenses to set a budget for
-        individual categories</string>
+    <string name="empty_history_view_message">Nothing to show here!\n\nChange filter/search criteria
+        or\nadd expenses from the Dashboard</string>
+    <string name="empty_budget_list_message">Nothing to show here!\n\nAdd expenses to set a budget for
+        individual categories\n Set a Budget with a long touch on the list entry</string>
     <string name="no_budget_set_info">Click to set budget</string>
     <string name="no_budget_set_info_short">No budget</string>
     <string name="pie_chart_legend">Category distribution</string>
@@ -155,6 +156,14 @@
     <string name="settings_history_grouping">Grouping in History and Widget</string>
     <string name="settings_key_start_week_sunday">key_start_week_sunday</string>
     <string name="settings_start_week_sunday">Start week on Sunday instead of Monday</string>
+    <string name="settings_key_initial_start">key_inital_start</string>
+    <string name="choose_currency">Select your currency:\n</string>
+    <string name="currency_default">Dollar $</string>
+    <string name="monday">Monday</string>
+    <string name="sunday">Sunday</string>
+    <string name="choose_interval">Choose grouping/interval for expenses in widget and history:</string>
+    <string name="choose_week_start">Choose first day of week:</string>
+    <string name="setup_dialog_title">Initial setup</string>
 
 
     <string-array name="default_categories">
