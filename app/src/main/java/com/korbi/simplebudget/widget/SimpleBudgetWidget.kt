@@ -23,6 +23,7 @@ import android.content.Context
 import android.content.Intent
 import android.widget.RemoteViews
 import androidx.core.content.ContextCompat
+import com.jakewharton.threetenabp.AndroidThreeTen
 import com.korbi.simplebudget.MainActivity
 import com.korbi.simplebudget.R
 import com.korbi.simplebudget.SimpleBudgetApp
@@ -36,9 +37,9 @@ import org.threeten.bp.YearMonth
 
 class SimpleBudgetWidget : AppWidgetProvider() {
 
-    val db = DBhandler.getInstance()
-
     override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
+        
+        val db = DBhandler.getInstance()
 
         for (id in appWidgetIds) {
 

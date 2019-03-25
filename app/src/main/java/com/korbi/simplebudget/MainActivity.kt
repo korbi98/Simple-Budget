@@ -67,10 +67,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        DBhandler.createInstance(this, resources.getStringArray(R.array.default_categories))
-        DateHelper.createInstance()
-        AndroidThreeTen.init(this)
-
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
         navigation.selectedItemId = R.id.navigation_dashboard
 

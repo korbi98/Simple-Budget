@@ -28,7 +28,9 @@ import android.graphics.drawable.Drawable
 import android.util.Log
 import androidx.preference.Preference
 import androidx.preference.PreferenceManager
+import com.jakewharton.threetenabp.AndroidThreeTen
 import com.korbi.simplebudget.database.DBhandler
+import com.korbi.simplebudget.logic.DateHelper
 import com.korbi.simplebudget.logic.Expense
 import com.korbi.simplebudget.logic.MONTHLY_ROOT
 import com.korbi.simplebudget.logic.WEEKLY_ROOT
@@ -107,6 +109,11 @@ class SimpleBudgetApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        AndroidThreeTen.init(this)
+
+        DBhandler.createInstance(this, resources.getStringArray(R.array.default_categories))
+        DateHelper.createInstance()
+
         res = resources
         pref = PreferenceManager.getDefaultSharedPreferences(this)
         decimalFormat = DecimalFormat(res.getString(R.string.number_format))
