@@ -42,7 +42,7 @@
                 style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/currencyInput"
+                    android:id="@+id/add_expense_currency_input"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:ems="6"
@@ -88,7 +88,7 @@
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/descriptionInput"
+                android:id="@+id/add_expense_description_input"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
@@ -107,7 +107,7 @@
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/datePicker"
+                android:id="@+id/add_expense_date_picker"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"

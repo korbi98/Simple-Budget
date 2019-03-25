@@ -63,6 +63,7 @@ class SimpleBudgetApp : Application() {
         }
 
         fun handleRecurringEntries() {
+
             val db = DBhandler.getInstance()
             val recurringEntries = db.getRecurringExpenses()
             val expenses = db.getExpensesByDate(db.getOldestDate(), db.getNewestDate())
@@ -111,12 +112,10 @@ class SimpleBudgetApp : Application() {
         super.onCreate()
         AndroidThreeTen.init(this)
 
-        DBhandler.createInstance(this, resources.getStringArray(R.array.default_categories))
-        DateHelper.createInstance()
-
         res = resources
         pref = PreferenceManager.getDefaultSharedPreferences(this)
         decimalFormat = DecimalFormat(res.getString(R.string.number_format))
+        DBhandler.createInstance(this)
     }
 
 }

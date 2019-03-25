@@ -16,8 +16,6 @@
 
 package com.korbi.simplebudget.logic
 
-
-import android.util.Log
 import com.korbi.simplebudget.R
 import com.korbi.simplebudget.SimpleBudgetApp
 import com.korbi.simplebudget.database.DBhandler
@@ -31,25 +29,12 @@ import org.threeten.bp.temporal.IsoFields
 import java.util.*
 
 
-class DateHelper {
+object DateHelper {
 
     private val dateFormatter = DateTimeFormatter.ofPattern("dd.MM.yy")
 
-    companion object {
+    private var db = DBhandler.getInstance()
 
-        private var instance: DateHelper? = null
-        private var db = DBhandler.getInstance()
-
-        fun createInstance() {
-            if (instance == null) {
-                instance = DateHelper()
-            }
-        }
-
-        fun getInstance(): DateHelper {
-            return instance!!
-        }
-    }
 
     fun getWeeks(): MutableList<Array<LocalDate>> {
 
@@ -128,7 +113,6 @@ class DateHelper {
         return yearList
     }
 
-    //TODO fix function when newest date is before today
     fun getWeekSpinnerArray(): Array<String> {
         val weekStringArray = mutableListOf<String>()
         val weekList = getWeeks()

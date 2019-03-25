@@ -16,8 +16,6 @@
 
 package com.korbi.simplebudget.ui.dialogs
 
-import android.animation.ArgbEvaluator
-import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.app.Dialog
@@ -35,10 +33,9 @@ import com.korbi.simplebudget.R
 import java.lang.IllegalStateException
 import android.widget.GridView
 import androidx.core.content.ContextCompat
-import com.google.android.material.chip.Chip
-import com.google.android.material.chip.ChipGroup
 import com.korbi.simplebudget.database.DBhandler
 import com.korbi.simplebudget.logic.Category
+import kotlinx.android.synthetic.main.add_edit_category_dialog.*
 import java.lang.ClassCastException
 
 const val CAT_INDEX = "id"
@@ -68,7 +65,7 @@ class AddEditCategoryDialog : DialogFragment() {
         return activity?.let {
             val builder = AlertDialog.Builder(it)
 
-            adapter = IconAdapter(context!!)
+            adapter = IconAdapter(requireContext())
 
             builder.setView(requireActivity().layoutInflater.inflate(R.layout.add_edit_category_dialog, null))
                     .setTitle(getString(R.string.add_edit_category_dialog_titel))
@@ -85,7 +82,7 @@ class AddEditCategoryDialog : DialogFragment() {
 
             dialog.getButton(Dialog.BUTTON_POSITIVE).isEnabled = false
 
-            categoryNameView = dialog.findViewById(R.id.add_edit_category_edit_text)
+            categoryNameView = dialog.add_edit_category_edit_text
             categoryNameView.addTextChangedListener(object : TextWatcher {
                 override fun afterTextChanged(s: Editable?) {
                     if (s != null) {
@@ -93,13 +90,12 @@ class AddEditCategoryDialog : DialogFragment() {
                                                                 && adapter.getSelected() != null
                     }
                 }
-
                 override fun beforeTextChanged(s: CharSequence?,
                                                start: Int, count: Int, after: Int) {}
                 override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             })
 
-            iconGridView = dialog.findViewById(R.id.add_edit_category_icon_grid)
+            iconGridView = dialog.add_edit_category_icon_grid
             iconGridView.adapter = adapter
 
             iconGridView.setOnItemClickListener { _, _, position, _ ->
@@ -119,24 +115,33 @@ class AddEditCategoryDialog : DialogFragment() {
         val categoryName = categoryNameView.text.toString()
         val categoryIcon = adapter.getSelected()
         if (categoryIcon != null) {
-            val newCategory =if (prefillCategory == null) { //save new category
+
+            if (prefillCategory == null) { //save new category
+
                 Category(db.getLatestCategoryID(), categoryName, categoryIcon,
                         db.getAllCategories().size, 0, 0)
+
             } else { //update category
-                Category(prefillCategory!!.id, categoryName, categoryIcon,
-                            prefillCategory!!.position, prefillCategory!!.budget,
-                            prefillCategory!!.interval)
+
+                prefillCategory?.let {
+                    Category(it.id, categoryName, categoryIcon, it.position, it.budget, it.interval)
+                }
+
+            } ?.also {
+                listener.onSave(it, prefillCategory != null)
             }
-            listener.onSave(newCategory, prefillCategory != null)
         }
 
     }
 
     private fun prefill() {
-        if (arguments?.getInt(CAT_INDEX) != null) {
-            prefillCategory = db.getCategoryById(arguments!!.getInt(CAT_INDEX))
-            adapter.setSelected(prefillCategory!!.icon)
-            categoryNameView.setText(prefillCategory!!.name)
+
+        arguments?.getInt(CAT_INDEX)?.let { id ->
+            prefillCategory = db.getCategoryById(id)
+            prefillCategory?.let {
+                adapter.setSelected(it.icon)
+                categoryNameView.setText(it.name)
+            }
         }
     }
 
@@ -186,12 +191,12 @@ class AddEditCategoryDialog : DialogFragment() {
 
             if (position != selectedItem) {
                 val attrs = IntArray(1){R.attr.selectableItemBackground}
-                val typedArray = context!!.obtainStyledAttributes(attrs)
+                val typedArray = requireContext().obtainStyledAttributes(attrs)
                 val backgroundResource = typedArray.getResourceId(0, 0)
                 typedArray.recycle()
                 view.setBackgroundResource(backgroundResource)
             } else {
-                view.setBackgroundColor(ContextCompat.getColor(context!!, R.color.colorPrimaryDark))
+                view.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.colorPrimaryDark))
             }
 
             return view

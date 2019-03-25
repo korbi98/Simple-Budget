@@ -32,6 +32,8 @@ import com.korbi.simplebudget.logic.adapters.CategoryAdapter
 import com.korbi.simplebudget.logic.dragAndDrop.ItemTouchHelperCallback
 import com.korbi.simplebudget.ui.dialogs.AddEditCategoryDialog
 import com.korbi.simplebudget.ui.dialogs.CAT_INDEX
+import kotlinx.android.synthetic.main.activity_manage_categories.*
+import kotlinx.android.synthetic.main.category_manager_migrate_category.*
 
 class ManageCategories : AppCompatActivity(), AddEditCategoryDialog.OnSaveListener,
                                                 CategoryAdapter.OnEditListener,
@@ -49,12 +51,14 @@ class ManageCategories : AppCompatActivity(), AddEditCategoryDialog.OnSaveListen
         setTitle(R.string.manage_categories_titel)
 
         categoryList = db.getAllCategories()
-        categoryRecycler = findViewById(R.id.category_recycler)
-        categoryRecycler.setHasFixedSize(true)
-        categoryRecycler.layoutManager = LinearLayoutManager(applicationContext,
-                RecyclerView.VERTICAL, false)
         categoryAdapter = CategoryAdapter(categoryList, this, this)
-        categoryRecycler.adapter = categoryAdapter
+
+        categoryRecycler = category_recycler.apply {
+            layoutManager = LinearLayoutManager(applicationContext,
+                    RecyclerView.VERTICAL, false)
+            setHasFixedSize(true)
+            adapter = categoryAdapter
+        }
 
         val callback = ItemTouchHelperCallback(categoryAdapter)
         itemTouchHelper = ItemTouchHelper(callback)
@@ -88,10 +92,6 @@ class ManageCategories : AppCompatActivity(), AddEditCategoryDialog.OnSaveListen
 
     override fun onSave(category: Category, isUpdate: Boolean) {
         if (isUpdate) {
-            categoryList.forEach {
-                Log.d("categoryaftermove", it.name)
-            }
-
             db.updateCategory(category)
             categoryList[category.position] = category
             categoryAdapter.notifyItemChanged(categoryList.indexOf(category))
@@ -103,38 +103,41 @@ class ManageCategories : AppCompatActivity(), AddEditCategoryDialog.OnSaveListen
     }
 
     override fun onEdit(category: Category) {
-        val dialog = AddEditCategoryDialog()
-        val args = Bundle()
-        args.putInt(CAT_INDEX, category.id)
-        dialog.arguments = args
-        dialog.show(supportFragmentManager, "addEditCategoryDialog")
+        AddEditCategoryDialog().run {
+            arguments = Bundle().apply { putInt(CAT_INDEX, category.id) }
+            show(supportFragmentManager, "addEditCategoryDialog")
+        }
     }
 
     override fun onDelete(category: Category) {
-        val builder = AlertDialog.Builder(this)
+
         var categorySpinner: Spinner? = null
-        val newCatList = categoryList
-        newCatList.remove(category)
-        builder.setTitle(getString(R.string.delete_category))
-        builder.setMessage(getString(R.string.migrate_expenses_message))
-        builder.setPositiveButton(getString(R.string.ok)) { dialog, _ ->
-            if (categorySpinner != null) {
-                deleteCategory(category, categorySpinner!!.selectedItemPosition)
+
+        val dialog = AlertDialog.Builder(this).run {
+            setTitle(getString(R.string.delete_category))
+            setMessage(getString(R.string.migrate_expenses_message))
+            setPositiveButton(getString(R.string.ok)) { dialog, _ ->
+
+                categorySpinner?.let {
+                    deleteCategory(category, it.selectedItemPosition)
+                }
+
+                dialog.dismiss()
             }
-            dialog.dismiss()
-        }
-
-        builder.setNegativeButton(getString(R.string.cancel)) { dialog, _ ->
-            dialog.cancel()
-        }
-
-        builder.setView(R.layout.category_manager_migrate_category)
-        val dialog = builder.create()
+            setNegativeButton(getString(R.string.cancel)) { dialog, _ ->
+                dialog.cancel()
+            }
+            setView(R.layout.category_manager_migrate_category)
+        } .create()
         dialog.create()
 
-        categorySpinner = dialog.findViewById(R.id.category_manager_migration_spinner)
+        val newCatList = categoryList
+        newCatList.remove(category)
+
         val categoryNameList = newCatList.map { it.name }.toMutableList()
         categoryNameList.add(0, getString(R.string.none))
+
+        categorySpinner = dialog.category_manager_migration_spinner
         categorySpinner?.adapter = ArrayAdapter<String>(this,
                             android.R.layout.simple_spinner_dropdown_item, categoryNameList)
 
@@ -151,11 +154,11 @@ class ManageCategories : AppCompatActivity(), AddEditCategoryDialog.OnSaveListen
         newCatList.remove(category)
         if (migrationIndex != 0) {
             val newCategory = newCatList[migrationIndex - 1]
-
             db.migrateExpenses(category, newCategory)
         } else {
             db.deleteExpensesByCategory(category)
         }
+
         db.deleteCategory(category)
         categoryList.remove(category)
         categoryAdapter.notifyItemRemoved(category.position)

@@ -39,16 +39,19 @@ class HistoryViewHolder(private val historyEntryView: View) : ParentViewHolder<H
 
     override fun collapseView() {
         super.collapseView()
-        val rotate = ObjectAnimator.ofFloat(expandArrow, "rotation", 90f, 0f)
-        rotate.duration = 200
-        rotate.start()
+        ObjectAnimator.ofFloat(expandArrow, "rotation", 90f, 0f).apply {
+            duration = 200
+            start()
+        }
     }
 
     override fun expandView() {
         super.expandView()
-        val rotate = ObjectAnimator.ofFloat(expandArrow, "rotation", 0f, 90f)
-        rotate.duration = 200
-        rotate.start()
+        ObjectAnimator.ofFloat(expandArrow, "rotation", 0f, 90f).apply {
+            duration = 200
+            start()
+        }
+
     }
 
     fun bind (week: String) {
@@ -68,9 +71,10 @@ class HistoryViewHolder(private val historyEntryView: View) : ParentViewHolder<H
         }
 
         if (isExpanded) {
-            val rotate = ObjectAnimator.ofFloat(expandArrow, "rotation", 0f, 90f)
-            rotate.duration = 0
-            rotate.start()
+            ObjectAnimator.ofFloat(expandArrow, "rotation", 0f, 90f).apply {
+                duration = 0
+                start()
+            }
         }
 
         historyEntryView.setOnClickListener {

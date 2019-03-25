@@ -25,20 +25,18 @@ import androidx.core.content.ContextCompat
 import com.bignerdranch.expandablerecyclerview.ChildViewHolder
 import com.korbi.simplebudget.R
 import com.korbi.simplebudget.SimpleBudgetApp
+import kotlinx.android.synthetic.main.expense_listening.view.*
 import org.threeten.bp.format.DateTimeFormatter
 
 class ExpenseViewHolder(expenseListening: View, listener: ExpenseAdapterListener) :
                                     ChildViewHolder<Expense>(expenseListening) {
 
     val context:Context = expenseListening.context
-    private val expenseDescription = expenseListening
-                                        .findViewById<TextView>(R.id.expense_listening_description)
-    private val expenseDate = expenseListening
-                                        .findViewById<TextView>(R.id.expense_listening_date)
-    private val expenseAmount = expenseListening
-                                        .findViewById<TextView>(R.id.expense_listening_amount)
-    private val expenseIcon = expenseListening
-                                        .findViewById<ImageView>(R.id.expense_listening_icon)
+    private val expenseDescription = expenseListening.expense_listening_description
+    private val expenseDate = expenseListening.expense_listening_date
+    private val expenseAmount = expenseListening.expense_listening_amount
+    private val expenseIcon = expenseListening.expense_listening_icon
+
     private val dateFormatter = DateTimeFormatter.ofPattern("dd.MM.yy")
     private val iconIdArray: TypedArray = context.resources.obtainTypedArray(R.array.category_icons)
 
@@ -68,10 +66,7 @@ class ExpenseViewHolder(expenseListening: View, listener: ExpenseAdapterListener
         } else {
             expenseDescription.text = expense.description
         }
-
-
     }
-
 
     interface ExpenseAdapterListener {
         fun onItemClicked(parentPosition: Int, childPosition: Int)

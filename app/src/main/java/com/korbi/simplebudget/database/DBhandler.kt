@@ -20,6 +20,8 @@ import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import com.korbi.simplebudget.R
+import com.korbi.simplebudget.SimpleBudgetApp
 import com.korbi.simplebudget.logic.*
 import org.threeten.bp.LocalDate
 import org.threeten.bp.format.DateTimeFormatter
@@ -50,14 +52,15 @@ class DBhandler(context: Context, private val defaultCategories: Array<String>) 
 
         private var instance: DBhandler? = null
 
-        fun createInstance(context: Context, defaultCategories: Array<String>) {
-            if (instance == null) {
-                instance = DBhandler(context, defaultCategories)
-            }
+        private val defaultCategories =
+                SimpleBudgetApp.res.getStringArray(R.array.default_categories)
+
+        fun createInstance(context: Context) {
+            instance = DBhandler(context, defaultCategories)
         }
 
         fun getInstance(): DBhandler {
-            return instance!!
+            return instance ?: throw KotlinNullPointerException("Database not initialized")
         }
     }
 
@@ -172,6 +175,7 @@ class DBhandler(context: Context, private val defaultCategories: Array<String>) 
                 LocalDate.parse(cursor.getString(3)),
                 getCategoryById(cursor.getInt(4)),
                 cursor.getInt(5))
+                .also { cursor.close() }
     }
 
     fun getOldestDate(): LocalDate {

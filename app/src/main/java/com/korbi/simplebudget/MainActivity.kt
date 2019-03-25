@@ -91,9 +91,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun showFragment(fragment: androidx.fragment.app.Fragment) {
-        val transaction = supportFragmentManager.beginTransaction()
-        transaction.replace(R.id.fragment_container, fragment)
-        transaction.commit()
+
+        with(supportFragmentManager.beginTransaction()) {
+            replace(R.id.fragment_container, fragment)
+            commit()
+        }
     }
 
     private fun updateWidget() {

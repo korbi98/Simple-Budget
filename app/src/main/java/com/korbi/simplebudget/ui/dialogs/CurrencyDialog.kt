@@ -33,6 +33,7 @@ import androidx.fragment.app.DialogFragment
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import com.korbi.simplebudget.R
+import kotlinx.android.synthetic.main.currency_dialog.*
 import java.lang.ClassCastException
 import java.lang.IllegalStateException
 
@@ -76,10 +77,10 @@ class CurrencyDialog : DialogFragment() {
             val dialog = builder.create()
             dialog.create()
 
-            currencyInput = dialog.findViewById(R.id.settings_currency_custom)
-            leftSideCheckBox = dialog.findViewById(R.id.settings_currency_before_amount)
-            noDecimalCheckBox = dialog.findViewById(R.id.settings_currency_decimal)
-            chipGroup = dialog.findViewById(R.id.settings_currency_chip_group)
+            currencyInput = dialog.settings_currency_custom
+            leftSideCheckBox = dialog.settings_currency_before_amount
+            noDecimalCheckBox = dialog.settings_currency_decimal
+            chipGroup = dialog.settings_currency_chip_group
 
 
             val currencySymbols = resources.getStringArray(R.array.currencies_symbols)
@@ -89,13 +90,15 @@ class CurrencyDialog : DialogFragment() {
             val currentCurrency = pref.getString(getString(R.string.settings_key_currency), currencySymbols[0])
 
             for ((index, currency) in currenciesWithText.withIndex()) {
-                val chip = Chip(context)
-                chip.text = currency
-                chip.chipBackgroundColor = ContextCompat.getColorStateList(context!!,
-                                            R.color.custom_choice_chip_selector)
-                chip.isClickable = true
-                chip.isCheckable = true
-                chip.isCheckedIconVisible = false
+                val chip = Chip(context).apply {
+                    text = currency
+                    chipBackgroundColor = ContextCompat.getColorStateList(requireContext(),
+                            R.color.custom_choice_chip_selector)
+                    isClickable = true
+                    isCheckable = true
+                    isCheckedIconVisible = false
+                }
+
                 chipList.add(chip)
                 chipGroup.addView(chip as View)
                 if (index != currenciesWithText.lastIndex) {

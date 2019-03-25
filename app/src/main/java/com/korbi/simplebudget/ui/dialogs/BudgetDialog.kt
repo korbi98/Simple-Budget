@@ -34,6 +34,7 @@ import com.korbi.simplebudget.ui.fragments.BudgetFragment
 import com.korbi.simplebudget.ui.fragments.MONTHLY_INTERVAL
 import com.korbi.simplebudget.ui.fragments.SET_TOTAL_BUDGET
 import com.korbi.simplebudget.ui.fragments.WEEKLY_INTERVAL
+import kotlinx.android.synthetic.main.budget_dialog.*
 import java.text.DecimalFormatSymbols
 
 
@@ -42,7 +43,7 @@ class BudgetDialog : DialogFragment() {
     private lateinit var inputLayout: TextInputLayout
     private lateinit var intervalGroup: ChipGroup
     private lateinit var budgetInput: EditText
-    private lateinit var currencySymbol: String
+    private var currencySymbol: String? = "$"
     private lateinit var monthlyChip: Chip
     private lateinit var weeklyChip: Chip
     private lateinit var category: Category
@@ -64,58 +65,57 @@ class BudgetDialog : DialogFragment() {
                 .getInt(getString(R.string.total_budget_interval_key), MONTHLY_INTERVAL)
 
         return activity?.let {
-            val builder = AlertDialog.Builder(it)
+            val dialog = AlertDialog.Builder(it).run {
+
+                val message = "${getString(R.string.dialog_budget_message)} " +
+                        SimpleBudgetApp.createCurrencyString(0)
+                if (catIndex == -100) {
+                    setTitle(R.string.dialog_budget_total_title)
+                    setMessage(message)
+                }
+                else {
+                    setTitle("${getString(R.string.dialog_budget_title)} ${category.name}")
+                    setMessage(message)
+                }
+
+                setNegativeButton(R.string.cancel) { dialog, _ ->
+                    dialog.cancel()
+                }
+                setPositiveButton(R.string.ok) { dialog, _ ->
+                    save()
+                    dialog.dismiss()
+                }
+                setView(R.layout.budget_dialog)
+                create()
+            }
+            dialog.create()
+            dialog.getButton(Dialog.BUTTON_POSITIVE).isEnabled = false
 
             currencySymbol = SimpleBudgetApp.pref.getString(
-                    getString(R.string.settings_key_currency), "$")!!
+                    getString(R.string.settings_key_currency), "$")
 
-            catIndex = arguments!!.getInt(CAT_INDEX)
+            catIndex = arguments?.getInt(CAT_INDEX) ?: 0
             if (catIndex != SET_TOTAL_BUDGET) {
                 category = db.getCategoryById(catIndex)
             } else {
                 catIndex = -100
             }
 
-
-            val message = "${getString(R.string.dialog_budget_message)} " +
-                    SimpleBudgetApp.createCurrencyString(0)
-
-            if (catIndex == -100) {
-                builder.setTitle(R.string.dialog_budget_total_title)
-                builder.setMessage(message)
-            }
-            else {
-                builder.setTitle("${getString(R.string.dialog_budget_title)} ${category.name}")
-                builder.setMessage(message)
-            }
-
-            builder.setNegativeButton(R.string.cancel) { dialog, _ ->
-                dialog.cancel()
-            }
-            builder.setPositiveButton(R.string.ok) { dialog, _ ->
-                save()
-                dialog.dismiss()
-            }
-            builder.setView(R.layout.budget_dialog)
-
-            val dialog = builder.create()
-            dialog.create()
-
-            dialog.getButton(Dialog.BUTTON_POSITIVE).isEnabled = false
-
-            budgetInput = dialog.findViewById(R.id.budget_dialog_input)!!
-            inputLayout = dialog.findViewById(R.id.budget_dialog_input_layout)!!
-            intervalGroup = dialog.findViewById(R.id.budget_dialog_group)!!
+            budgetInput = dialog.budget_dialog_input
+            inputLayout = dialog.budget_dialog_input_layout
+            intervalGroup = dialog.budget_dialog_group
 
             setupCurrencyInput(dialog)
 
-            weeklyChip = dialog.findViewById(R.id.chip_week_budget)!!
-            monthlyChip = dialog.findViewById(R.id.chip_month_budget)!!
-            weeklyChip.setOnCheckedChangeListener { _, isChecked ->
-                monthlyChip.isChecked = !isChecked
+            weeklyChip = dialog.chip_week_budget.apply {
+                setOnCheckedChangeListener { _, isChecked ->
+                    monthlyChip.isChecked = !isChecked
+                }
             }
-            monthlyChip.setOnCheckedChangeListener { _, isChecked ->
-                weeklyChip.isChecked = !isChecked
+            monthlyChip = dialog.chip_month_budget.apply {
+                setOnCheckedChangeListener { _, isChecked ->
+                    weeklyChip.isChecked = !isChecked
+                }
             }
 
             if (catIndex == -100) {
@@ -178,13 +178,9 @@ class BudgetDialog : DialogFragment() {
 
         inputLayout.hint = getString(R.string.amount_input_hint) + " $currencySymbol"
         val separator = DecimalFormatSymbols.getInstance().decimalSeparator.toString()
-        val forbiddenSeparator = when (separator) {
-            "," -> "."
-            else -> ","
-        }
 
         budgetInput.addTextChangedListener(CurrencyTextWatcher(budgetInput, inputLayout,
-                separator, forbiddenSeparator, dialog, false))
+                separator, dialog, false))
 
     }
 

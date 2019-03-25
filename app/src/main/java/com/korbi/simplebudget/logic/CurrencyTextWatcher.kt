@@ -26,11 +26,15 @@ import java.lang.StringBuilder
 class CurrencyTextWatcher(private val inputView: EditText,
                           private val inputLayout: TextInputLayout,
                           private val separator: String,
-                          private val forbiddenSeparator: String,
                           private val dialog: AlertDialog?,
                           private val isNegativeAllowed: Boolean) : TextWatcher {
 
     override fun afterTextChanged(s: Editable?) {
+
+        val forbiddenSeparator = when (separator) {
+            "," -> "."
+            else -> ","
+        }
 
         if (!s.isNullOrBlank()) inputLayout.error = ""
         if (dialog != null) {
@@ -63,13 +67,16 @@ class CurrencyTextWatcher(private val inputView: EditText,
                     !"., ".contains(c)) {
                 newStringBuilder.append(separator)
             }
+
             if (position == 2 && originalString.contains("-0") &&
                     !"., ".contains(c)) {
                 newStringBuilder.append(separator)
             }
+
             if (c == forbiddenSeparator) {
                 c = separator
             }
+
             if ((position != 0 && c == "-") ||
                     (position > 10) || (separatorPosition != null
                             && position > (separatorPosition + 2))) {

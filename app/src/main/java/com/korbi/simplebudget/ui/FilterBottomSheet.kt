@@ -17,8 +17,6 @@
 package com.korbi.simplebudget.ui
 
 import android.app.DatePickerDialog
-import android.app.Dialog
-import android.content.DialogInterface
 import android.content.res.TypedArray
 import android.os.Bundle
 import android.util.Log
@@ -29,16 +27,13 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.korbi.simplebudget.R
 import com.korbi.simplebudget.database.DBhandler
 import android.widget.*
-import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.google.android.material.bottomsheet.BottomSheetDialog
-import android.widget.FrameLayout
 import androidx.core.content.ContextCompat
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import com.google.android.material.textfield.TextInputLayout
 import com.korbi.simplebudget.SimpleBudgetApp
+import kotlinx.android.synthetic.main.filter_bottom_sheet.view.*
 import org.threeten.bp.LocalDate
-import org.threeten.bp.Year
 import org.threeten.bp.format.DateTimeFormatter
 
 const val TYPE_PREFILL = "type"
@@ -93,55 +88,56 @@ class FilterBottomSheet :  BottomSheetDialogFragment() {
         dateArray = arrayOf(R.id.chip_all_time, R.id.chip_last30, R.id.chip_last90,
                             R.id.chip_this_year, R.id.chip_specific_time)
 
-        typeGroup = rootView.findViewById(R.id.filter_type_group)
-        dateGroup = rootView.findViewById(R.id.filter_date_chip_group)
-        categoryGroup = rootView.findViewById(R.id.filter_category_chip_group)
+        typeGroup = rootView.filter_type_group.apply {
+            setOnCheckedChangeListener { group, checkedId ->
+                typeSelection = when (checkedId) {
+                    R.id.chip_both -> TYPE_BOTH
+                    R.id.chip_expense -> TYPE_EXPENSE
+                    R.id.chip_income -> TYPE_INCOME
+                    else -> {
+                        group.check(R.id.chip_both)
+                        TYPE_BOTH
+                    }
+                }
+                filter()
+            }
+        }
+        dateGroup = rootView.filter_date_chip_group.apply {
+            setOnCheckedChangeListener { group, checkedId ->
+                dateSelection = when (checkedId) {
+                    R.id.chip_last30 -> SELECT_LAST30
+                    R.id.chip_last90 -> SELECT_LAST90
+                    R.id.chip_this_year -> SELECT_YEAR
+                    R.id.chip_all_time -> SELECT_ALL
+                    R.id.chip_specific_time -> SELECT_CUSTOM
+                    else -> {
+                        group.check(R.id.chip_all_time)
+                        SELECT_ALL
+                    }
+                }
+                checkIfShowCustomSelection()
+                filter()
+            }
+        }
+
+        categoryGroup = rootView.filter_category_chip_group
         categoryChips = mutableListOf()
 
-        typeGroup.setOnCheckedChangeListener { group, checkedId ->
-            typeSelection = when (checkedId) {
-                R.id.chip_both -> TYPE_BOTH
-                R.id.chip_expense -> TYPE_EXPENSE
-                R.id.chip_income -> TYPE_INCOME
-                else -> {
-                    group.check(R.id.chip_both)
-                    TYPE_BOTH
-                }
+        fromDateLayout = rootView.filter_date_from_input_layout
+        toDateLayout = rootView.filter_date_to_input_layout
+
+        fromDateInput = rootView.filter_date_from_input.apply {
+            setOnClickListener {
+                setDate(SET_FROM_DATE)
             }
-            filter()
         }
-
-        dateGroup.setOnCheckedChangeListener { group, checkedId ->
-            dateSelection = when (checkedId) {
-                R.id.chip_last30 -> SELECT_LAST30
-                R.id.chip_last90 -> SELECT_LAST90
-                R.id.chip_this_year -> SELECT_YEAR
-                R.id.chip_all_time -> SELECT_ALL
-                R.id.chip_specific_time -> SELECT_CUSTOM
-                else -> {
-                    group.check(R.id.chip_all_time)
-                    SELECT_ALL
-                }
+        toDateInput = rootView.filter_date_to_input.apply {
+            setOnClickListener {
+                setDate(SET_TO_DATE)
             }
-            checkIfShowCustomSelection()
-            filter()
         }
 
-        fromDateLayout = rootView.findViewById(R.id.filter_date_from_input_layout)
-        toDateLayout = rootView.findViewById(R.id.filter_date_to_input_layout)
-        fromDateInput = rootView.findViewById(R.id.filter_date_from_input)
-        toDateInput = rootView.findViewById(R.id.filter_date_to_input)
-
-        fromDateInput.setOnClickListener {
-            setDate(SET_FROM_DATE)
-        }
-
-        toDateInput.setOnClickListener {
-            setDate(SET_TO_DATE)
-        }
-
-        val cancelButton = rootView.findViewById<Button>(R.id.filter_cancel_button)
-        cancelButton.setOnClickListener {
+        rootView.filter_cancel_button.setOnClickListener {
             typeSelection = TYPE_BOTH
             dateSelection = SELECT_ALL
             categorySelection = BooleanArray(categoryChips.size) { true }
@@ -149,12 +145,11 @@ class FilterBottomSheet :  BottomSheetDialogFragment() {
             dialog?.cancel()
         }
 
-        val filterButton = rootView.findViewById<Button>(R.id.filter_confirm_button)
-        filterButton.setOnClickListener {
+        rootView.filter_confirm_button.setOnClickListener {
             dialog?.dismiss()
         }
 
-        customDateSelection = rootView.findViewById(R.id.filter_specific_range_layout)
+        customDateSelection = rootView.filter_specific_range_layout
 
         setupCategoryGroup()
         prefillSelection()
@@ -174,7 +169,7 @@ class FilterBottomSheet :  BottomSheetDialogFragment() {
             val chip = Chip(context)
             chip.isClickable = true
             chip.isCheckable = true
-            chip.chipBackgroundColor = ContextCompat.getColorStateList(context!!,
+            chip.chipBackgroundColor = ContextCompat.getColorStateList(requireContext(),
                                         R.color.custom_choice_chip_selector)
             chip.text = cat.name
             chip.setChipIconTintResource(R.color.text_color_white)
@@ -192,9 +187,8 @@ class FilterBottomSheet :  BottomSheetDialogFragment() {
     }
 
     private fun prefillSelection() {
-        val arg = arguments
-        if (arg != null) {
-
+        val arguments = arguments
+        arguments?.let { arg ->
             typeGroup.check(typeArray[arg.getInt(TYPE_PREFILL)])
             dateGroup.check(dateArray[arg.getInt(DATE_PREFILL)])
             Log.d("test", arg.getString(FROM_DATE_PRESELECT))
@@ -203,12 +197,13 @@ class FilterBottomSheet :  BottomSheetDialogFragment() {
 
             val catList = arg.getBooleanArray(CATEGORY_PRESELECT)
 
-            categorySelection = if (catList != null  && !catList!!.none { !it }) {
+            categorySelection = if (catList != null  && !catList.none { !it }) {
                 catList
             } else {
                 BooleanArray(categoryChips.size) { false }
             }
         }
+
         for ((index, isSelected) in categorySelection.withIndex()) {
             categoryChips[index].isChecked = isSelected
         }
@@ -242,7 +237,7 @@ class FilterBottomSheet :  BottomSheetDialogFragment() {
         val month = now.monthValue - 1
         val day = now.dayOfMonth
 
-        val datePickerDialog = DatePickerDialog(context,
+        val datePickerDialog = DatePickerDialog(requireContext(),
                 DatePickerDialog.OnDateSetListener { _, sYear, sMonth, sDay ->
 
                     when (fromOrTo) {

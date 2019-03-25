@@ -40,6 +40,7 @@ import com.github.mikephil.charting.listener.OnChartValueSelectedListener
 import com.korbi.simplebudget.SimpleBudgetApp
 import com.korbi.simplebudget.database.DBhandler
 import com.korbi.simplebudget.logic.Category
+import kotlinx.android.synthetic.main.fragment_pie_chart.view.*
 import java.text.DecimalFormat
 
 
@@ -62,7 +63,7 @@ class PieChartFragment : androidx.fragment.app.Fragment(),  DashboardFragment.Da
 
         val rootView = inflater.inflate(R.layout.fragment_pie_chart, container, false)
 
-        pieChart = rootView.findViewById(R.id.dashboard_pie_chart)
+        pieChart = rootView.dashboard_pie_chart
 
         return rootView
     }
@@ -122,31 +123,50 @@ class PieChartFragment : androidx.fragment.app.Fragment(),  DashboardFragment.Da
             }
         }
 
-        val dataSet = PieDataSet(pieEntries, "")
-        dataSet.valueTextSize = 10f
-        dataSet.valueTextColor = Color.WHITE
-        dataSet.sliceSpace = 2f
+        val dataSet = PieDataSet(pieEntries, "").apply {
+            valueTextSize = 10f
+            valueTextColor = Color.WHITE
+            sliceSpace = 2f
+            selectionShift = 0f
+
+        }
         dataSet.setColors(colors, 255)
-        dataSet.selectionShift = 0f
-        pieChart.setUsePercentValues(true)
-        pieChart.centerText = getString(R.string.distribution)
-        pieChart.setCenterTextSize(14f)
-        pieChart.setCenterTextColor(Color.WHITE)
-        pieChart.legend.setCustom(legendEntries)
-        pieChart.data = PieData(dataSet)
 
-        pieChart.data.setValueFormatter { value, _, _, _ ->
-
-            val formatter = DecimalFormat("#0.0")
-
-            if (value < 2.5) {
-                ""
-            } else {
-                "${formatter.format(value)} %"
-            }
+        pieChart.legend.apply {
+            form = Legend.LegendForm.CIRCLE
+            textColor = Color.WHITE
+            horizontalAlignment = Legend.LegendHorizontalAlignment.CENTER
+            verticalAlignment = Legend.LegendVerticalAlignment.TOP
+            isWordWrapEnabled = true
+            setCustom(legendEntries)
         }
 
-        setUpPie()
+        pieChart.run {
+            data = PieData(dataSet).apply {
+                setValueFormatter { value, _, _, _ ->
+
+                    val formatter = DecimalFormat("#0.0")
+
+                    if (value < 2.5) {
+                        ""
+                    } else {
+                        "${formatter.format(value)} %"
+                    }
+                }
+            }
+
+            setUsePercentValues(true)
+            centerText = getString(R.string.distribution)
+            setCenterTextSize(14f)
+            setCenterTextColor(Color.WHITE)
+            holeRadius = 45f
+            setHoleColor(ContextCompat.getColor(requireContext(), R.color.gray_background))
+            setTransparentCircleAlpha(0)
+            description.text = ""
+            isRotationEnabled = false
+
+            invalidate()
+        }
     }
 
     private fun isCategoryEmpty(category: Category, expenses: MutableList<Expense>): Boolean {
@@ -155,24 +175,6 @@ class PieChartFragment : androidx.fragment.app.Fragment(),  DashboardFragment.Da
 
     override fun onDateSelectionChange() {
         updateView()
-    }
-
-    private fun setUpPie() {
-
-        pieChart.isRotationEnabled = false
-        pieChart.holeRadius = 45f
-        pieChart.setHoleColor(ContextCompat.getColor(context!!, R.color.gray_background))
-        pieChart.setTransparentCircleAlpha(0)
-        pieChart.description.text = ""
-
-        val legend = pieChart.legend
-        legend.form = Legend.LegendForm.CIRCLE
-        legend.textColor = Color.WHITE
-        legend.horizontalAlignment = Legend.LegendHorizontalAlignment.CENTER
-        legend.verticalAlignment = Legend.LegendVerticalAlignment.TOP
-        legend.isWordWrapEnabled = true
-
-        pieChart.invalidate()
     }
 
     fun getListener(): DashboardFragment.DateSelectionListener {

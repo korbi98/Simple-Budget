@@ -20,7 +20,6 @@ import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import androidx.recyclerview.widget.RecyclerView
-
 import com.korbi.simplebudget.R
 import com.korbi.simplebudget.database.DBhandler
 import com.korbi.simplebudget.logic.adapters.HistoryAdapter
@@ -36,6 +35,7 @@ import com.korbi.simplebudget.logic.Expense
 import com.korbi.simplebudget.logic.ExpenseViewHolder
 import com.korbi.simplebudget.logic.HistoryEntry
 import com.korbi.simplebudget.ui.*
+import kotlinx.android.synthetic.main.fragment_history.view.*
 import org.threeten.bp.LocalDate
 import org.threeten.bp.format.DateTimeFormatter
 import org.threeten.bp.format.TextStyle
@@ -63,13 +63,11 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
 
         val rootview = inflater.inflate(R.layout.fragment_history, container, false)
 
-        emptyMessage = rootview.findViewById(R.id.history_fragment_empty_message)
-        historyRecycler = rootview.findViewById(R.id.historyList)
-        historyRecycler.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(context)
-
-        historyRecycler.layoutManager = LinearLayoutManager(activity,
-                                            RecyclerView.VERTICAL, false)
-        historyRecycler.setHasFixedSize(true)
+        emptyMessage = rootview.history_fragment_empty_message
+        historyRecycler = rootview.historyList.apply {
+            layoutManager = LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
+            setHasFixedSize(true)
+        }
 
         setHasOptionsMenu(true)
         return rootview
@@ -154,7 +152,7 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
                 val filterFragment = FilterBottomSheet()
                 filterFragment.arguments = bundle
                 filterFragment.setListener(this)
-                filterFragment.show(activity!!.supportFragmentManager, filterFragment.tag)
+                filterFragment.show(requireActivity().supportFragmentManager, filterFragment.tag)
                 true
             }
 
@@ -182,7 +180,7 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
 
         when (historyGrouping) {
             MONTHLY_INTERVAL.toString() -> {
-                for (month in DateHelper.getInstance().getMonths()) {
+                for (month in DateHelper.getMonths()) {
 
                     val dateString =
                             month.month.getDisplayName(TextStyle.FULL, Locale.getDefault()) + " " +
@@ -197,7 +195,7 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
             }
 
             WEEKLY_INTERVAL.toString() -> {
-                for (week in DateHelper.getInstance().getWeeks()) {
+                for (week in DateHelper.getWeeks()) {
 
                     val dateString =
                             "${dateFormatter.format(week[0])} - ${dateFormatter.format(week[1])}"
@@ -247,48 +245,51 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
 
     private fun toggleSelection(parentPosition: Int, childPosition: Int) {
 
-        if (mActionMode != null) {
+        mActionMode?.let {
             historyAdapter.toggleSelection(parentPosition, childPosition)
-
 
             val count = historyAdapter.getSelectedItemCount()
             if (count == 0) {
-                mActionMode?.finish()
+                it.finish()
                 mActionMode = null
             } else {
-                val menu: Menu? = mActionMode!!.menu
-                menu!!.findItem(R.id.expense_menu_edit).isVisible = count < 2 // hide edit option if more than one expense is selected
-                mActionMode?.title = count.toString()
-                mActionMode?.invalidate()
+                val menu: Menu? = it.menu
+                menu?.findItem(R.id.expense_menu_edit)?.isVisible = count < 2 // hide edit option if more than one expense is selected
+                it.title = count.toString()
+                it.invalidate()
             }
         }
     }
 
     private fun deleteSelected(){
-        val alertDialog = AlertDialog.Builder(context)
-        alertDialog.setTitle(getString(R.string.delete_expenses_message))
-                .setPositiveButton(getString(R.string.yes)) { _, _ ->
-                    db.deleteExpenses(historyAdapter.getAndDeleteSelectedIndices())
-                    updateWidget()
-                    mActionMode?.finish()
-                }
-                .setNegativeButton(getString(R.string.no)) { dialog, _ ->
-                    dialog.cancel()
-                }
-                .show()
+        with(AlertDialog.Builder(context)) {
+            setTitle(getString(R.string.delete_expenses_message))
+            setPositiveButton(getString(R.string.yes)) { _, _ ->
+                db.deleteExpenses(historyAdapter.getAndDeleteSelectedIndices())
+                updateWidget()
+                mActionMode?.finish()
+            }
+            setNegativeButton(getString(R.string.no)) { dialog, _ ->
+                dialog.cancel()
+            }
+            show()
+        }
     }
 
     private fun updateSelected() {
         val indices = historyAdapter.getSingleSelectedExpenseIndex()
         val expenseToUpdate = historyAdapter.parentList[indices[0]].childList[indices[1]]
-        val intent = Intent(context, AddExpenses::class.java)
-        intent.putExtra(EXPENSE_INDEX, expenseToUpdate.id)
-        intent.putExtra(EXPENSE_DESC, expenseToUpdate.description)
-        intent.putExtra(EXPENSE_COST, expenseToUpdate.cost)
-        intent.putExtra(EXPENSE_DATE, dateFormatter.format(expenseToUpdate.date))
-        intent.putExtra(EXPENSE_CAT, expenseToUpdate.category.id)
+
         parentPosition = indices[0]
-        startActivityForResult(intent, 1)
+
+        Intent(context, AddExpenses::class.java).run {
+            putExtra(EXPENSE_INDEX, expenseToUpdate.id)
+            putExtra(EXPENSE_DESC, expenseToUpdate.description)
+            putExtra(EXPENSE_COST, expenseToUpdate.cost)
+            putExtra(EXPENSE_DATE, dateFormatter.format(expenseToUpdate.date))
+            putExtra(EXPENSE_CAT, expenseToUpdate.category.id)
+            startActivityForResult(this, 1)
+        }
     }
 
     private fun filterExpenses(expenses: MutableList<Expense>,
@@ -367,22 +368,22 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
             false -> View.GONE
         }
 
-        historyAdapter = HistoryAdapter(hEntries, this, this)
-        historyAdapter.setExpandCollapseListener(object : ExpandableRecyclerAdapter.
-                                                                ExpandCollapseListener {
+        historyAdapter = HistoryAdapter(hEntries, this, this).apply {
+            setExpandCollapseListener(object : ExpandableRecyclerAdapter.
+            ExpandCollapseListener {
 
-            override fun onParentCollapsed(parentPosition: Int) {
-                (activity as MainActivity).expandedStateMap[parentPosition] = false
-            }
+                override fun onParentCollapsed(parentPosition: Int) {
+                    (activity as MainActivity).expandedStateMap[parentPosition] = false
+                }
 
-            override fun onParentExpanded(parentPosition: Int) {
-                (activity as MainActivity).expandedStateMap[parentPosition] = true
-            }
-        })
-
+                override fun onParentExpanded(parentPosition: Int) {
+                    (activity as MainActivity).expandedStateMap[parentPosition] = true
+                }
+            })
+            sort()
+            initializeSelectedItems()
+        }
         historyRecycler.adapter = historyAdapter
-        historyAdapter.sort()
-        historyAdapter.initializeSelectedItems()
         updateExpandedStateMap()
 
         for (index in historyAdapter.parentList.indices) {
@@ -423,20 +424,21 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
 
     override fun onClickRecurrentEntry(parentPosition: Int, childPosition: Int) {
         if (!SimpleBudgetApp.pref.getBoolean(getString(R.string.dont_show_again_key), false)) {
-            val builder = AlertDialog.Builder(context)
-            builder.setTitle(R.string.this_is_recurrent_entry)
-            builder.setMessage(R.string.this_is_recurrent_entry_message)
-            builder.setPositiveButton(R.string.ok) { dialog, _ ->
-                dialog.dismiss()
-            }
-            builder.setNeutralButton(R.string.dont_show_again) {dialog, _ ->
-                with(SimpleBudgetApp.pref.edit()) {
-                    putBoolean(getString(R.string.dont_show_again_key), true)
-                    apply()
+            with(AlertDialog.Builder(context)) {
+                setTitle(R.string.this_is_recurrent_entry)
+                setMessage(R.string.this_is_recurrent_entry_message)
+                setPositiveButton(R.string.ok) { dialog, _ ->
+                    dialog.dismiss()
                 }
-                dialog.dismiss()
+                setNeutralButton(R.string.dont_show_again) {dialog, _ ->
+                    with(SimpleBudgetApp.pref.edit()) {
+                        putBoolean(getString(R.string.dont_show_again_key), true)
+                        apply()
+                    }
+                    dialog.dismiss()
+                }
+                show()
             }
-            builder.show()
         }
     }
 
@@ -449,14 +451,15 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
     }
 
     private fun updateOptionsMenu() {
-        mOptionsMenu.findItem(R.id.menu_history_filter_reset).isVisible =
-                (activity as MainActivity).typeSelection != TYPE_BOTH ||
-                        (activity as MainActivity).dateSelection != SELECT_ALL ||
-                !(activity as MainActivity).categorySelection.none { !it }
+        with(activity as MainActivity) {
+            mOptionsMenu.findItem(R.id.menu_history_filter_reset).isVisible =
+                    (typeSelection != TYPE_BOTH || dateSelection != SELECT_ALL ||
+                            !categorySelection.none { !it })
+        }
     }
 
     private fun updateWidget() {
         activity?.sendBroadcast(
-                SimpleBudgetApp.updateWidgetIntent(context!!, activity!!.application))
+                SimpleBudgetApp.updateWidgetIntent(requireContext(), requireActivity().application))
     }
 }

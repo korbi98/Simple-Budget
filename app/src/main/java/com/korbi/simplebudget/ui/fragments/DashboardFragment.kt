@@ -41,6 +41,7 @@ import com.korbi.simplebudget.ui.AddExpenses
 import com.korbi.simplebudget.ui.IncomeManager
 import com.korbi.simplebudget.ui.ManageCategories
 import com.korbi.simplebudget.ui.SettingsActivity
+import kotlinx.android.synthetic.main.fragment_dashboard.view.*
 import org.threeten.bp.LocalDate
 import org.threeten.bp.Year
 import org.threeten.bp.YearMonth
@@ -65,7 +66,6 @@ class DashboardFragment : androidx.fragment.app.Fragment() {
     private val registeredFragments = SparseArray<Fragment>()
 
     private val db = DBhandler.getInstance()
-    private val dh = DateHelper.getInstance()
 
     interface DateSelectionListener {
         fun onDateSelectionChange()
@@ -76,23 +76,18 @@ class DashboardFragment : androidx.fragment.app.Fragment() {
 
         val rootView = inflater.inflate(R.layout.fragment_dashboard, container, false)
 
-        val fab:FloatingActionButton = rootView.findViewById(R.id.fab)
-        fab.setOnClickListener {
+        rootView.fab.setOnClickListener {
             val addExpenseActivity = Intent(context, AddExpenses::class.java)
             startActivity(addExpenseActivity)
         }
 
-        timeSelectionSpinner = rootView.findViewById(R.id.dashboard_time_selection_spinner)
-        timeSelectionLayout = rootView.findViewById(R.id.dashboard_time_selection_layout)
-        expensesTextView = rootView.findViewById(R.id.dashboard_total_expenses)
-        incomeTextView = rootView.findViewById(R.id.dashboard_total_income)
-        balanceTextView = rootView.findViewById(R.id.dashboard_balance)
+        timeSelectionSpinner = rootView.dashboard_time_selection_spinner
+        timeSelectionLayout = rootView.dashboard_time_selection_layout
+        expensesTextView = rootView.dashboard_total_expenses
+        incomeTextView = rootView.dashboard_total_income
+        balanceTextView = rootView.dashboard_balance
 
-        tabLayout = rootView.findViewById<TabLayout>(R.id.dashboard_tabs)
-        tabLayout.addTab(tabLayout.newTab().setText(R.string.budget))
-        tabLayout.addTab(tabLayout.newTab().setText(R.string.distribution))
-
-        val viewPager = rootView.findViewById<ViewPager>(R.id.dashboard_viewpager)
+        val viewPager = rootView.dashboard_viewpager
         viewPager.adapter = object : FragmentStatePagerAdapter(childFragmentManager) {
 
             override fun getCount(): Int {
@@ -122,31 +117,34 @@ class DashboardFragment : androidx.fragment.app.Fragment() {
             }
         }
 
-        viewPager.addOnPageChangeListener(TabLayout.TabLayoutOnPageChangeListener(tabLayout))
+        tabLayout = rootView.dashboard_tabs.apply {
+            addTab(this.newTab().setText(R.string.budget))
+            addTab(this.newTab().setText(R.string.distribution))
+            addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
 
-        tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+                override fun onTabSelected(tab: TabLayout.Tab) {
+                    viewPager.currentItem = tab.position
 
-            override fun onTabSelected(tab: TabLayout.Tab) {
-                viewPager.currentItem = tab.position
-
-                when (viewPager.currentItem) {
-                    1 -> {
-                        val pie = registeredFragments[1] as PieChartFragment
-                        setListener(pie.getListener())
-                        pie.updateView()
-                    }
-                    else -> {
-                        val budget = registeredFragments[viewPager.currentItem]
-                                as BudgetFragment
-                        setListener(budget.getListener())
-                        budget.updateView()
+                    when (viewPager.currentItem) {
+                        1 -> {
+                            val pie = registeredFragments[1] as PieChartFragment
+                            setListener(pie.getListener())
+                            pie.updateView()
+                        }
+                        else -> {
+                            val budget = registeredFragments[viewPager.currentItem]
+                                    as BudgetFragment
+                            setListener(budget.getListener())
+                            budget.updateView()
+                        }
                     }
                 }
-            }
+                override fun onTabReselected(p0: TabLayout.Tab?) {}
+                override fun onTabUnselected(p0: TabLayout.Tab?) {}
+            })
+        }
 
-            override fun onTabReselected(p0: TabLayout.Tab?) {}
-            override fun onTabUnselected(p0: TabLayout.Tab?) {}
-        })
+        viewPager.addOnPageChangeListener(TabLayout.TabLayoutOnPageChangeListener(tabLayout))
 
         timeSelectionSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onNothingSelected(parent: AdapterView<*>?) {parent?.setSelection(0)}
@@ -167,27 +165,26 @@ class DashboardFragment : androidx.fragment.app.Fragment() {
         inflater.inflate(R.menu.menu_dashboard, menu)
 
         val spinnerItem = menu.findItem(R.id.menu_dashboard_time_interval)
-        actionBarSpinner = spinnerItem.actionView as Spinner
-        actionBarSpinner.adapter = ArrayAdapter.createFromResource(context!!,
-                R.array.dashboard_time_interval, android.R.layout.simple_spinner_dropdown_item)
+        actionBarSpinner = ( spinnerItem.actionView as Spinner ).apply {
+            adapter = ArrayAdapter.createFromResource(requireContext(),
+                    R.array.dashboard_time_interval, android.R.layout.simple_spinner_dropdown_item)
 
-        actionBarSpinner.setSelection(
-                SimpleBudgetApp.pref.getInt(
-                        getString(R.string.dashboard_time_selection_key), MONTHLY_INTERVAL))
+            setSelection(SimpleBudgetApp.pref.getInt(
+                            getString(R.string.dashboard_time_selection_key), MONTHLY_INTERVAL))
 
-        actionBarSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
+            onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                override fun onNothingSelected(parent: AdapterView<*>?) {}
 
-            override fun onItemSelected(parent: AdapterView<*>?,
-                                        view: View?, position: Int, id: Long) {
-                setupTimeSelectionSpinner(position)
-                with(SimpleBudgetApp.pref.edit()) {
-                    putInt(getString(R.string.dashboard_time_selection_key), position)
-                    apply()
+                override fun onItemSelected(parent: AdapterView<*>?,
+                                            view: View?, position: Int, id: Long) {
+                    setupTimeSelectionSpinner(position)
+                    with(SimpleBudgetApp.pref.edit()) {
+                        putInt(getString(R.string.dashboard_time_selection_key), position)
+                        apply()
+                    }
                 }
             }
         }
-
     }
 
     override fun onResume() {
@@ -235,12 +232,11 @@ class DashboardFragment : androidx.fragment.app.Fragment() {
     fun setupTimeSelectionSpinner(intervalType: Int) {
 
         timeSelectionLayout.visibility = View.VISIBLE
-        val dh = DateHelper.getInstance()
 
         val optionsArray = when (intervalType) {
-            WEEKLY_INTERVAL -> dh.getWeekSpinnerArray()
-            QUARTERLY_INTERVAL -> dh.getQuarterSpinnerArray()
-            YEARLY_INTERVAL -> dh.getYearSpinnerArray()
+            WEEKLY_INTERVAL -> DateHelper.getWeekSpinnerArray()
+            QUARTERLY_INTERVAL -> DateHelper.getQuarterSpinnerArray()
+            YEARLY_INTERVAL -> DateHelper.getYearSpinnerArray()
             ALL_TIME -> {
                 timeSelectionLayout.visibility = View.GONE
                 sumExpenses(getExpensesForInterval(ALL_TIME, 0))
@@ -251,7 +247,7 @@ class DashboardFragment : androidx.fragment.app.Fragment() {
 
                 Array(0){""}
             }
-            else -> dh.getMonthSpinnerArray()
+            else -> DateHelper.getMonthSpinnerArray()
         }
         val position = when (intervalType) {
             WEEKLY_INTERVAL -> optionsArray.indexOf(getString(R.string.this_week))
@@ -261,7 +257,7 @@ class DashboardFragment : androidx.fragment.app.Fragment() {
             else -> 0
         }
 
-        timeSelectionSpinner.adapter = ArrayAdapter<String>(context!!,
+        timeSelectionSpinner.adapter = ArrayAdapter<String>(requireContext(),
                 android.R.layout.simple_spinner_dropdown_item, optionsArray)
 
         if (position != -1) {
@@ -275,42 +271,41 @@ class DashboardFragment : androidx.fragment.app.Fragment() {
 
         when (intervalType) {
             WEEKLY_INTERVAL -> {
-                var weeks = dh.getWeeks()
+                var weeks = DateHelper.getWeeks()
                 if (weeks.size > 0) {
                     weeks = weeks.subList(1, weeks.size) .filter {
                         !db.getExpensesByDate(it[0], it[1]).isEmpty()
                     } .toMutableList()
                 }
-                Log.d("test", dh.getWeeks().size.toString())
-                weeks.add(0, dh.getWeeks()[0])
+                weeks.add(0, DateHelper.getWeeks()[0])
 
                 val week = weeks[selectedInterval]
                 startDate = week[0]
                 endDate = week[1]
             }
             MONTHLY_INTERVAL -> {
-                var months = dh.getMonths()
+                var months = DateHelper.getMonths()
                 if (months.size > 0) {
                     months = months.subList(1, months.size).filter {
                         !db.getExpensesByDate(it.atDay(1), it.atEndOfMonth()).isEmpty()
                     } .toMutableList()
                 }
-                months.add(0, dh.getMonths()[0])
+                months.add(0, DateHelper.getMonths()[0])
 
                 val month = months[selectedInterval]
                 startDate = month.atDay(1)
                 endDate = month.atEndOfMonth()
             }
             QUARTERLY_INTERVAL -> {
-                val quarter = dh.getQuarters()[selectedInterval]
+                val quarter = DateHelper.getQuarters()[selectedInterval]
                 startDate = LocalDate.of(quarter[1], 1, 1)
+                        .plusMonths(3*(quarter[0] - 1).toLong())
                 endDate = YearMonth.of(quarter[1], 3).atEndOfMonth()
-                startDate = startDate.plusMonths(3*(quarter[0] - 1).toLong())
-                endDate = endDate.plusMonths(3*(quarter[0] - 1).toLong())
+                        .plusMonths(3*(quarter[0] - 1).toLong())
             }
             YEARLY_INTERVAL -> {
-                startDate = LocalDate.of(dh.getYears()[selectedInterval], 1, 1)
-                endDate = LocalDate.of(dh.getYears()[selectedInterval], 12, 31)
+                startDate = LocalDate.of(DateHelper.getYears()[selectedInterval], 1, 1)
+                endDate = LocalDate.of(DateHelper.getYears()[selectedInterval], 12, 31)
             }
         }
         return db.getExpensesByDate(startDate, endDate)
@@ -327,11 +322,11 @@ class DashboardFragment : androidx.fragment.app.Fragment() {
         balanceTextView.text = SimpleBudgetApp.createCurrencyString(balance)
 
         when  {
-            balance < 0 -> balanceTextView.setTextColor(ContextCompat.getColor(context!!,
+            balance < 0 -> balanceTextView.setTextColor(ContextCompat.getColor(requireContext(),
                                             R.color.expenseColor))
-            balance > 0 -> balanceTextView.setTextColor(ContextCompat.getColor(context!!,
+            balance > 0 -> balanceTextView.setTextColor(ContextCompat.getColor(requireContext(),
                                             R.color.incomeColor))
-            else -> balanceTextView.setTextColor(ContextCompat.getColor(context!!,
+            else -> balanceTextView.setTextColor(ContextCompat.getColor(requireContext(),
                     R.color.neutralColor))
         }
     }

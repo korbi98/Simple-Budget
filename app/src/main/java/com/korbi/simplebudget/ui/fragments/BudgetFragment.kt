@@ -32,6 +32,7 @@ import com.korbi.simplebudget.logic.Expense
 import com.korbi.simplebudget.logic.adapters.BudgetAdapter
 import com.korbi.simplebudget.ui.dialogs.BudgetDialog
 import com.korbi.simplebudget.ui.dialogs.CAT_INDEX
+import kotlinx.android.synthetic.main.fragment_budget.view.*
 
 const val SET_TOTAL_BUDGET = -100
 
@@ -56,19 +57,20 @@ class BudgetFragment : androidx.fragment.app.Fragment(),
 
         val rootview = inflater.inflate(R.layout.fragment_budget, container, false)
 
-        emptyMessage = rootview.findViewById(R.id.budget_fragment_empty_message)
+        emptyMessage = rootview.budget_fragment_empty_message
 
-        budgetRecycler = rootview.findViewById(R.id.dashboard_budget_recycler)
-        budgetRecycler.setHasFixedSize(true)
-        budgetRecycler.layoutManager = LinearLayoutManager(context,
-                                        RecyclerView.VERTICAL, false)
         budgetAdapter = BudgetAdapter(expenseList, selectedInterval, this)
-        budgetRecycler.adapter = budgetAdapter
 
-        totalBudgetTextView = rootview.findViewById(R.id.budget_total_text)
-        totalBudgetAmount = rootview.findViewById(R.id.budget_total_budget)
-        totalBudgetProgress = rootview.findViewById(R.id.budget_total_progress)
-        totalBudgetLayout = rootview.findViewById(R.id.budget_total_layout)
+        budgetRecycler = rootview.dashboard_budget_recycler.apply {
+            setHasFixedSize(true)
+            layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
+            adapter = budgetAdapter
+        }
+
+        totalBudgetTextView = rootview.budget_total_text
+        totalBudgetAmount = rootview.budget_total_budget
+        totalBudgetProgress = rootview.budget_total_progress
+        totalBudgetLayout = rootview.budget_total_layout
         totalBudgetLayout.setOnLongClickListener {
             showBudgetDialog(SET_TOTAL_BUDGET)
             true
@@ -122,9 +124,6 @@ class BudgetFragment : androidx.fragment.app.Fragment(),
         totalBudgetInterval = SimpleBudgetApp.pref
                 .getInt(getString(R.string.total_budget_interval_key), MONTHLY_INTERVAL)
 
-        budgetAdapter.setExpenses(expenseList)
-        budgetAdapter.setInterval(selectedInterval)
-
         totalBudgetAmount.text = getBudgetText()
         totalBudgetProgress.progress = getBudgetProgress()
 
@@ -134,16 +133,18 @@ class BudgetFragment : androidx.fragment.app.Fragment(),
         }
 
         if (getBudgetProgress() > 100) {
-            totalBudgetAmount.setTextColor(ContextCompat.getColor(context!!, R.color.expenseColor))
+            totalBudgetAmount.setTextColor(ContextCompat.getColor(requireContext(), R.color.expenseColor))
             totalBudgetProgress.progressTintList = ColorStateList.valueOf(
-                    ContextCompat.getColor(context!!, R.color.expenseColor))
+                    ContextCompat.getColor(requireContext(), R.color.expenseColor))
         } else {
-            totalBudgetAmount.setTextColor(ContextCompat.getColor(context!!,
+            totalBudgetAmount.setTextColor(ContextCompat.getColor(requireContext(),
                     R.color.text_color_white_secondary))
             totalBudgetProgress.progressTintList = ColorStateList.valueOf(
-                    ContextCompat.getColor(context!!, R.color.colorPrimary))
+                    ContextCompat.getColor(requireContext(), R.color.colorPrimary))
         }
 
+        budgetAdapter.setExpenses(expenseList)
+        budgetAdapter.setInterval(selectedInterval)
         budgetAdapter.updateCategories()
     }
 
@@ -152,11 +153,10 @@ class BudgetFragment : androidx.fragment.app.Fragment(),
     }
 
     private fun showBudgetDialog(id: Int) {
-        val dialog = BudgetDialog()
-        val args = Bundle()
-        args.putInt(CAT_INDEX, id)
-        dialog.arguments = args
-        dialog.show(childFragmentManager, "budgetDialog")
+        with(BudgetDialog()) {
+            arguments = Bundle().apply { putInt(CAT_INDEX, id) }
+            show(childFragmentManager, "budgetDialog")
+        }
     }
 
     private fun getBudgetText(): String {

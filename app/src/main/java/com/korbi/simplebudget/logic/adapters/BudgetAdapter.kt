@@ -62,6 +62,8 @@ class BudgetAdapter(private var expenses: MutableList<Expense>,
         holder.categoryIconView.setImageResource(iconId)
         holder.categoryBudgetView.text = getBudgetText(categories[position])
         holder.categoryProgressView.progress = getBudgetProgress(categories[position])
+
+
         if (getBudgetProgress(categories[position]) > 100) {
             holder.categoryBudgetView.setTextColor(ContextCompat.getColor(holder.itemView.context,
                     R.color.expenseColor))
@@ -94,9 +96,7 @@ class BudgetAdapter(private var expenses: MutableList<Expense>,
             interval == ALL_TIME -> {
                 if (maxAmount != 0) {
                     (categoryTotalSum.toFloat() / maxAmount.toFloat() * 100).toInt()
-                } else {
-                    0
-                }
+                } else 0
             }
             categoryTotalSum > 0 && budget != 0 -> {
                 ((categoryTotalSum.toFloat() / budget.toFloat()) * 100).toInt()

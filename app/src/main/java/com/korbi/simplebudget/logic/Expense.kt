@@ -47,6 +47,4 @@ data class Expense(var id: Int,
         result = 31 * result + interval
         return result
     }
-
-
 }

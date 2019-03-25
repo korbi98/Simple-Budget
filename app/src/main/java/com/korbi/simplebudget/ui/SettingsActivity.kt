@@ -56,7 +56,7 @@ class SettingsActivity : AppCompatActivity() {
 
     class MainPreferenceFragment : PreferenceFragmentCompat(), CurrencyDialog.OnDismissListener {
 
-        private lateinit var currency: Preference
+        private var currency: Preference? = null
         private lateinit var currencyList: Array<String>
         private lateinit var currencySymbols: Array<String>
         private lateinit var pref: SharedPreferences
@@ -64,29 +64,33 @@ class SettingsActivity : AppCompatActivity() {
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootkey: String?) {
 
             setPreferencesFromResource(R.xml.preferences, rootkey)
+            pref = PreferenceManager.getDefaultSharedPreferences(context)
 
             val packageName = BuildConfig.APPLICATION_ID
             val versionNumber = BuildConfig.VERSION_CODE
 
-            currency = findPreference(getString(R.string.settings_key_currency))!!
             currencyList = resources.getStringArray(R.array.currencies_with_names)
             currencySymbols = resources.getStringArray(R.array.currencies_symbols)
-            pref = PreferenceManager.getDefaultSharedPreferences(context)
 
-            val symbol = pref.getString(getString(R.string.settings_key_currency), currencySymbols[0])
-            currency.summary = when {
-                currencySymbols.contains(symbol) -> {
-                    currencyList[currencySymbols.indexOf(symbol)]
+            val symbol = pref.getString(
+                    getString(R.string.settings_key_currency), currencySymbols[0])
+
+            currency = findPreference(getString(R.string.settings_key_currency))
+            currency?.let {
+                it.summary = when {
+                    currencySymbols.contains(symbol) -> {
+                        currencyList[currencySymbols.indexOf(symbol)]
+                    }
+                    else -> symbol
                 }
-                else -> symbol
-            }
-
-            currency.onPreferenceClickListener = Preference.OnPreferenceClickListener {
-                val dialog = CurrencyDialog()
-                dialog.setTargetFragment(this, 0)
-                dialog.setListener(this)
-                dialog.show(fragmentManager!!, "currency_dialog")
-                true
+                it.onPreferenceClickListener = Preference.OnPreferenceClickListener {
+                    CurrencyDialog().run {
+                        setTargetFragment(this@MainPreferenceFragment, 0)
+                        setListener(this@MainPreferenceFragment)
+                        show(this@MainPreferenceFragment.requireFragmentManager(), "currency_dialog")
+                    }
+                    true
+                }
             }
 
             val historyGrouping = findPreference<ListPreference>(
@@ -140,7 +144,7 @@ class SettingsActivity : AppCompatActivity() {
         override fun onDialogDismiss() {
             val symbol = pref.getString(getString(R.string.settings_key_currency),
                                 currencySymbols[0])
-            currency.summary = when {
+            currency?.summary = when {
                 currencySymbols.contains(symbol) -> {
                     currencyList[currencySymbols.indexOf(symbol)]
                 }
@@ -150,7 +154,8 @@ class SettingsActivity : AppCompatActivity() {
 
         private fun updateWidget() {
             activity?.sendBroadcast(
-                    SimpleBudgetApp.updateWidgetIntent(context!!, activity!!.application))
+                    SimpleBudgetApp.updateWidgetIntent(requireContext(),
+                            requireActivity().application))
         }
     }
 }

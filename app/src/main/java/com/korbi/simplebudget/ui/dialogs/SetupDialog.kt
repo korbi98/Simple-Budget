@@ -33,6 +33,7 @@ import com.korbi.simplebudget.R
 import com.korbi.simplebudget.ui.fragments.DashboardFragment
 import com.korbi.simplebudget.ui.fragments.MONTHLY_INTERVAL
 import com.korbi.simplebudget.ui.fragments.WEEKLY_INTERVAL
+import kotlinx.android.synthetic.main.setup_dialog.*
 import java.lang.IllegalStateException
 
 class SetupDialog : DialogFragment(), CurrencyDialog.OnDismissListener {
@@ -62,37 +63,42 @@ class SetupDialog : DialogFragment(), CurrencyDialog.OnDismissListener {
                         dialog.dismiss()
                     }
 
-            val dialog = builder.create()
-            dialog.create()
-            dialog.setCancelable(false)
+            val dialog = builder.create().apply {
+                create()
+                setCancelable(false)
+            }
 
-            currencyButton = dialog.findViewById(R.id.setup_currency_choose_currency_button)
-            intervalChipGroup = dialog.findViewById(R.id.setup_interval_group)
-            startWeekChipGroup = dialog.findViewById(R.id.setup_week_start_group)
-            chipMonday = dialog.findViewById(R.id.chip_monday)
-            chipSunday = dialog.findViewById(R.id.chip_sunday)
-            chipMonthly = dialog.findViewById(R.id.chip_monthly)
-            chipWeekly = dialog.findViewById(R.id.chip_weekly)
+            currencyButton = dialog.setup_currency_choose_currency_button
+            intervalChipGroup = dialog.setup_interval_group
+            startWeekChipGroup = dialog.setup_week_start_group
+
+            chipMonday = dialog.chip_monday.apply {
+                setOnCheckedChangeListener { _, isChecked ->
+                    chipSunday.isChecked = !isChecked
+                }
+            }
+            chipSunday = dialog.chip_sunday.apply {
+                setOnCheckedChangeListener { _, isChecked ->
+                    chipMonday.isChecked = !isChecked
+                }
+            }
+            chipMonthly = dialog.chip_monthly.apply {
+                setOnCheckedChangeListener { _, isChecked ->
+                    chipWeekly.isChecked = !isChecked
+                }
+            }
+            chipWeekly = dialog.chip_weekly.apply {
+                setOnCheckedChangeListener { _, isChecked ->
+                    chipMonthly.isChecked = !isChecked
+                }
+            }
 
             setCurrencyText()
 
             currencyButton.setOnClickListener {
                 val currencyDialog = CurrencyDialog()
                 currencyDialog.setListener(this)
-                currencyDialog.show(fragmentManager!!, "currency_dialog")
-            }
-
-            chipMonthly.setOnCheckedChangeListener { _, isChecked ->
-                chipWeekly.isChecked = !isChecked
-            }
-            chipWeekly.setOnCheckedChangeListener { _, isChecked ->
-                chipMonthly.isChecked = !isChecked
-            }
-            chipMonday.setOnCheckedChangeListener { _, isChecked ->
-                chipSunday.isChecked = !isChecked
-            }
-            chipSunday.setOnCheckedChangeListener { _, isChecked ->
-                chipMonday.isChecked = !isChecked
+                currencyDialog.show(requireFragmentManager(), "currency_dialog")
             }
 
             dialog
@@ -114,6 +120,7 @@ class SetupDialog : DialogFragment(), CurrencyDialog.OnDismissListener {
         }
     }
 
+    // when currency dialog is dismissed
     override fun onDialogDismiss() {
         setCurrencyText()
     }
