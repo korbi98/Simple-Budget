@@ -245,7 +245,7 @@ class AddExpenses : AppCompatActivity() {
                 text = cat.name
                 isClickable = true
                 isCheckable = true
-                chipBackgroundColor = ContextCompat.getColorStateList(this@AddExpenses,
+                chipBackgroundColor = ContextCompat.getColorStateList(context,
                         R.color.custom_choice_chip_selector)
                 setChipIconTintResource(R.color.text_color_white)
                 setChipIconResource(iconIdArray.getResourceId(cat.icon ,-1))

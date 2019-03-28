@@ -79,7 +79,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:chipBackgroundColor="@color/custom_choice_chip_selector"
-            style="@style/Widget.MaterialComponents.Chip.Choice"/>
+            style="@style/Widget.MaterialComponents.Chip.Choice" />
 
         <com.google.android.material.chip.Chip
             android:id="@+id/chip_expense"
