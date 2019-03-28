@@ -30,6 +30,7 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.korbi.simplebudget.R
 import com.korbi.simplebudget.SimpleBudgetApp
+import com.korbi.simplebudget.SimpleBudgetApp.Companion.decimalFormat
 import com.korbi.simplebudget.database.DBhandler
 import com.korbi.simplebudget.logic.Category
 import com.korbi.simplebudget.logic.Expense
@@ -107,18 +108,12 @@ class BudgetAdapter(private var expenses: MutableList<Expense>,
 
     private fun getBudgetText(category: Category): String {
 
-        val decimalFormat = DecimalFormat(SimpleBudgetApp.res.getString(R.string.number_format))
-
         val onLeft = SimpleBudgetApp.pref.getBoolean(
                 SimpleBudgetApp.res.getString(R.string.settings_key_currency_left), false)
-        val noDecimal = SimpleBudgetApp.pref.getBoolean(
-                SimpleBudgetApp.res.getString(R.string.settings_key_currency_decimal), false)
 
         val budget = getIntervalBudget(category, interval)
-        val catExpenses = when (noDecimal) {
-            true -> getCategoryExpenses(category).toString()
-            false -> decimalFormat.format(getCategoryExpenses(category).toFloat()/100)
-        }
+        val catExpenses =
+                SimpleBudgetApp.createCurrencyString(getCategoryExpenses(category), true, !onLeft)
 
         val currencySymbol = SimpleBudgetApp.pref.getString(
                 SimpleBudgetApp.res.getString(R.string.settings_key_currency),
@@ -126,21 +121,17 @@ class BudgetAdapter(private var expenses: MutableList<Expense>,
 
         return when {
             interval == ALL_TIME -> {
-                SimpleBudgetApp.createCurrencyString(getCategoryExpenses(category))
+                SimpleBudgetApp.createCurrencyString(getCategoryExpenses(category), true)
             }
             budget != 0 -> {
-                val budgetStr = when (noDecimal) {
-                    true -> budget.toString()
-                    false -> decimalFormat.format(budget.toFloat()/100)
-                }
-                when (onLeft) {
-                    true -> "$currencySymbol $catExpenses / $budgetStr"
-                    false -> "$catExpenses / $budgetStr $currencySymbol"
-                }
+                val budgetStr =
+                        SimpleBudgetApp.createCurrencyString(budget, true, onLeft)
+
+                "$catExpenses / $budgetStr"
             }
             else -> {
                 when (onLeft) {
-                    true -> "$currencySymbol $catExpenses / -"
+                    true -> "$catExpenses / -"
                     false -> "$catExpenses / - $currencySymbol"
                 }
             }

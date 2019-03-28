@@ -30,10 +30,7 @@ import com.korbi.simplebudget.R
 import com.korbi.simplebudget.SimpleBudgetApp
 import com.korbi.simplebudget.database.DBhandler
 import com.korbi.simplebudget.logic.*
-import com.korbi.simplebudget.ui.fragments.BudgetFragment
-import com.korbi.simplebudget.ui.fragments.MONTHLY_INTERVAL
-import com.korbi.simplebudget.ui.fragments.SET_TOTAL_BUDGET
-import com.korbi.simplebudget.ui.fragments.WEEKLY_INTERVAL
+import com.korbi.simplebudget.ui.fragments.*
 import kotlinx.android.synthetic.main.budget_dialog.*
 import java.text.DecimalFormatSymbols
 
@@ -67,6 +64,13 @@ class BudgetDialog : DialogFragment() {
         return activity?.let {
             val dialog = AlertDialog.Builder(it).run {
 
+                catIndex = arguments?.getInt(CAT_INDEX) ?: 0
+                if (catIndex != SET_TOTAL_BUDGET) {
+                    category = db.getCategoryById(catIndex)
+                } else {
+                    catIndex = -100
+                }
+
                 val message = "${getString(R.string.dialog_budget_message)} " +
                         SimpleBudgetApp.createCurrencyString(0)
                 if (catIndex == -100) {
@@ -93,13 +97,6 @@ class BudgetDialog : DialogFragment() {
 
             currencySymbol = SimpleBudgetApp.pref.getString(
                     getString(R.string.settings_key_currency), "$")
-
-            catIndex = arguments?.getInt(CAT_INDEX) ?: 0
-            if (catIndex != SET_TOTAL_BUDGET) {
-                category = db.getCategoryById(catIndex)
-            } else {
-                catIndex = -100
-            }
 
             budgetInput = dialog.budget_dialog_input
             inputLayout = dialog.budget_dialog_input_layout

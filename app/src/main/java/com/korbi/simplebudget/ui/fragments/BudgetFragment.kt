@@ -153,9 +153,9 @@ class BudgetFragment : androidx.fragment.app.Fragment(),
     }
 
     private fun showBudgetDialog(id: Int) {
-        with(BudgetDialog()) {
-            arguments = Bundle().apply { putInt(CAT_INDEX, id) }
-            show(childFragmentManager, "budgetDialog")
+        BudgetDialog().let {
+            it.arguments = Bundle().apply { putInt(CAT_INDEX, id) }
+            it.show(childFragmentManager, "budgetDialog")
         }
     }
 
@@ -165,12 +165,15 @@ class BudgetFragment : androidx.fragment.app.Fragment(),
         val categoryTotalSum = -categoryExpenses.sumBy { it.cost }
         val budget = getIntervalBudget(selectedInterval)
 
-        var budgetString = SimpleBudgetApp.createCurrencyString(categoryTotalSum)
+        val onLeft = SimpleBudgetApp.pref.getBoolean(
+                SimpleBudgetApp.res.getString(R.string.settings_key_currency_left), false)
+
+        var budgetString = SimpleBudgetApp.createCurrencyString(categoryTotalSum, true, !onLeft)
 
         budgetString = when {
             selectedInterval == ALL_TIME -> budgetString
             budget != 0 -> {
-                val str = SimpleBudgetApp.createCurrencyString(budget)
+                val str = SimpleBudgetApp.createCurrencyString(budget, true, onLeft)
                 "$budgetString / $str"
             }
             else -> getString(R.string.no_budget_set_info)

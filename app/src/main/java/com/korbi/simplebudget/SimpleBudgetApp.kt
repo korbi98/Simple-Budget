@@ -16,7 +16,6 @@
 
 package com.korbi.simplebudget
 
-import android.app.Activity
 import android.app.Application
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
@@ -24,19 +23,16 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.res.Resources
-import android.graphics.drawable.Drawable
-import android.util.Log
-import androidx.preference.Preference
 import androidx.preference.PreferenceManager
 import com.jakewharton.threetenabp.AndroidThreeTen
 import com.korbi.simplebudget.database.DBhandler
-import com.korbi.simplebudget.logic.DateHelper
 import com.korbi.simplebudget.logic.Expense
 import com.korbi.simplebudget.logic.MONTHLY_ROOT
 import com.korbi.simplebudget.logic.WEEKLY_ROOT
 import com.korbi.simplebudget.widget.SimpleBudgetWidget
 import org.threeten.bp.LocalDate
 import java.text.DecimalFormat
+import kotlin.math.round
 
 class SimpleBudgetApp : Application() {
 
@@ -45,20 +41,33 @@ class SimpleBudgetApp : Application() {
         lateinit var pref: SharedPreferences
         lateinit var decimalFormat: DecimalFormat
 
-        fun createCurrencyString(amount: Int): String {
+        fun createCurrencyString(amount: Int,
+                                 omitDecimalIfInteger: Boolean = false,
+                                 omitCurrencySymbol: Boolean = false): String {
+
             val onLeft = pref.getBoolean(
                     res.getString(R.string.settings_key_currency_left), false)
             val noDecimal = pref.getBoolean(
                     res.getString(R.string.settings_key_currency_decimal), false)
             val amountString = when (noDecimal) {
-                false -> decimalFormat.format(amount.toFloat()/100).toString()
+                false -> {
+                    val decimalAmount = amount.toFloat()/100
+                    val hasNoDecimal = round(decimalAmount) == decimalAmount
+
+                    if (omitDecimalIfInteger && hasNoDecimal) {
+                        round(decimalAmount).toInt().toString()
+                    } else {
+                        decimalFormat.format(amount.toFloat()/100).toString()
+                    }
+                }
                 true -> amount.toString()
             }
             val currencySymbol = pref.getString(res.getString(R.string.settings_key_currency),
                                     res.getStringArray(R.array.currencies_symbols)[0])
-            return when (onLeft) {
-                false -> "$amountString $currencySymbol"
-                true -> "$currencySymbol $amountString"
+            return when {
+                omitCurrencySymbol -> amountString
+                onLeft -> "$currencySymbol $amountString"
+                else -> "$amountString $currencySymbol"
             }
         }
 
