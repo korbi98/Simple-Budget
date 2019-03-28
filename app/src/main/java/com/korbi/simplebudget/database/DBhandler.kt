@@ -99,12 +99,13 @@ class DBhandler(context: Context, private val defaultCategories: Array<String>) 
     fun addExpense(expense: Expense) {
         val db = this.writableDatabase
 
-        val values = ContentValues()
-        values.put(COL_DESCRIPTION, expense.description)
-        values.put(COL_COST, expense.cost)
-        values.put(COL_DATE, dateFormatter.format(expense.date))
-        values.put(COL_CATEGORY, expense.category.id)
-        values.put(COL_INTERVAL, expense.interval)
+        val values = ContentValues().apply {
+            put(COL_DESCRIPTION, expense.description)
+            put(COL_COST, expense.cost)
+            put(COL_DATE, dateFormatter.format(expense.date))
+            put(COL_CATEGORY, expense.category.id)
+            put(COL_INTERVAL, expense.interval)
+        }
 
         db.insert(EXPENSE_TABLE, null, values)
     }
@@ -211,12 +212,13 @@ class DBhandler(context: Context, private val defaultCategories: Array<String>) 
     fun updateExpense(expense: Expense) {
         val db = this.writableDatabase
 
-        val values = ContentValues()
-        values.put(COL_DESCRIPTION, expense.description)
-        values.put(COL_COST, expense.cost)
-        values.put(COL_DATE, dateFormatter.format(expense.date))
-        values.put(COL_CATEGORY, expense.category.id)
-        values.put(COL_INTERVAL, expense.interval)
+        val values = ContentValues().apply {
+            put(COL_DESCRIPTION, expense.description)
+            put(COL_COST, expense.cost)
+            put(COL_DATE, dateFormatter.format(expense.date))
+            put(COL_CATEGORY, expense.category.id)
+            put(COL_INTERVAL, expense.interval)
+        }
 
         db.update(EXPENSE_TABLE, values, "$COL_ID = ?", arrayOf(expense.id.toString()))
     }
@@ -256,10 +258,11 @@ class DBhandler(context: Context, private val defaultCategories: Array<String>) 
 
         val db = this.writableDatabase
 
-        val values = ContentValues()
-        values.put(COL_CATEGORY, category.name)
-        values.put(COL_DRAWABLE, category.icon)
-        values.put(COL_POSITION, category.position)
+        val values = ContentValues().apply {
+            put(COL_CATEGORY, category.name)
+            put(COL_DRAWABLE, category.icon)
+            put(COL_POSITION, category.position)
+        }
 
         db.insert(CATEGORY_TABLE, null, values)
     }
@@ -313,12 +316,13 @@ class DBhandler(context: Context, private val defaultCategories: Array<String>) 
     fun updateCategory(category: Category): Int {
 
         val db = this.writableDatabase
-        val values = ContentValues()
-        values.put(COL_CATEGORY, category.name)
-        values.put(COL_DRAWABLE, category.icon)
-        values.put(COL_POSITION, category.position)
-        values.put(COL_BUDGET, category.budget)
-        values.put(COL_INTERVAL, category.interval)
+        val values = ContentValues().apply {
+            put(COL_CATEGORY, category.name)
+            put(COL_DRAWABLE, category.icon)
+            put(COL_POSITION, category.position)
+            put(COL_BUDGET, category.budget)
+            put(COL_INTERVAL, category.interval)
+        }
 
         return db.update(CATEGORY_TABLE, values, "$COL_ID = ?",
                 arrayOf(category.id.toString()))

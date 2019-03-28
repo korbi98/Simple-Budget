@@ -68,6 +68,11 @@ class ManageCategories : AppCompatActivity(), AddEditCategoryDialog.OnSaveListen
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
     }
 
+    override fun onPause() {
+        super.onPause()
+        categoryAdapter.updatePositions()
+    }
+
     override fun onSupportNavigateUp(): Boolean {
         onBackPressed()
         return true
@@ -162,8 +167,6 @@ class ManageCategories : AppCompatActivity(), AddEditCategoryDialog.OnSaveListen
         db.deleteCategory(category)
         categoryList.remove(category)
         categoryAdapter.notifyItemRemoved(category.position)
-        for ((pos, cat) in categoryList.withIndex()) {
-            db.updatePosition(cat, pos)
-        }
+        categoryAdapter.updatePositions()
     }
 }

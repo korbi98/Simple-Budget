@@ -74,9 +74,12 @@ class CategoryAdapter(val categoryList: MutableList<Category>,
         Collections.swap(categoryList, fromPosition, toPosition)
 
         notifyItemMoved(fromPosition, toPosition)
+    }
 
+    fun updatePositions() {
         for ((pos, cat) in categoryList.withIndex()) {
             DBhandler.getInstance().updatePosition(cat, pos)
+            categoryList[pos].position = pos
         }
     }
 
@@ -98,15 +101,13 @@ class CategoryAdapter(val categoryList: MutableList<Category>,
                 val edit = menu.add(Menu.NONE, 1, 1, itemView.context.getString(R.string.edit))
                 val delete = menu.add(Menu.NONE, 2, 2, itemView.context.getString(R.string.delete))
                 edit.setOnMenuItemClickListener {
-
+                    updatePositions()
                     editListener.onEdit(categoryList[adapterPosition])
 
                     true
                 }
                 delete.setOnMenuItemClickListener {
-                    for ((pos, cat) in categoryList.withIndex()) {
-                        DBhandler.getInstance().updatePosition(cat, pos)
-                    }
+                    updatePositions()
                     val categoryToDelete = categoryList[adapterPosition]
                     editListener.onDelete(categoryToDelete)
                     true
