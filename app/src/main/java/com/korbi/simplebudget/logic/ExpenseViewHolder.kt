@@ -18,10 +18,14 @@ package com.korbi.simplebudget.logic
 
 import android.content.Context
 import android.content.res.TypedArray
+import android.text.SpannableString
+import android.text.SpannableStringBuilder
+import android.text.style.RelativeSizeSpan
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.content.ContextCompat
+import androidx.core.text.bold
 import com.bignerdranch.expandablerecyclerview.ChildViewHolder
 import com.korbi.simplebudget.R
 import com.korbi.simplebudget.SimpleBudgetApp
@@ -40,6 +44,8 @@ class ExpenseViewHolder(expenseListening: View, listener: ExpenseAdapterListener
     private val dateFormatter = DateTimeFormatter.ofPattern("dd.MM.yy")
     private val iconIdArray: TypedArray = context.resources.obtainTypedArray(R.array.category_icons)
 
+    private var indicateRecurring = false
+
     init {
         expenseListening.setOnLongClickListener(){
             listener.onItemLongClicked(parentAdapterPosition, childAdapterPosition, it)
@@ -48,6 +54,9 @@ class ExpenseViewHolder(expenseListening: View, listener: ExpenseAdapterListener
         expenseListening.setOnClickListener {
             listener.onItemClicked(parentAdapterPosition, childAdapterPosition)
         }
+
+        indicateRecurring = SimpleBudgetApp.pref.getBoolean(
+                context.getString(R.string.settings_key_show_recurring_symbol), true)
     }
 
     fun bind(expense: Expense) {
@@ -65,6 +74,14 @@ class ExpenseViewHolder(expenseListening: View, listener: ExpenseAdapterListener
             expenseDescription.text = expense.category.name
         } else {
             expenseDescription.text = expense.description
+        }
+
+        if (expense.interval != NON_RECURRING && indicateRecurring) {
+            val recurringSymbol = SpannableStringBuilder().bold { append(" \u27F3") }
+            val enlargedBoldSymbol = SpannableString(recurringSymbol)
+            enlargedBoldSymbol.setSpan(RelativeSizeSpan(1.25f), 1, 2, 0)
+
+            expenseDescription.append(enlargedBoldSymbol)
         }
     }
 

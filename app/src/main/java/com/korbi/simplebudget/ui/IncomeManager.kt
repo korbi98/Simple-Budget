@@ -86,8 +86,7 @@ class IncomeManager : AppCompatActivity(), AddEditRecurrentEntryDialog.OnSaveLis
             setPositiveButton(R.string.stop_in_future) { dialog, _ ->
                 incomeList.remove(income)
                 incomeAdapter.notifyDataSetChanged()
-                income.interval = NON_RECURRING
-                db.updateExpense(income)
+                db.convertToNonRecurring(income)
                 dialog.dismiss()
             }
             show()

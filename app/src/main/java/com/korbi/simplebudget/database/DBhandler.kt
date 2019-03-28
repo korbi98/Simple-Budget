@@ -238,6 +238,17 @@ class DBhandler(context: Context, private val defaultCategories: Array<String>) 
         db.delete(EXPENSE_TABLE, "$COL_CATEGORY = ?", arrayOf(category.id.toString()))
     }
 
+    fun convertToNonRecurring(income: Expense) {
+        val db = this.writableDatabase
+        if (income.interval == WEEKLY_ROOT || income.interval == MONTHLY_ROOT) {
+            val values = ContentValues()
+            values.put(COL_INTERVAL, NON_RECURRING)
+            db.update(EXPENSE_TABLE, values, "$COL_INTERVAL = ?", arrayOf(income.id.toString()))
+            income.interval = NON_RECURRING
+            updateExpense(income)
+        }
+    }
+
     fun deleteRecurringEntry(income: Expense) {
         val db = this.writableDatabase
         if (income.interval == WEEKLY_ROOT || income.interval == MONTHLY_ROOT) {

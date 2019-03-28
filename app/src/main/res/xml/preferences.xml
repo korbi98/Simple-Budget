@@ -40,6 +40,12 @@
             android:title="@string/settings_start_week_sunday"
             app:iconSpaceReserved="false"/>
 
+        <SwitchPreference
+            android:key="@string/settings_key_show_recurring_symbol"
+            android:title="@string/show_recurring_symbol"
+            android:defaultValue="true"
+            app:iconSpaceReserved="false"/>
+
         <CheckBoxPreference
             android:key="@string/dont_show_again_key"
             android:title="@string/dont_show_again_settings"

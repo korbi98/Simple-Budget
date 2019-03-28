@@ -156,7 +156,7 @@
     <string name="settings_history_grouping">Grouping in History and Widget</string>
     <string name="settings_key_start_week_sunday">key_start_week_sunday</string>
     <string name="settings_start_week_sunday">Start week on Sunday instead of Monday</string>
-    <string name="settings_key_initial_start">key_inital_start</string>
+    <string name="settings_key_initial_start">key_initial_start</string>
     <string name="choose_currency">Select your currency:\n</string>
     <string name="currency_default">Dollar $</string>
     <string name="monday">Monday</string>
@@ -164,6 +164,8 @@
     <string name="choose_interval">Choose grouping/interval for expenses in widget and history:</string>
     <string name="choose_week_start">Choose first day of week:</string>
     <string name="setup_dialog_title">Initial setup</string>
+    <string name="settings_key_show_recurring_symbol">key_recurring_symbol</string>
+    <string name="show_recurring_symbol">Indicate recurrent entries with symbol (\u27F3)</string>
 
 
     <string-array name="default_categories">
