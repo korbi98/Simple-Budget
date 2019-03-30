@@ -60,8 +60,9 @@ class SimpleBudgetApp : Application() {
                         decimalFormat.format(amount.toFloat()/100).toString()
                     }
                 }
-                true -> amount.toString()
+                true -> String.format("%,d", amount)
             }
+
             val currencySymbol = pref.getString(res.getString(R.string.settings_key_currency),
                                     res.getStringArray(R.array.currencies_symbols)[0])
             return when {

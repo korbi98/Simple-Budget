@@ -79,7 +79,7 @@ class ExpenseViewHolder(expenseListening: View, listener: ExpenseAdapterListener
         if (expense.interval != NON_RECURRING && indicateRecurring) {
             val recurringSymbol = SpannableStringBuilder().bold { append(" \u27F3") }
             val enlargedBoldSymbol = SpannableString(recurringSymbol)
-            enlargedBoldSymbol.setSpan(RelativeSizeSpan(1.25f), 1, 2, 0)
+            enlargedBoldSymbol.setSpan(RelativeSizeSpan(1.3f), 1, 2, 0)
 
             expenseDescription.append(enlargedBoldSymbol)
         }
