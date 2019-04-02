@@ -55,10 +55,10 @@
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/about_app"
+        android:selectable="false"
         app:iconSpaceReserved="false">
 
         <Preference
-            android:selectable="false"
             android:summary="@string/summary_about"
             app:iconSpaceReserved="false"/>
 

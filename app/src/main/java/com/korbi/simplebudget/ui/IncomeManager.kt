@@ -107,7 +107,7 @@ class IncomeManager : AppCompatActivity(), AddEditRecurrentEntryDialog.OnSaveLis
         }
     }
 
-    fun checkIfShowEmptyMessage() {
+    private fun checkIfShowEmptyMessage() {
         incomeRecyclerView.visibility = when {
             incomeList.isEmpty() -> View.GONE
             else -> View.VISIBLE

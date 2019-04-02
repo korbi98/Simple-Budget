@@ -21,6 +21,7 @@ import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Bundle
 import android.preference.PreferenceManager
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.ListPreference
 import androidx.preference.Preference
@@ -67,7 +68,7 @@ class SettingsActivity : AppCompatActivity() {
             pref = PreferenceManager.getDefaultSharedPreferences(context)
 
             val packageName = BuildConfig.APPLICATION_ID
-            val versionNumber = BuildConfig.VERSION_CODE
+            val versionNumber = BuildConfig.VERSION_NAME
 
             currencyList = resources.getStringArray(R.array.currencies_with_names)
             currencySymbols = resources.getStringArray(R.array.currencies_symbols)
@@ -101,7 +102,8 @@ class SettingsActivity : AppCompatActivity() {
             }
 
             val version = findPreference<Preference>(getString(R.string.about_version_number_key))
-            version?.summary = versionNumber.toString()
+            version?.summary = versionNumber
+            version?.isSelectable = false
 
             val sendFeedback = findPreference<Preference>(getString(R.string.key_send_feedback))
             sendFeedback?.onPreferenceClickListener = Preference.OnPreferenceClickListener {
@@ -139,6 +141,12 @@ class SettingsActivity : AppCompatActivity() {
 
                 true
             }
+
+            val licenses = findPreference<Preference>(getString(R.string.licenses_key))
+            licenses?.setOnPreferenceClickListener {
+                showLicenses()
+                true
+            }
         }
 
         override fun onDialogDismiss() {
@@ -149,6 +157,17 @@ class SettingsActivity : AppCompatActivity() {
                     currencyList[currencySymbols.indexOf(symbol)]
                 }
                 else -> symbol
+            }
+        }
+
+        private fun showLicenses() {
+            with(AlertDialog.Builder(requireContext())) {
+                setTitle(getString(R.string.licenses))
+                setPositiveButton(getString(R.string.ok)) { dialog, _ ->
+                    dialog.dismiss()
+                }
+                setView(R.layout.licenses_layout)
+                show()
             }
         }
 
