@@ -166,6 +166,8 @@
     <string name="setup_dialog_title">Initial setup</string>
     <string name="settings_key_show_recurring_symbol">key_recurring_symbol</string>
     <string name="show_recurring_symbol">Indicate recurrent entries with symbol (\u27F3)</string>
+    <string name="empty_pie_message">Nothing to show here!\n\n Add expenses by clicking the button below</string>
+    <string name="empty_income_list_message">Nothing to show here!\n\nAdd regular income/expenses by pressing the + button</string>
 
 
     <string-array name="default_categories">

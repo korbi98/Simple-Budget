@@ -190,7 +190,11 @@ class PieChartFragment : androidx.fragment.app.Fragment(),  DashboardFragment.Da
             dashboard.getExpensesForInterval(SimpleBudgetApp.pref.getInt(
                     getString(R.string.dashboard_time_selection_key), 1), 0)
         }
-        createPieData(expenses)
+        if (expenses.filter { it.cost < 0 } .sumBy { it.cost } != 0) {
+            pieChart.visibility = View.VISIBLE
+            createPieData(expenses)
+        } else pieChart.visibility = View.GONE
+
     }
 
     private fun getCurrencyString(amount: Int): String {

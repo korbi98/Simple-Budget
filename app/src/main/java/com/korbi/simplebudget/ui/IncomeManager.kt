@@ -21,6 +21,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -55,6 +56,7 @@ class IncomeManager : AppCompatActivity(), AddEditRecurrentEntryDialog.OnSaveLis
             setHasFixedSize(true)
         }
 
+        checkIfShowEmptyMessage()
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
     }
 
@@ -68,6 +70,8 @@ class IncomeManager : AppCompatActivity(), AddEditRecurrentEntryDialog.OnSaveLis
             incomeList.add(income)
             incomeAdapter.notifyItemInserted(incomeList.indexOf(income))
         }
+
+        checkIfShowEmptyMessage()
     }
 
     override fun onDelete(income: Expense) {
@@ -81,12 +85,14 @@ class IncomeManager : AppCompatActivity(), AddEditRecurrentEntryDialog.OnSaveLis
                 incomeList.remove(income)
                 incomeAdapter.notifyDataSetChanged()
                 db.deleteRecurringEntry(income)
+                checkIfShowEmptyMessage()
                 dialog.dismiss()
             }
             setPositiveButton(R.string.stop_in_future) { dialog, _ ->
                 incomeList.remove(income)
                 incomeAdapter.notifyDataSetChanged()
                 db.convertToNonRecurring(income)
+                checkIfShowEmptyMessage()
                 dialog.dismiss()
             }
             show()
@@ -98,6 +104,13 @@ class IncomeManager : AppCompatActivity(), AddEditRecurrentEntryDialog.OnSaveLis
         AddEditRecurrentEntryDialog().run {
             arguments = Bundle().apply { putInt(INCOME_INDEX, income.id) }
             show(supportFragmentManager, "addEditRecurrentEntryDialog")
+        }
+    }
+
+    fun checkIfShowEmptyMessage() {
+        incomeRecyclerView.visibility = when {
+            incomeList.isEmpty() -> View.GONE
+            else -> View.VISIBLE
         }
     }
 

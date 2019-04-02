@@ -106,6 +106,7 @@ class HistoryAdapter(private val historyEntries: MutableList<HistoryEntry>,
     fun resetCurrentIndex() {
         currentSelectedChild = -1
         currentSelectedParent = -1
+        notifyDataSetChanged()
     }
 
     fun initializeSelectedItems() {

@@ -25,4 +25,12 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
+    <TextView
+        android:id="@+id/dashboard_pie_chart_empty_message"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAlignment="center"
+        android:layout_marginTop="32dp"
+        android:text="@string/empty_pie_message"/>
+
 </LinearLayout>

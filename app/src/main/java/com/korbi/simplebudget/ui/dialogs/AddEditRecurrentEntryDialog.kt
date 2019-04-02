@@ -153,7 +153,7 @@ class AddEditRecurrentEntryDialog : DialogFragment() {
         val id = prefillIncome?.id ?: db.getLatestID()
         val name = descriptionInput.text.toString()
         val amount = when (noDecimal) {
-            false, null -> round(amountString.toFloat() * 100).toInt()
+            false, null -> round(amountString.toFloat() * -100).toInt()
             true -> amountString.toInt()
         }
         val category = when {
