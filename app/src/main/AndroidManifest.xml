@@ -29,9 +29,12 @@
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning"
         android:fullBackupContent="true">
+
+        <!-- empty text for label to prevent showing app name before setTitle animation.
+         Whitespace is necessary -->
         <activity
             android:name=".MainActivity"
-            android:label="@string/app_name"
+            android:label=" "
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -39,12 +42,22 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity
             android:name=".ui.SettingsActivity"
-            android:label="@string/title_activity_settings" />
-        <activity android:name=".ui.AddExpenses" />
-        <activity android:name=".ui.ManageCategories" />
-        <activity android:name=".ui.IncomeManager"/>
+            android:label="@string/title_activity_settings"
+            android:theme="@style/defaultActionbar"/>
+
+        <activity android:name=".ui.AddExpenses"
+            android:theme="@style/defaultActionbar" />
+
+        <activity android:name=".ui.ManageCategories"
+            android:theme="@style/defaultActionbar"
+            android:label="@string/manage_categories_titel"/>
+
+        <activity android:name=".ui.IncomeManager"
+            android:theme="@style/defaultActionbar"
+            android:label="@string/income_manager_titel"/>
 
         <receiver android:name=".widget.SimpleBudgetWidget" >
             <intent-filter>

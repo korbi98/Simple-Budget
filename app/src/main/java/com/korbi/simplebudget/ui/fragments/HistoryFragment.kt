@@ -20,13 +20,15 @@ import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.*
 import androidx.recyclerview.widget.RecyclerView
 import com.korbi.simplebudget.R
 import com.korbi.simplebudget.database.DBhandler
 import com.korbi.simplebudget.logic.adapters.HistoryAdapter
-import android.view.*
 import android.widget.SearchView
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.view.ActionMode
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bignerdranch.expandablerecyclerview.ExpandableRecyclerAdapter
 import com.korbi.simplebudget.MainActivity
@@ -135,37 +137,36 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
         updateOptionsMenu()
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
+    override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
+        R.id.menu_history_filter -> {
 
-            R.id.menu_history_filter -> {
-
-                val bundle = Bundle()
-                bundle.putInt(TYPE_PREFILL, (activity as MainActivity).typeSelection)
-                bundle.putInt(DATE_PREFILL, (activity as MainActivity).dateSelection)
-                bundle.putString(FROM_DATE_PRESELECT,
+            val bundle = Bundle().apply {
+                putInt(TYPE_PREFILL, (activity as MainActivity).typeSelection)
+                putInt(DATE_PREFILL, (activity as MainActivity).dateSelection)
+                putString(FROM_DATE_PRESELECT,
                         dateFormatter.format((activity as MainActivity).fromDateSelection))
-                bundle.putString(TO_DATE_PRESELECT,
+                putString(TO_DATE_PRESELECT,
                         dateFormatter.format((activity as MainActivity).toDateSelection))
-                bundle.putBooleanArray(CATEGORY_PRESELECT,
+                putBooleanArray(CATEGORY_PRESELECT,
                         (activity as MainActivity).categorySelection)
-
-                val filterFragment = FilterBottomSheet()
-                filterFragment.arguments = bundle
-                filterFragment.setListener(this)
-                filterFragment.show(requireActivity().supportFragmentManager, filterFragment.tag)
-                true
             }
 
-            R.id.menu_history_filter_reset -> {
-                onSelectionChanged(TYPE_BOTH, SELECT_ALL,
-                        (activity as MainActivity).fromDateSelection,
-                        (activity as MainActivity).toDateSelection,
-                        BooleanArray((activity as MainActivity).categorySelection.size){true})
-                true
+            FilterBottomSheet().also {
+                it.arguments = bundle
+                it.setListener(this)
+                it.show(requireActivity().supportFragmentManager, tag)
             }
-            else -> false
+            true
         }
+
+        R.id.menu_history_filter_reset -> {
+            onSelectionChanged(TYPE_BOTH, SELECT_ALL,
+                    (activity as MainActivity).fromDateSelection,
+                    (activity as MainActivity).toDateSelection,
+                    BooleanArray((activity as MainActivity).categorySelection.size){true})
+            true
+        }
+        else -> super.onOptionsItemSelected(item)
     }
 
     private fun getHistoryEntries(type: Int,
@@ -416,7 +417,8 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
 
         when (mActionMode) {
             null -> {
-                mActionMode = activity?.startActionMode(mActionModeCallBack)
+                mActionMode = (activity as AppCompatActivity)
+                        .startSupportActionMode(mActionModeCallBack)
                 view.isSelected = true
             }
         }

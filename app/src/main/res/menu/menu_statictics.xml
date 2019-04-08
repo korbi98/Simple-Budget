@@ -15,23 +15,17 @@
   ~ limitations under the License.
   -->
 
-<menu xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <item android:id="@+id/menu_dashboard_interval_done"
+    <item android:id="@+id/menu_statistic_interval_done"
         android:title="@string/interval"
         android:icon="@drawable/ic_done_white_24px"
         app:showAsAction="ifRoom" />
 
-    <item android:id="@+id/menu_dashboard_time_interval"
+    <item android:id="@+id/menu_statistic_time_interval"
         android:title="@string/interval"
         android:icon="@drawable/ic_date_range_white_24dp"
         app:showAsAction="ifRoom" />
-    <item android:id="@+id/menu_dashboard_categories"
-        android:title="@string/menu_categories" />
-    <item android:id="@+id/menu_dashboard_regular_income"
-        android:title="@string/menu_regular_income" />
-    <item android:id="@+id/menu_dashboard_settings"
-        android:title="@string/menu_settings" />
 
 </menu>

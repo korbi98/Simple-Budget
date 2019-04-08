@@ -17,9 +17,17 @@
 package com.korbi.simplebudget
 
 import android.os.Bundle
+import android.util.Log
 import android.view.*
+import android.view.animation.AlphaAnimation
+import android.view.animation.Animation
+import android.widget.TextView
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentPagerAdapter
+import androidx.fragment.app.FragmentStatePagerAdapter
+import androidx.viewpager.widget.ViewPager
 import com.jakewharton.threetenabp.AndroidThreeTen
 import com.korbi.simplebudget.database.DBhandler
 import com.korbi.simplebudget.logic.DateHelper
@@ -32,31 +40,41 @@ import org.threeten.bp.LocalDate
 
 class MainActivity : AppCompatActivity() {
 
-    val expandedStateMap = HashMap<Int, Boolean>()
+    interface OnBackListener {
+        fun onBackPressed()
+    }
 
+    val expandedStateMap = HashMap<Int, Boolean>()
     var typeSelection = TYPE_BOTH //0 for both, 1 for expenses, 2 for income
     var dateSelection = SELECT_ALL //0 last 30 days, 1 last 90 days, 2 this year, 3 all time
     lateinit var fromDateSelection: LocalDate
     lateinit var toDateSelection: LocalDate
     lateinit var categorySelection: BooleanArray //1 if category selected 0 else
 
+    private lateinit var listener: OnBackListener
+
+    var dashboard: DashboardFragment? = null
+    private var history: HistoryFragment? = null
+    private var statistics: StatisticFragment? = null
+    private var activeFragment: Fragment? = dashboard
+
+
     private val mOnNavigationItemSelectedListener =
                                 BottomNavigationView.OnNavigationItemSelectedListener { item ->
 
         when (item.itemId) {
             R.id.navigation_history -> {
-                supportActionBar?.title = getString(R.string.title_history)
-                showFragment(HistoryFragment())
+                setTitle(getString(R.string.title_history))
+                showFragment(history)
                 return@OnNavigationItemSelectedListener true
             }
             R.id.navigation_dashboard -> {
-                supportActionBar?.title = getString(R.string.title_dashboard)
-                showFragment(DashboardFragment())
+                showFragment(dashboard)
                 return@OnNavigationItemSelectedListener true
             }
             R.id.navigation_statistic -> {
-                supportActionBar?.title = getString(R.string.title_statistic)
-                showFragment(StatisticFragment())
+                setTitle(getString(R.string.title_statistic))
+                showFragment(statistics)
                 return@OnNavigationItemSelectedListener true
             }
         }
@@ -67,8 +85,11 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        setSupportActionBar(toolbar)
+
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
         navigation.selectedItemId = R.id.navigation_dashboard
+        showFragment(dashboard)
 
         // make sure, that the keyboard doesn't push the bottomnavigationbar upwards
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING)
@@ -81,8 +102,6 @@ class MainActivity : AppCompatActivity() {
                         getString(R.string.settings_key_initial_start), true)) {
             SetupDialog().show(supportFragmentManager, "setup_dialog")
         }
-
-        showFragment(DashboardFragment())
     }
 
     override fun onPause() {
@@ -90,12 +109,63 @@ class MainActivity : AppCompatActivity() {
         updateWidget()
     }
 
-    fun showFragment(fragment: androidx.fragment.app.Fragment) {
+    override fun onBackPressed() {
+        if (supportFragmentManager.fragments.last() !is DashboardFragment) {
+            showFragment(dashboard)
+            navigation.selectedItemId = R.id.navigation_dashboard
+        } else {
+            if (::listener.isInitialized) listener.onBackPressed()
+        }
+    }
 
+    fun showFragment(fragment: Fragment?) {
         with(supportFragmentManager.beginTransaction()) {
-            replace(R.id.fragment_container, fragment)
+
+            var newFragment = fragment
+
+            if (fragment == null) {
+                when {
+                    fragment === history -> {
+                        history = HistoryFragment()
+                        newFragment = history
+                    }
+                    fragment === dashboard -> {
+                        dashboard = DashboardFragment()
+                        newFragment = dashboard
+                        dashboard?.let{ listener = it }
+                    }
+                    fragment === statistics -> {
+                        statistics = StatisticFragment()
+                        newFragment = statistics
+                    }
+                }
+                newFragment?.let { add(R.id.fragment_container, it) }
+            }
+
+            activeFragment?.let { hide(it) }
+            newFragment?.let { show(it) }
+            activeFragment = newFragment
             commit()
         }
+    }
+
+    fun setTitle(title: String) {
+
+        val titleView: TextView? = toolbar.getChildAt(0) as TextView?
+
+        val anim = AlphaAnimation(1f, 0f).apply {
+            duration = 150
+            repeatCount = 1
+            repeatMode = Animation.REVERSE
+            setAnimationListener(object : Animation.AnimationListener {
+                override fun onAnimationStart(animation: Animation?) {}
+                override fun onAnimationRepeat(animation: Animation?) {
+                    titleView?.text = title
+                }
+                override fun onAnimationEnd(animation: Animation?) {}
+            })
+        }
+        titleView?.startAnimation(anim)
     }
 
     private fun updateWidget() {

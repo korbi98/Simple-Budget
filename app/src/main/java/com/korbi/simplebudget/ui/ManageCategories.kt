@@ -48,7 +48,6 @@ class ManageCategories : AppCompatActivity(), AddEditCategoryDialog.OnSaveListen
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_manage_categories)
-        setTitle(R.string.manage_categories_titel)
 
         categoryList = db.getAllCategories()
         categoryAdapter = CategoryAdapter(categoryList, this, this)

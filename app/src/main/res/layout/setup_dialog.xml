@@ -31,9 +31,10 @@
         android:layout_height="wrap_content"
         android:text="@string/choose_currency"
         android:textSize="14sp"
+        android:textColor="@color/text_color_white"
         android:textStyle="normal"
         android:layout_marginBottom="8dp"
-        style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
+        style="@style/Widget.MaterialComponents.Button.UnelevatedButton"/>
 
     <View
         android:layout_width="match_parent"

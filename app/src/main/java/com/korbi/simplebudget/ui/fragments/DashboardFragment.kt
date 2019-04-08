@@ -21,17 +21,18 @@ import android.os.Bundle
 import android.util.Log
 import android.util.SparseArray
 import android.view.*
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
-import android.widget.Spinner
-import android.widget.TextView
+import android.view.animation.AlphaAnimation
+import android.view.animation.Animation
+import android.view.animation.TranslateAnimation
+import android.widget.*
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import com.google.android.material.floatingactionbutton.FloatingActionButton
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentStatePagerAdapter
-import androidx.viewpager.widget.ViewPager
+import com.google.android.material.chip.ChipGroup
 import com.google.android.material.tabs.TabLayout
-
+import com.korbi.simplebudget.MainActivity
 import com.korbi.simplebudget.R
 import com.korbi.simplebudget.SimpleBudgetApp
 import com.korbi.simplebudget.database.DBhandler
@@ -42,6 +43,7 @@ import com.korbi.simplebudget.ui.IncomeManager
 import com.korbi.simplebudget.ui.ManageCategories
 import com.korbi.simplebudget.ui.SettingsActivity
 import kotlinx.android.synthetic.main.fragment_dashboard.view.*
+import kotlinx.android.synthetic.main.interval_backdrop.view.*
 import org.threeten.bp.LocalDate
 import org.threeten.bp.Year
 import org.threeten.bp.YearMonth
@@ -53,16 +55,22 @@ const val QUARTERLY_INTERVAL = 2
 const val MONTHLY_INTERVAL = 1
 const val WEEKLY_INTERVAL = 0
 
-class DashboardFragment : androidx.fragment.app.Fragment() {
+class DashboardFragment : androidx.fragment.app.Fragment(), MainActivity.OnBackListener {
 
     private lateinit var listener: DateSelectionListener
     private lateinit var timeSelectionSpinner:Spinner
-    private lateinit var actionBarSpinner: Spinner
-    private lateinit var timeSelectionLayout: View
+    private lateinit var dateRangeSelectionLayout: View
     private lateinit var expensesTextView: TextView
     private lateinit var incomeTextView: TextView
     private lateinit var balanceTextView: TextView
     private lateinit var tabLayout: TabLayout
+    private lateinit var intervalLayout: LinearLayout
+    private lateinit var mainLayout: RelativeLayout
+    private lateinit var intervalChipGroup: ChipGroup
+    private lateinit var mOptionsMenu: Menu
+    private lateinit var intervalTextView: TextView
+    private var deltaY = 0f
+    private var offset = 0f
     private val registeredFragments = SparseArray<Fragment>()
 
     private val db = DBhandler.getInstance()
@@ -74,171 +82,202 @@ class DashboardFragment : androidx.fragment.app.Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
 
-        val rootView = inflater.inflate(R.layout.fragment_dashboard, container, false)
+        return inflater.inflate(R.layout.fragment_dashboard, container, false).apply {
 
-        rootView.fab.setOnClickListener {
-            val addExpenseActivity = Intent(context, AddExpenses::class.java)
-            startActivity(addExpenseActivity)
-        }
-
-        timeSelectionSpinner = rootView.dashboard_time_selection_spinner
-        timeSelectionLayout = rootView.dashboard_time_selection_layout
-        expensesTextView = rootView.dashboard_total_expenses
-        incomeTextView = rootView.dashboard_total_income
-        balanceTextView = rootView.dashboard_balance
-
-        val viewPager = rootView.dashboard_viewpager
-        viewPager.adapter = object : FragmentStatePagerAdapter(childFragmentManager) {
-
-            override fun getCount(): Int {
-                return 2
+            fab.setOnClickListener {
+                val addExpenseActivity = Intent(context, AddExpenses::class.java)
+                startActivity(addExpenseActivity)
             }
 
-            override fun instantiateItem(container: ViewGroup, position: Int): Any {
-                val fragment = super.instantiateItem(container, position) as Fragment
-                registeredFragments.put(position, fragment)
-                return fragment
-            }
-
-            override fun destroyItem(container: ViewGroup, position: Int, `object`: Any) {
-                registeredFragments.remove(position)
-                super.destroyItem(container, position, `object`)
-            }
-
-            override fun getItem(position: Int): Fragment {
-                 return when (position) {
-                    1 -> PieChartFragment()
-                    else -> {
-                        val fragment = BudgetFragment()
-                        setListener(fragment.getListener())
-                        fragment
-                    }
+            intervalTextView = dashboard_interval_text_view
+            timeSelectionSpinner = dashboard_time_selection_spinner
+            dateRangeSelectionLayout = dashboard_time_selection_layout
+            expensesTextView = dashboard_total_expenses
+            incomeTextView = dashboard_total_income
+            balanceTextView = dashboard_balance
+            intervalLayout = dashboard_interval_layout
+            mainLayout =dashboard_main_layout
+            intervalChipGroup = dashboard_interval_chip_group.apply {
+                setOnCheckedChangeListener { _, _ ->
+                    setupTimeSelectionSpinner(getIntervalType())
                 }
             }
-        }
 
-        tabLayout = rootView.dashboard_tabs.apply {
-            addTab(this.newTab().setText(R.string.budget))
-            addTab(this.newTab().setText(R.string.distribution))
-            addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+            // prevent chips from being unselected
+            chip_weekly.setOnClickListener { chip_weekly.isChecked = true }
+            chip_monthly.setOnClickListener { chip_monthly.isChecked = true }
+            chip_quarterly.setOnClickListener { chip_quarterly.isChecked = true }
+            chip_yearly.setOnClickListener { chip_yearly.isChecked = true }
+            chip_all_time.setOnClickListener { chip_all_time.isChecked = true }
 
-                override fun onTabSelected(tab: TabLayout.Tab) {
-                    viewPager.currentItem = tab.position
-
-                    when (viewPager.currentItem) {
-                        1 -> {
-                            val pie = registeredFragments[1] as PieChartFragment
-                            setListener(pie.getListener())
-                            pie.updateView()
-                        }
-                        else -> {
-                            val budget = registeredFragments[viewPager.currentItem]
-                                    as BudgetFragment
-                            setListener(budget.getListener())
-                            budget.updateView()
-                        }
-                    }
+            viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
+                override fun onGlobalLayout() {
+                    if (viewTreeObserver.isAlive)
+                        viewTreeObserver.removeOnGlobalLayoutListener(this)
+                    deltaY = intervalLayout.height.toFloat()
+                    offset = intervalTextView.height.toFloat()
+                    intervalLayout.visibility = View.GONE
+                    if (::mOptionsMenu.isInitialized) updateOptionsMenu()
                 }
-                override fun onTabReselected(p0: TabLayout.Tab?) {}
-                override fun onTabUnselected(p0: TabLayout.Tab?) {}
             })
-        }
 
-        viewPager.addOnPageChangeListener(TabLayout.TabLayoutOnPageChangeListener(tabLayout))
 
-        timeSelectionSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onNothingSelected(parent: AdapterView<*>?) {parent?.setSelection(0)}
+            val viewPager = dashboard_viewpager
+            viewPager.adapter = object : FragmentStatePagerAdapter(childFragmentManager) {
 
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int,
-                                        id: Long) {
-                sumExpenses(getExpensesForInterval(actionBarSpinner.selectedItemPosition, position))
-                listener.onDateSelectionChange()
-            }
-        }
+                override fun getCount(): Int {
+                    return 2
+                }
 
-        setHasOptionsMenu(true)
-        return rootView
-    }
+                override fun instantiateItem(container: ViewGroup, position: Int): Any {
+                    val fragment = super.instantiateItem(container, position) as Fragment
+                    registeredFragments.put(position, fragment)
+                    return fragment
+                }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        menu.clear()
-        inflater.inflate(R.menu.menu_dashboard, menu)
+                override fun destroyItem(container: ViewGroup, position: Int, `object`: Any) {
+                    registeredFragments.remove(position)
+                    super.destroyItem(container, position, `object`)
+                }
 
-        val spinnerItem = menu.findItem(R.id.menu_dashboard_time_interval)
-        actionBarSpinner = ( spinnerItem.actionView as Spinner ).apply {
-            adapter = ArrayAdapter.createFromResource(requireContext(),
-                    R.array.dashboard_time_interval, android.R.layout.simple_spinner_dropdown_item)
-
-            setSelection(SimpleBudgetApp.pref.getInt(
-                            getString(R.string.dashboard_time_selection_key), MONTHLY_INTERVAL))
-
-            onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-                override fun onNothingSelected(parent: AdapterView<*>?) {}
-
-                override fun onItemSelected(parent: AdapterView<*>?,
-                                            view: View?, position: Int, id: Long) {
-                    setupTimeSelectionSpinner(position)
-                    with(SimpleBudgetApp.pref.edit()) {
-                        putInt(getString(R.string.dashboard_time_selection_key), position)
-                        apply()
+                override fun getItem(position: Int): Fragment {
+                    return when (position) {
+                        1 -> PieChartFragment()
+                        else -> {
+                            val fragment = BudgetFragment()
+                            setListener(fragment.getListener())
+                            fragment
+                        }
                     }
                 }
             }
+
+            tabLayout = dashboard_tabs.apply {
+                addTab(this.newTab().setText(R.string.budget))
+                addTab(this.newTab().setText(R.string.distribution))
+                addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+
+                    override fun onTabSelected(tab: TabLayout.Tab) {
+                        viewPager.currentItem = tab.position
+
+                        when (viewPager.currentItem) {
+                            1 -> {
+                                val pie = registeredFragments[1] as PieChartFragment
+                                setListener(pie.getListener())
+                                pie.updateView()
+                            }
+                            else -> {
+                                val budget = registeredFragments[viewPager.currentItem]
+                                        as BudgetFragment
+                                setListener(budget.getListener())
+                                budget.updateView()
+                            }
+                        }
+                    }
+                    override fun onTabReselected(p0: TabLayout.Tab?) {}
+                    override fun onTabUnselected(p0: TabLayout.Tab?) {}
+                })
+            }
+
+            viewPager.addOnPageChangeListener(TabLayout.TabLayoutOnPageChangeListener(tabLayout))
+
+            timeSelectionSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                override fun onNothingSelected(parent: AdapterView<*>?) {parent?.setSelection(0)}
+
+                override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int,
+                                            id: Long) {
+                    sumExpenses(getExpensesForInterval(getIntervalType(), position))
+                    listener.onDateSelectionChange()
+                }
+            }
+
+            selectIntervalChip()
+            setHasOptionsMenu(true)
         }
     }
 
     override fun onResume() {
         super.onResume()
+        updateIntervalText()
         SimpleBudgetApp.handleRecurringEntries()
-        if (this::actionBarSpinner.isInitialized) {
-            setupTimeSelectionSpinner(actionBarSpinner.selectedItemPosition)
-            sumExpenses(getExpensesForInterval(actionBarSpinner.selectedItemPosition,
-                    timeSelectionSpinner.selectedItemPosition))
-            listener.onDateSelectionChange()
+        setupTimeSelectionSpinner(getIntervalType())
+        sumExpenses(getExpensesForInterval(getIntervalType(),
+                timeSelectionSpinner.selectedItemPosition))
+        if (::listener.isInitialized) listener.onDateSelectionChange()
+    }
+
+    override fun onBackPressed() {
+        if (intervalLayout.isVisible) {
+            intervalLayout.visibility = View.GONE
+            updateIntervalText()
         } else {
-            if (!db.getExpensesByDate(db.getOldestDate(), db.getNewestDate()).isEmpty()) {
-                sumExpenses(getExpensesForInterval(WEEKLY_INTERVAL, 0))
-                if (::listener.isInitialized) {
-                    listener.onDateSelectionChange()
-                }
-            }
+            activity?.finish()
         }
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        menu.clear()
+        inflater.inflate(R.menu.menu_dashboard, menu)
+        mOptionsMenu = menu
+        updateOptionsMenu()
+    }
 
-        return when (item.itemId) {
+    override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
 
-            R.id.menu_dashboard_categories -> {
-                val categoryManager = Intent(context, ManageCategories::class.java)
-                startActivity(categoryManager)
-                true
-            }
-            R.id.menu_dashboard_regular_income -> {
-                val incomeManager = Intent(context, IncomeManager::class.java)
-                startActivity(incomeManager)
-                true
-            }
-            R.id.menu_dashboard_settings -> {
-                val settings = Intent(context, SettingsActivity::class.java)
-                startActivity(settings)
-                true
-            }
+        R.id.menu_dashboard_interval_done -> {
+            hideIntervalLayout()
+            true
+        }
+        R.id.menu_dashboard_time_interval -> {
+            showIntervalLayout()
+            true
+        }
+        R.id.menu_dashboard_categories -> {
+            val categoryManager = Intent(context, ManageCategories::class.java)
+            startActivity(categoryManager)
+            true
+        }
+        R.id.menu_dashboard_regular_income -> {
+            val incomeManager = Intent(context, IncomeManager::class.java)
+            startActivity(incomeManager)
+            true
+        }
+        R.id.menu_dashboard_settings -> {
+            val settings = Intent(context, SettingsActivity::class.java)
+            startActivity(settings)
+            true
+        }
 
-            else -> false
+        else -> super.onOptionsItemSelected(item)
+    }
+
+    fun updateOptionsMenu() {
+        with(mOptionsMenu) {
+
+            val intervalMenu = findItem(R.id.menu_dashboard_time_interval)
+            val categoryMenu = findItem(R.id.menu_dashboard_categories)
+            val incomeMenu = findItem(R.id.menu_dashboard_regular_income)
+            val settingsMenu = findItem(R.id.menu_dashboard_settings)
+            val intervalDoneMenu = findItem(R.id.menu_dashboard_interval_done)
+
+            intervalDoneMenu.isVisible = intervalLayout.isVisible
+            intervalMenu.isVisible = !intervalLayout.isVisible
+            categoryMenu.isVisible = !intervalLayout.isVisible
+            incomeMenu.isVisible = !intervalLayout.isVisible
+            settingsMenu.isVisible = !intervalLayout.isVisible
         }
     }
 
-    fun setupTimeSelectionSpinner(intervalType: Int) {
+    private fun setupTimeSelectionSpinner(intervalType: Int) {
 
-        timeSelectionLayout.visibility = View.VISIBLE
+        dateRangeSelectionLayout.visibility = View.VISIBLE
 
         val optionsArray = when (intervalType) {
             WEEKLY_INTERVAL -> DateHelper.getWeekSpinnerArray()
             QUARTERLY_INTERVAL -> DateHelper.getQuarterSpinnerArray()
             YEARLY_INTERVAL -> DateHelper.getYearSpinnerArray()
             ALL_TIME -> {
-                timeSelectionLayout.visibility = View.GONE
+                dateRangeSelectionLayout.visibility = View.GONE
                 sumExpenses(getExpensesForInterval(ALL_TIME, 0))
 
                 if (::listener.isInitialized) {
@@ -274,7 +313,8 @@ class DashboardFragment : androidx.fragment.app.Fragment() {
                 var weeks = DateHelper.getWeeks()
                 if (weeks.size > 0) {
                     weeks = weeks.subList(1, weeks.size) .filter {
-                        !db.getExpensesByDate(it[0], it[1]).isEmpty()
+                        !db.getExpensesByDate(it[0], it[1]).isEmpty() ||
+                                DateHelper.isBetween(LocalDate.now(), it[0], it[1])
                     } .toMutableList()
                 }
                 weeks.add(0, DateHelper.getWeeks()[0])
@@ -288,6 +328,8 @@ class DashboardFragment : androidx.fragment.app.Fragment() {
                 if (months.size > 0) {
                     months = months.subList(1, months.size).filter {
                         !db.getExpensesByDate(it.atDay(1), it.atEndOfMonth()).isEmpty()
+                                || DateHelper.isBetween(LocalDate.now(),
+                                it.atDay(1), it.atEndOfMonth())
                     } .toMutableList()
                 }
                 months.add(0, DateHelper.getMonths()[0])
@@ -308,6 +350,7 @@ class DashboardFragment : androidx.fragment.app.Fragment() {
                 endDate = LocalDate.of(DateHelper.getYears()[selectedInterval], 12, 31)
             }
         }
+
         return db.getExpensesByDate(startDate, endDate)
     }
 
@@ -335,15 +378,140 @@ class DashboardFragment : androidx.fragment.app.Fragment() {
         this.listener = listener
     }
 
-    fun getIntervalType(): Int {
-        return actionBarSpinner.selectedItemPosition
-    }
-
     fun getInterval(): Int {
         return  timeSelectionSpinner.selectedItemPosition
     }
 
-    fun actionBarSinnerInitialized(): Boolean {
-        return ::actionBarSpinner.isInitialized
+    private fun selectIntervalChip() {
+        val selection = SimpleBudgetApp.pref.getInt(
+                getString(R.string.dashboard_time_selection_key), MONTHLY_INTERVAL)
+
+        intervalChipGroup.check( when (selection) {
+            WEEKLY_INTERVAL -> R.id.chip_weekly
+            QUARTERLY_INTERVAL -> R.id.chip_quarterly
+            YEARLY_INTERVAL -> R.id.chip_yearly
+            ALL_TIME -> R.id.chip_all_time
+            else -> R.id.chip_monthly
+        })
+    }
+
+    fun getIntervalType(): Int {
+        val default = SimpleBudgetApp.pref.getInt(
+                getString(R.string.dashboard_time_selection_key), MONTHLY_INTERVAL)
+
+        return when (intervalChipGroup.checkedChipId) {
+            R.id.chip_weekly -> WEEKLY_INTERVAL
+            R.id.chip_monthly -> MONTHLY_INTERVAL
+            R.id.chip_quarterly -> QUARTERLY_INTERVAL
+            R.id.chip_yearly -> YEARLY_INTERVAL
+            R.id.chip_all_time -> ALL_TIME
+            else -> default
+        } .also {
+            with(SimpleBudgetApp.pref.edit()) {
+                putInt(getString(R.string.dashboard_time_selection_key), it)
+                apply()
+            }
+        }
+    }
+
+    override fun onHiddenChanged(hidden: Boolean) {
+        super.onHiddenChanged(hidden)
+        when (hidden) {
+            true -> {
+                if (intervalLayout.isVisible) {
+                    intervalLayout.visibility = View.GONE
+                    intervalTextView.visibility = View.VISIBLE
+                    updateOptionsMenu()
+                }
+            }
+            false -> {
+                updateIntervalText()
+            }
+        }
+    }
+
+    private fun updateIntervalText() {
+        val intervalString = getString(R.string.dashboard_time_selection) + " " +
+                when (timeSelectionSpinner.selectedItem) {
+                    null -> getString(R.string.all_time).toLowerCase()
+                    else -> timeSelectionSpinner.selectedItem.toString().toLowerCase()
+                }
+        intervalTextView.text = intervalString
+        (activity as MainActivity).setTitle(when (timeSelectionSpinner.selectedItem) {
+            null -> getString(R.string.all_time)
+            else -> timeSelectionSpinner.selectedItem.toString()
+        })
+    }
+
+    private fun hideIntervalLayout() {
+
+        deltaY = intervalLayout.height.toFloat()
+
+        intervalLayout.animation = TranslateAnimation(0f,0f, 0f, -deltaY).apply {
+            duration = 200
+            setAnimationListener(object : Animation.AnimationListener {
+                override fun onAnimationStart(animation: Animation?) {
+                    intervalLayout.visibility = View.GONE
+                    updateOptionsMenu()
+                    updateIntervalText()
+                }
+                override fun onAnimationRepeat(animation: Animation?) {}
+                override fun onAnimationEnd(animation: Animation?) {
+                    (activity as AppCompatActivity).supportActionBar?.elevation = 4f
+                }
+            })
+        }
+
+        mainLayout.animation = TranslateAnimation(0f,0f, deltaY - offset, 0f).apply {
+            duration = 200
+        }
+
+        intervalTextView.visibility = View.VISIBLE
+        intervalTextView.animation = AlphaAnimation(0f, 1f).apply {
+            duration = 400
+        }
+
+        intervalTextView.invalidate()
+
+    }
+
+    private fun showIntervalLayout() {
+
+        (activity as AppCompatActivity).supportActionBar?.elevation = 0f
+
+        // for some reason, animation does not trigger when intervalTextView is not gone
+        intervalTextView.visibility = View.GONE
+        intervalTextView.visibility = View.VISIBLE
+
+        intervalLayout.animation = TranslateAnimation(0f,0f, -deltaY, 0f).apply {
+            duration = 200
+            setAnimationListener(object : Animation.AnimationListener {
+                override fun onAnimationStart(animation: Animation?) {}
+                override fun onAnimationRepeat(animation: Animation?) {}
+                override fun onAnimationEnd(animation: Animation?) {
+                    intervalLayout.visibility = View.VISIBLE
+                    updateOptionsMenu()
+                }
+            })
+        }
+
+        mainLayout.animation = TranslateAnimation(0f,0f, 0f, deltaY - offset).apply {
+            duration = 200
+        }
+
+        intervalTextView.animation = AlphaAnimation(1f, 0f).apply {
+            duration = 200
+            setAnimationListener(object : Animation.AnimationListener {
+                override fun onAnimationStart(animation: Animation?) {}
+                override fun onAnimationRepeat(animation: Animation?) {}
+                override fun onAnimationEnd(animation: Animation?) {
+                    intervalTextView.visibility = View.GONE
+                }
+            })
+        }
+
+        (activity as MainActivity).setTitle(getString(R.string.select_interval))
+
+        selectIntervalChip()
     }
 }

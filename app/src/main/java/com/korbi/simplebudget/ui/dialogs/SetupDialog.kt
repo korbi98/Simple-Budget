@@ -59,7 +59,8 @@ class SetupDialog : DialogFragment(), CurrencyDialog.OnDismissListener {
                     .setCancelable(false)
                     .setPositiveButton(R.string.ok) { dialog, _ ->
                         storeSetup()
-                        (requireActivity() as MainActivity).showFragment(DashboardFragment())
+                        (requireActivity() as MainActivity).let { mainActivity ->
+                            mainActivity.showFragment(mainActivity.dashboard) }
                         dialog.dismiss()
                     }
 

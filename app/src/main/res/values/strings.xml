@@ -62,7 +62,7 @@
 
     <string name="cancel">Cancel</string>
     <string name="reset">Reset</string>
-    <string name="dashboard_time_selection">Summary for </string>
+    <string name="dashboard_time_selection">Summary for</string>
     <string name="dashboard_expenses">Expenses</string>
     <string name="dashboard_balance">Balance</string>
     <string name="dashboard_income">Income</string>
@@ -81,7 +81,7 @@
     <string name="second_quarter">2nd quarter</string>
     <string name="third_quarter">3rd quarter</string>
     <string name="fourth_quarter">4th quarter</string>
-    <string name="default_value">0.00$</string>
+    <string name="default_value">0.00 $</string>
     <string name="settings_key_currency">currency</string>
     <string name="currency">Currency</string>
     <string name="settings_currency_custom">Enter custom currency symbol</string>
@@ -110,7 +110,7 @@
     <string name="income">Income</string>
     <string name="expense">Expense</string>
     <string name="last30days">Last 30 days</string>
-    <string name="last90days">last90days</string>
+    <string name="last90days">Last 90 days</string>
     <string name="this_year">This year</string>
     <string name="all_time">All time</string>
     <string name="specific_range">Specific range</string>
@@ -168,6 +168,9 @@
     <string name="show_recurring_symbol">Indicate recurrent entries with symbol (\u27F3)</string>
     <string name="empty_pie_message">Nothing to show here!\n\n Add expenses by clicking the button below</string>
     <string name="empty_income_list_message">Nothing to show here!\n\nAdd regular income/expenses by pressing the + button</string>
+    <string name="select_interval">Select interval:</string>
+    <string name="quarterly">Quarterly</string>
+    <string name="yearly">Yearly</string>
 
 
     <string-array name="default_categories">
@@ -177,14 +180,6 @@
         <item>Shopping</item>
         <item>Housing</item>
         <item>Travel</item>
-    </string-array>
-
-    <string-array name="dashboard_time_interval">
-        <item>Weekly</item>
-        <item>Monthly</item>
-        <item>Quarterly</item>
-        <item>Yearly</item>
-        <item>All time</item>
     </string-array>
 
     <string-array name="history_grouping_interval">

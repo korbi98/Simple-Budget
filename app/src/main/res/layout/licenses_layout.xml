@@ -63,7 +63,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Expandable-recycler_view by bignerdranch"
+            android:text="Expandable-recycler-view by bignerdranch"
             tools:ignore="HardcodedText"
             android:textStyle="bold"/>
 

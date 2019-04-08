@@ -183,8 +183,7 @@ class PieChartFragment : androidx.fragment.app.Fragment(),  DashboardFragment.Da
 
     fun updateView() {
         val dashboard = requireParentFragment() as DashboardFragment
-        val expenses = if (dashboard.actionBarSinnerInitialized() &&
-                dashboard.getInterval() != -1) {
+        val expenses = if (dashboard.getInterval() != -1) {
             dashboard.getExpensesForInterval(dashboard.getIntervalType(), dashboard.getInterval())
         } else {
             dashboard.getExpensesForInterval(SimpleBudgetApp.pref.getInt(

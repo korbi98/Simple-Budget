@@ -62,6 +62,7 @@
         android:id="@+id/income_manager_dialog_interval_group"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
         app:singleSelection="true">
 
         <com.google.android.material.chip.Chip

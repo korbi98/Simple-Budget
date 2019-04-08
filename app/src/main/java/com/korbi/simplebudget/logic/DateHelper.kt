@@ -203,7 +203,7 @@ object DateHelper {
         }
     }
 
-    private fun isBetween(now: LocalDate, start: LocalDate, end: LocalDate): Boolean {
+    fun isBetween(now: LocalDate, start: LocalDate, end: LocalDate): Boolean {
         return now.isAfter(start.minusDays(1)) &&
                 now.isBefore(end.plusDays(1))
     }
