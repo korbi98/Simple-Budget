@@ -25,18 +25,15 @@ import android.widget.TextView
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentPagerAdapter
-import androidx.fragment.app.FragmentStatePagerAdapter
-import androidx.viewpager.widget.ViewPager
-import com.jakewharton.threetenabp.AndroidThreeTen
+import androidx.fragment.app.FragmentTransaction
 import com.korbi.simplebudget.database.DBhandler
-import com.korbi.simplebudget.logic.DateHelper
 import com.korbi.simplebudget.ui.SELECT_ALL
 import com.korbi.simplebudget.ui.TYPE_BOTH
 import com.korbi.simplebudget.ui.dialogs.SetupDialog
 import com.korbi.simplebudget.ui.fragments.*
 import kotlinx.android.synthetic.main.activity_main.*
 import org.threeten.bp.LocalDate
+import kotlin.ClassCastException
 
 class MainActivity : AppCompatActivity() {
 
@@ -110,7 +107,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
-        if (supportFragmentManager.fragments.last() !is DashboardFragment) {
+        if (dashboard?.isHidden != false) {
             showFragment(dashboard)
             navigation.selectedItemId = R.id.navigation_dashboard
         } else {
@@ -145,13 +142,22 @@ class MainActivity : AppCompatActivity() {
             activeFragment?.let { hide(it) }
             newFragment?.let { show(it) }
             activeFragment = newFragment
+
+            setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
             commit()
         }
     }
 
     fun setTitle(title: String) {
 
-        val titleView: TextView? = toolbar.getChildAt(0) as TextView?
+        val titleView: TextView? = try{
+            toolbar.getChildAt(0) as TextView?
+        } catch (e: ClassCastException) {
+            supportActionBar?.title = title
+            null
+        }
+
+        Log.d("test", toolbar.childCount.toString())
 
         val anim = AlphaAnimation(1f, 0f).apply {
             duration = 150
@@ -166,6 +172,14 @@ class MainActivity : AppCompatActivity() {
             })
         }
         titleView?.startAnimation(anim)
+
+
+        try {
+
+        } catch (exception: ClassCastException) {
+            setTitle(title)
+        }
+
     }
 
     private fun updateWidget() {

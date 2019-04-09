@@ -29,14 +29,12 @@ import android.widget.SearchView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
+import androidx.core.view.iterator
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bignerdranch.expandablerecyclerview.ExpandableRecyclerAdapter
 import com.korbi.simplebudget.MainActivity
 import com.korbi.simplebudget.SimpleBudgetApp
-import com.korbi.simplebudget.logic.DateHelper
-import com.korbi.simplebudget.logic.Expense
-import com.korbi.simplebudget.logic.ExpenseViewHolder
-import com.korbi.simplebudget.logic.HistoryEntry
+import com.korbi.simplebudget.logic.*
 import com.korbi.simplebudget.ui.*
 import kotlinx.android.synthetic.main.fragment_history.view.*
 import org.threeten.bp.LocalDate
@@ -96,7 +94,9 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
         mOptionsMenu = menu
         menu.clear()
         inflater.inflate(R.menu.menu_history, menu)
+
         val searchItem = menu.findItem(R.id.menu_history_search)
+
         val searchView: SearchView = searchItem.actionView as SearchView
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
 
@@ -134,6 +134,7 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
             updateOptionsMenu()
             false
         }
+
         updateOptionsMenu()
     }
 

@@ -16,6 +16,9 @@
 
 package com.korbi.simplebudget.ui.fragments
 
+import android.animation.Animator
+import android.animation.ObjectAnimator
+import android.animation.PropertyValuesHolder
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -47,7 +50,8 @@ import kotlinx.android.synthetic.main.interval_backdrop.view.*
 import org.threeten.bp.LocalDate
 import org.threeten.bp.Year
 import org.threeten.bp.YearMonth
-
+import com.korbi.simplebudget.logic.MenuAnimator
+import kotlinx.android.synthetic.main.activity_main.*
 
 const val ALL_TIME = 4
 const val YEARLY_INTERVAL = 3
@@ -206,6 +210,22 @@ class DashboardFragment : androidx.fragment.app.Fragment(), MainActivity.OnBackL
         if (::listener.isInitialized) listener.onDateSelectionChange()
     }
 
+    override fun onHiddenChanged(hidden: Boolean) {
+        super.onHiddenChanged(hidden)
+        when (hidden) {
+            true -> {
+                if (intervalLayout.isVisible) {
+                    intervalLayout.visibility = View.GONE
+                    intervalTextView.visibility = View.VISIBLE
+                    updateOptionsMenu()
+                }
+            }
+            false -> {
+                updateIntervalText()
+            }
+        }
+    }
+
     override fun onBackPressed() {
         if (intervalLayout.isVisible) {
             intervalLayout.visibility = View.GONE
@@ -219,6 +239,9 @@ class DashboardFragment : androidx.fragment.app.Fragment(), MainActivity.OnBackL
         menu.clear()
         inflater.inflate(R.menu.menu_dashboard, menu)
         mOptionsMenu = menu
+
+        (activity as MainActivity).toolbar.overflowIcon?.let { MenuAnimator.showIcon(it) }
+
         updateOptionsMenu()
     }
 
@@ -254,17 +277,16 @@ class DashboardFragment : androidx.fragment.app.Fragment(), MainActivity.OnBackL
     fun updateOptionsMenu() {
         with(mOptionsMenu) {
 
-            val intervalMenu = findItem(R.id.menu_dashboard_time_interval)
-            val categoryMenu = findItem(R.id.menu_dashboard_categories)
-            val incomeMenu = findItem(R.id.menu_dashboard_regular_income)
-            val settingsMenu = findItem(R.id.menu_dashboard_settings)
-            val intervalDoneMenu = findItem(R.id.menu_dashboard_interval_done)
+            findItem(R.id.menu_dashboard_time_interval).apply {
+                isVisible = !intervalLayout.isVisible
+                icon.alpha = 255
+            }
+            findItem(R.id.menu_dashboard_categories).isVisible = !intervalLayout.isVisible
+            findItem(R.id.menu_dashboard_regular_income).isVisible = !intervalLayout.isVisible
+            findItem(R.id.menu_dashboard_settings).isVisible = !intervalLayout.isVisible
+            findItem(R.id.menu_dashboard_interval_done).isVisible = intervalLayout.isVisible
+            (activity as MainActivity).toolbar.overflowIcon?.alpha = 255
 
-            intervalDoneMenu.isVisible = intervalLayout.isVisible
-            intervalMenu.isVisible = !intervalLayout.isVisible
-            categoryMenu.isVisible = !intervalLayout.isVisible
-            incomeMenu.isVisible = !intervalLayout.isVisible
-            settingsMenu.isVisible = !intervalLayout.isVisible
         }
     }
 
@@ -414,22 +436,6 @@ class DashboardFragment : androidx.fragment.app.Fragment(), MainActivity.OnBackL
         }
     }
 
-    override fun onHiddenChanged(hidden: Boolean) {
-        super.onHiddenChanged(hidden)
-        when (hidden) {
-            true -> {
-                if (intervalLayout.isVisible) {
-                    intervalLayout.visibility = View.GONE
-                    intervalTextView.visibility = View.VISIBLE
-                    updateOptionsMenu()
-                }
-            }
-            false -> {
-                updateIntervalText()
-            }
-        }
-    }
-
     private fun updateIntervalText() {
         val intervalString = getString(R.string.dashboard_time_selection) + " " +
                 when (timeSelectionSpinner.selectedItem) {
@@ -452,7 +458,6 @@ class DashboardFragment : androidx.fragment.app.Fragment(), MainActivity.OnBackL
             setAnimationListener(object : Animation.AnimationListener {
                 override fun onAnimationStart(animation: Animation?) {
                     intervalLayout.visibility = View.GONE
-                    updateOptionsMenu()
                     updateIntervalText()
                 }
                 override fun onAnimationRepeat(animation: Animation?) {}
@@ -473,6 +478,17 @@ class DashboardFragment : androidx.fragment.app.Fragment(), MainActivity.OnBackL
 
         intervalTextView.invalidate()
 
+        with(mOptionsMenu) {
+
+            MenuAnimator.setVisibility(findItem(R.id.menu_dashboard_interval_done), false) { // endAction
+                MenuAnimator.setVisibility(findItem(R.id.menu_dashboard_time_interval), true)
+                val overflowIcon = (activity as MainActivity).toolbar.overflowIcon
+                findItem(R.id.menu_dashboard_categories).isVisible = true
+                findItem(R.id.menu_dashboard_regular_income).isVisible = true
+                findItem(R.id.menu_dashboard_settings).isVisible = true
+                overflowIcon?.let { MenuAnimator.showIcon(it) }
+            }
+        }
     }
 
     private fun showIntervalLayout() {
@@ -490,7 +506,6 @@ class DashboardFragment : androidx.fragment.app.Fragment(), MainActivity.OnBackL
                 override fun onAnimationRepeat(animation: Animation?) {}
                 override fun onAnimationEnd(animation: Animation?) {
                     intervalLayout.visibility = View.VISIBLE
-                    updateOptionsMenu()
                 }
             })
         }
@@ -513,5 +528,21 @@ class DashboardFragment : androidx.fragment.app.Fragment(), MainActivity.OnBackL
         (activity as MainActivity).setTitle(getString(R.string.select_interval))
 
         selectIntervalChip()
+
+        with(mOptionsMenu) {
+
+            val overflowIcon = (activity as MainActivity).toolbar.overflowIcon
+            overflowIcon?.let {
+                MenuAnimator.hideIcon(it) {
+                    findItem(R.id.menu_dashboard_categories).isVisible = false
+                    findItem(R.id.menu_dashboard_regular_income).isVisible = false
+                    findItem(R.id.menu_dashboard_settings).isVisible = false
+                }
+            }
+
+            MenuAnimator.setVisibility(findItem(R.id.menu_dashboard_time_interval), false) { // endAction
+                MenuAnimator.setVisibility(findItem(R.id.menu_dashboard_interval_done), true)
+            }
+        }
     }
 }
