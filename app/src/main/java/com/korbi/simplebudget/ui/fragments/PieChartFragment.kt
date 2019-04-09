@@ -183,17 +183,18 @@ class PieChartFragment : androidx.fragment.app.Fragment(),  DashboardFragment.Da
 
     fun updateView() {
         val dashboard = requireParentFragment() as DashboardFragment
-        val expenses = if (dashboard.getInterval() != -1) {
-            dashboard.getExpensesForInterval(dashboard.getIntervalType(), dashboard.getInterval())
-        } else {
-            dashboard.getExpensesForInterval(SimpleBudgetApp.pref.getInt(
-                    getString(R.string.dashboard_time_selection_key), 1), 0)
+        with(dashboard.intervalHelper) {
+            val expenses = if (getInterval() != -1) {
+                getExpensesForInterval(getIntervalType(), getInterval())
+            } else {
+                getExpensesForInterval(SimpleBudgetApp.pref.getInt(
+                        getString(R.string.dashboard_time_selection_key), 1), 0)
+            }
+            if (expenses.filter { it.cost < 0 } .sumBy { it.cost } != 0) {
+                pieChart.visibility = View.VISIBLE
+                createPieData(expenses)
+            } else pieChart.visibility = View.GONE
         }
-        if (expenses.filter { it.cost < 0 } .sumBy { it.cost } != 0) {
-            pieChart.visibility = View.VISIBLE
-            createPieData(expenses)
-        } else pieChart.visibility = View.GONE
-
     }
 
     private fun getCurrencyString(amount: Int): String {

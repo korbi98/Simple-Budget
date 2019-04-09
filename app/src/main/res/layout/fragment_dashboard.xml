@@ -20,8 +20,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:animateLayoutChanges="true"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/gray_background"
     tools:context=".ui.fragments.DashboardFragment">
 
     <LinearLayout
@@ -41,123 +40,97 @@
             <include layout="@layout/interval_backdrop"/>
         </LinearLayout>
 
-        <androidx.coordinatorlayout.widget.CoordinatorLayout
+        <RelativeLayout
+            android:id="@+id/dashboard_main_layout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:background="@color/default_background">
 
-            <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/fab"
+            <TableLayout
+                android:id="@+id/dashboard_table"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                android:layout_marginEnd="@dimen/fab_margin"
-                android:src="@drawable/ic_add_white_24dp"
-                android:layout_gravity="bottom|end" />
+                android:paddingTop="16dp"
+                android:layout_centerHorizontal="true"
+                android:paddingBottom="16dp">
 
-            <RelativeLayout
-                android:id="@+id/dashboard_main_layout"
+                <TableRow>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/dashboard_expenses"
+                        android:layout_gravity="center_vertical" />
+                    <TextView
+                        android:id="@+id/dashboard_total_expenses"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/default_value"
+                        android:textSize="22sp"
+                        android:layout_gravity="end"
+                        android:layout_marginStart="8dp"
+                        android:textColor="@color/expenseColor" />
+                </TableRow>
+
+                <TableRow>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/dashboard_income"
+                        android:layout_gravity="center_vertical" />
+                    <TextView
+                        android:id="@+id/dashboard_total_income"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/default_value"
+                        android:textSize="18sp"
+                        android:layout_gravity="end"
+                        android:layout_marginStart="8dp"
+                        android:textColor="@color/incomeColor" />
+                </TableRow>
+
+                <TableRow>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/dashboard_balance"
+                        android:layout_gravity="center_vertical" />
+                    <TextView
+                        android:id="@+id/dashboard_balance"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/default_value"
+                        android:textSize="18sp"
+                        android:layout_marginStart="8dp"
+                        android:layout_gravity="end"/>
+                </TableRow>
+
+            </TableLayout>
+
+            <View
+                android:id="@+id/dashboard_divider"
+                android:layout_width="match_parent"
+                android:layout_height="3dp"
+                android:layout_below="@id/dashboard_table"
+                android:background="@color/colorPrimaryDark"
+                android:layout_gravity="bottom" />
+
+            <com.google.android.material.tabs.TabLayout
+                android:id="@+id/dashboard_tabs"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/dashboard_divider"
+                android:background="@color/gray_background"/>
+
+            <androidx.viewpager.widget.ViewPager
+                android:id="@+id/dashboard_viewpager"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="vertical">
+                android:layout_below="@id/dashboard_tabs"
+                android:paddingTop="10dp"
+                android:background="@color/gray_background"/>
 
-                <TextView
-                    android:id="@+id/dashboard_interval_text_view"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerHorizontal="true"
-                    android:textSize="18sp"
-                    android:textColor="@color/text_color_white"
-                    android:textAlignment="center"
-                    android:paddingTop="16dp"
-                    android:visibility="visible"/>
-
-                <TableLayout
-                    android:id="@+id/dashboard_table"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:layout_below="@id/dashboard_interval_text_view"
-                    android:layout_centerHorizontal="true"
-                    android:layout_marginBottom="16dp">
-
-                    <TableRow>
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/dashboard_expenses"
-                            android:layout_gravity="center_vertical" />
-                        <TextView
-                            android:id="@+id/dashboard_total_expenses"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/default_value"
-                            android:textSize="22sp"
-                            android:layout_gravity="end"
-                            android:layout_marginStart="8dp"
-                            android:textColor="@color/expenseColor" />
-                    </TableRow>
-
-                    <TableRow>
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/dashboard_income"
-                            android:layout_gravity="center_vertical" />
-                        <TextView
-                            android:id="@+id/dashboard_total_income"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/default_value"
-                            android:textSize="18sp"
-                            android:layout_gravity="end"
-                            android:layout_marginStart="8dp"
-                            android:textColor="@color/incomeColor" />
-                    </TableRow>
-
-                    <TableRow>
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/dashboard_balance"
-                            android:layout_gravity="center_vertical" />
-                        <TextView
-                            android:id="@+id/dashboard_balance"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/default_value"
-                            android:textSize="18sp"
-                            android:layout_marginStart="8dp"
-                            android:layout_gravity="end"/>
-                    </TableRow>
-
-                </TableLayout>
-
-                <View
-                    android:id="@+id/dashboard_divider"
-                    android:layout_width="match_parent"
-                    android:layout_height="3dp"
-                    android:layout_below="@id/dashboard_table"
-                    android:background="@color/colorPrimaryDark"
-                    android:layout_gravity="bottom" />
-
-                <com.google.android.material.tabs.TabLayout
-                    android:id="@+id/dashboard_tabs"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@id/dashboard_divider"
-                    app:tabBackground="@color/gray_background"/>
-
-                <androidx.viewpager.widget.ViewPager
-                    android:id="@+id/dashboard_viewpager"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_below="@id/dashboard_tabs"
-                    android:paddingTop="10dp"
-                    android:background="@color/gray_background"/>
-
-            </RelativeLayout>
-
-        </androidx.coordinatorlayout.widget.CoordinatorLayout>
+        </RelativeLayout>
 
     </LinearLayout>
 

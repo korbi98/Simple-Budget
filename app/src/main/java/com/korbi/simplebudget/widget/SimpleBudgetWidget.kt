@@ -28,8 +28,8 @@ import com.korbi.simplebudget.MainActivity
 import com.korbi.simplebudget.R
 import com.korbi.simplebudget.SimpleBudgetApp
 import com.korbi.simplebudget.database.DBhandler
+import com.korbi.simplebudget.logic.WEEKLY_INTERVAL
 import com.korbi.simplebudget.ui.AddExpenses
-import com.korbi.simplebudget.ui.fragments.WEEKLY_INTERVAL
 import org.threeten.bp.DayOfWeek
 import org.threeten.bp.LocalDate
 import org.threeten.bp.YearMonth

@@ -16,6 +16,7 @@
 
 package com.korbi.simplebudget
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.*
@@ -27,6 +28,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 import com.korbi.simplebudget.database.DBhandler
+import com.korbi.simplebudget.ui.AddExpenses
 import com.korbi.simplebudget.ui.SELECT_ALL
 import com.korbi.simplebudget.ui.TYPE_BOTH
 import com.korbi.simplebudget.ui.dialogs.SetupDialog
@@ -56,26 +58,27 @@ class MainActivity : AppCompatActivity() {
     private var activeFragment: Fragment? = dashboard
 
 
-    private val mOnNavigationItemSelectedListener =
-                                BottomNavigationView.OnNavigationItemSelectedListener { item ->
+    private val mOnNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
 
-        when (item.itemId) {
-            R.id.navigation_history -> {
-                setTitle(getString(R.string.title_history))
-                showFragment(history)
-                return@OnNavigationItemSelectedListener true
+        if (item.itemId != navigation.selectedItemId) {
+            when (item.itemId) {
+                R.id.navigation_history -> {
+                    setTitle(getString(R.string.title_history))
+                    showFragment(history)
+                    return@OnNavigationItemSelectedListener true
+                }
+                R.id.navigation_dashboard -> {
+                    showFragment(dashboard)
+                    return@OnNavigationItemSelectedListener true
+                }
+                R.id.navigation_statistic -> {
+                    setTitle(getString(R.string.title_statistic))
+                    showFragment(statistics)
+                    return@OnNavigationItemSelectedListener true
+                }
             }
-            R.id.navigation_dashboard -> {
-                showFragment(dashboard)
-                return@OnNavigationItemSelectedListener true
-            }
-            R.id.navigation_statistic -> {
-                setTitle(getString(R.string.title_statistic))
-                showFragment(statistics)
-                return@OnNavigationItemSelectedListener true
-            }
-        }
-        false
+            false
+        } else false
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -98,6 +101,11 @@ class MainActivity : AppCompatActivity() {
         if (SimpleBudgetApp.pref.getBoolean(
                         getString(R.string.settings_key_initial_start), true)) {
             SetupDialog().show(supportFragmentManager, "setup_dialog")
+        }
+
+        fab.setOnClickListener {
+            val addExpenseActivity = Intent(this, AddExpenses::class.java)
+            startActivity(addExpenseActivity)
         }
     }
 
@@ -139,6 +147,10 @@ class MainActivity : AppCompatActivity() {
                 newFragment?.let { add(R.id.fragment_container, it) }
             }
 
+            if (fragment is DashboardFragment?) {
+                fab.visibility = View.VISIBLE
+            } else fab.visibility = View.GONE
+
             activeFragment?.let { hide(it) }
             newFragment?.let { show(it) }
             activeFragment = newFragment
@@ -157,8 +169,6 @@ class MainActivity : AppCompatActivity() {
             null
         }
 
-        Log.d("test", toolbar.childCount.toString())
-
         val anim = AlphaAnimation(1f, 0f).apply {
             duration = 150
             repeatCount = 1
@@ -172,14 +182,6 @@ class MainActivity : AppCompatActivity() {
             })
         }
         titleView?.startAnimation(anim)
-
-
-        try {
-
-        } catch (exception: ClassCastException) {
-            setTitle(title)
-        }
-
     }
 
     private fun updateWidget() {

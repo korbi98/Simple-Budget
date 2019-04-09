@@ -32,8 +32,7 @@ import com.korbi.simplebudget.R
 import com.korbi.simplebudget.SimpleBudgetApp
 import com.korbi.simplebudget.SimpleBudgetApp.Companion.decimalFormat
 import com.korbi.simplebudget.database.DBhandler
-import com.korbi.simplebudget.logic.Category
-import com.korbi.simplebudget.logic.Expense
+import com.korbi.simplebudget.logic.*
 import com.korbi.simplebudget.ui.fragments.*
 import kotlinx.android.synthetic.main.budget_listening.view.*
 import java.text.DecimalFormat

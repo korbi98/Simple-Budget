@@ -26,6 +26,7 @@
 
     <color name="chip_background">#616161</color>
     <color name="gray_background">#424242</color>
+    <color name="default_background">#303030</color>
     <color name="darker_background">#212121</color>
     <color name="widget_background">#D6424242</color>
 

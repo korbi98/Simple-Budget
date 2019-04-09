@@ -27,8 +27,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.korbi.simplebudget.R
 import com.korbi.simplebudget.SimpleBudgetApp
-import com.korbi.simplebudget.logic.Category
-import com.korbi.simplebudget.logic.Expense
+import com.korbi.simplebudget.logic.*
 import com.korbi.simplebudget.logic.adapters.BudgetAdapter
 import com.korbi.simplebudget.ui.dialogs.BudgetDialog
 import com.korbi.simplebudget.ui.dialogs.CAT_INDEX
@@ -95,14 +94,16 @@ class BudgetFragment : androidx.fragment.app.Fragment(),
     fun updateView() {
 
         val dashboard = requireParentFragment() as DashboardFragment
-        expenseList = if (dashboard.getInterval() != -1) {
-            dashboard.getExpensesForInterval(dashboard.getIntervalType(), dashboard.getInterval())
-        } else {
-            dashboard.getExpensesForInterval(SimpleBudgetApp.pref.getInt(
-                    getString(R.string.dashboard_time_selection_key), 1), 0)
+        expenseList = dashboard.intervalHelper.run {
+            if (getInterval() != -1) {
+                getExpensesForInterval(getIntervalType(), getInterval())
+            } else {
+                getExpensesForInterval(SimpleBudgetApp.pref.getInt(
+                        getString(R.string.dashboard_time_selection_key), 1), 0)
+            }
         }
-        selectedInterval = when (dashboard.getInterval() != -1) {
-            true -> dashboard.getIntervalType()
+        selectedInterval = when (dashboard.intervalHelper.getInterval() != -1) {
+            true -> dashboard.intervalHelper.getIntervalType()
             false -> SimpleBudgetApp.pref.getInt(
                     getString(R.string.dashboard_time_selection_key), 1)
         }
