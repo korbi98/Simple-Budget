@@ -34,6 +34,7 @@ import com.korbi.simplebudget.ui.fragments.*
 import kotlinx.android.synthetic.main.budget_dialog.*
 import java.text.DecimalFormatSymbols
 
+const val SET_TOTAL_BUDGET = -100
 
 class BudgetDialog : DialogFragment() {
 
@@ -168,7 +169,10 @@ class BudgetDialog : DialogFragment() {
             db.updateCategory(category)
         }
 
-        (requireParentFragment() as BudgetFragment).updateView()
+        parentFragment?.let {
+            Log.d("test", "test")
+            if (it is DashboardFragment) it.updateView()
+        }
     }
 
     private fun setupCurrencyInput(dialog: AlertDialog) {
@@ -177,7 +181,8 @@ class BudgetDialog : DialogFragment() {
         val separator = DecimalFormatSymbols.getInstance().decimalSeparator.toString()
 
         budgetInput.addTextChangedListener(CurrencyTextWatcher(budgetInput, inputLayout,
-                separator, dialog, false))
+                separator, isZeroAllowed = true, isNegativeAllowed = false,
+                dialog = dialog, enableOkIfEmpty = true))
 
     }
 

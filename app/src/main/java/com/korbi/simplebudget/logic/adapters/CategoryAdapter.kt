@@ -18,6 +18,7 @@ package com.korbi.simplebudget.logic.adapters
 
 import android.annotation.SuppressLint
 import android.content.res.TypedArray
+import android.os.Bundle
 import android.util.Log
 import android.view.*
 import android.widget.ImageView
@@ -29,6 +30,8 @@ import com.korbi.simplebudget.database.DBhandler
 import com.korbi.simplebudget.logic.Category
 import com.korbi.simplebudget.logic.dragAndDrop.ItemTouchHelperAdapter
 import com.korbi.simplebudget.logic.dragAndDrop.ItemTouchHelperViewHolder
+import com.korbi.simplebudget.ui.dialogs.BudgetDialog
+import com.korbi.simplebudget.ui.dialogs.CAT_INDEX
 import kotlinx.android.synthetic.main.category_manager_listening.view.*
 import java.util.*
 
@@ -41,6 +44,7 @@ class CategoryAdapter(val categoryList: MutableList<Category>,
     interface OnEditListener {
         fun onEdit(category: Category)
         fun onDelete(category: Category)
+        fun onSetBudget(category: Category)
     }
 
     init {
@@ -114,6 +118,13 @@ class CategoryAdapter(val categoryList: MutableList<Category>,
                         editListener.onDelete(categoryToDelete)
                         true
                     }
+                }
+                val setBudget = menu.add(Menu.NONE, menu.size() + 1, menu.size() + 1,
+                        itemView.context.getString(R.string.set_budget))
+                setBudget.setOnMenuItemClickListener {
+                    val category = categoryList[adapterPosition]
+                    editListener.onSetBudget(category)
+                    true
                 }
             }
         }

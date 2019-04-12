@@ -34,7 +34,7 @@ import kotlinx.android.synthetic.main.fragment_statistic.view.*
 
 class StatisticFragment : androidx.fragment.app.Fragment() {
 
-    lateinit var intervalHelper: IntervalSelectionBackdropHelper
+
     private lateinit var backdropLayout: LinearLayout
     private lateinit var mOptionsMenu: Menu
     private lateinit var mainLayout: View
@@ -48,20 +48,13 @@ class StatisticFragment : androidx.fragment.app.Fragment() {
 
             backdropLayout = statistic_interval_layout
 
-            intervalHelper = IntervalSelectionBackdropHelper(
-                    context = requireContext(),
-                    backdropLayout = backdropLayout,
-                    intervalChipGroup = backdrop_interval_chip_group,
-                    intervalSpinner = backdrop_time_selection_spinner,
-                    intervalLayout = backdrop_time_selection_layout,
-                    mainLayout = statistic_main_layout
-            )
+
 
             viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
                 override fun onGlobalLayout() {
                     if (viewTreeObserver.isAlive)
                         viewTreeObserver.removeOnGlobalLayoutListener(this)
-                    intervalHelper.deltaY = backdropLayout.height.toFloat()
+                    //intervalHelper.deltaY = backdropLayout.height.toFloat()
                     backdropLayout.visibility = View.GONE
                 }
             })
@@ -96,14 +89,14 @@ class StatisticFragment : androidx.fragment.app.Fragment() {
 
     private fun hideIntervalLayout() {
 
-        intervalHelper.deltaY = backdropLayout.height.toFloat()
+        //intervalHelper.deltaY = backdropLayout.height.toFloat()
 
-        statisticText.visibility = View.GONE
-        statisticText.visibility = View.VISIBLE
+        statistic_tabs.visibility = View.GONE
+        statistic_tabs.visibility = View.VISIBLE
 
-        intervalHelper.hideBackdrop {
-            (activity as AppCompatActivity).supportActionBar?.elevation = 4f
-        }
+//        intervalHelper.hideBackdrop {
+//            (activity as AppCompatActivity).supportActionBar?.elevation = 4f
+//        }
 
         //statisticText.invalidate()
 
@@ -120,14 +113,14 @@ class StatisticFragment : androidx.fragment.app.Fragment() {
         (activity as AppCompatActivity).supportActionBar?.elevation = 0f
 
         // for some reason, animation does not trigger when intervalTextView is not gone
-        statisticText.visibility = View.GONE
-        statisticText.visibility = View.VISIBLE
+        statistic_tabs.visibility = View.GONE
+        statistic_tabs.visibility = View.VISIBLE
 
-        intervalHelper.showBackdrop()
+        //intervalHelper.showBackdrop()
 
         (activity as MainActivity).setTitle(getString(R.string.select_interval))
 
-        intervalHelper.selectIntervalChip()
+        //intervalHelper.selectIntervalChip()
         backdropLayout.invalidate()
 
         with(mOptionsMenu) {

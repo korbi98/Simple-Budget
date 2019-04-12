@@ -37,14 +37,16 @@ import com.korbi.simplebudget.ui.fragments.*
 import kotlinx.android.synthetic.main.budget_listening.view.*
 import java.text.DecimalFormat
 
-class BudgetAdapter(private var expenses: MutableList<Expense>,
-                    private var interval: Int,
-                    private val listener: OnLongItemClickListener) :
+class BudgetAdapter(private val listener: OnLongItemClickListener) :
                                         RecyclerView.Adapter<BudgetAdapter.ViewHolder>() {
 
+    var expenses = mutableListOf<Expense>()
+    var interval = MONTHLY_INTERVAL
+
     private val db = DBhandler.getInstance()
-    private var categories = db.getAllCategories()
+    private var categories = mutableListOf<Category>()
     private val iconIdArray: TypedArray = SimpleBudgetApp.res.obtainTypedArray(R.array.category_icons)
+    private val budgetHelper = BudgetHelper()
 
     interface OnLongItemClickListener {
         fun onLongClick(category: Category)
@@ -60,11 +62,11 @@ class BudgetAdapter(private var expenses: MutableList<Expense>,
         holder.categoryNameView.text = categories[position].name
         val iconId = iconIdArray.getResourceId(categories[position].icon, -1)
         holder.categoryIconView.setImageResource(iconId)
-        holder.categoryBudgetView.text = getBudgetText(categories[position])
-        holder.categoryProgressView.progress = getBudgetProgress(categories[position])
+        holder.categoryBudgetView.text = budgetHelper.getBudgetText(categories[position])
+        holder.categoryProgressView.progress = budgetHelper.getBudgetProgress(categories[position])
 
 
-        if (getBudgetProgress(categories[position]) > 100) {
+        if (budgetHelper.getBudgetProgress(categories[position]) > 100) {
             holder.categoryBudgetView.setTextColor(ContextCompat.getColor(holder.itemView.context,
                     R.color.expenseColor))
             holder.categoryProgressView.progressTintList = ColorStateList.valueOf(
@@ -81,117 +83,21 @@ class BudgetAdapter(private var expenses: MutableList<Expense>,
         return categories.size
     }
 
-    private fun getBudgetProgress(category: Category): Int {
-
-        val categoryTotalSum = getCategoryExpenses(category)
-        val budget = getIntervalBudget(category, interval)
-        val maxCategory = categories.maxBy { getCategoryExpenses(it) }
-        val maxAmount = if (maxCategory != null) {
-            getCategoryExpenses(maxCategory)
-        } else {
-            0
-        }
-
-        return when {
-            interval == ALL_TIME -> {
-                if (maxAmount != 0) {
-                    (categoryTotalSum.toFloat() / maxAmount.toFloat() * 100).toInt()
-                } else 0
-            }
-            categoryTotalSum > 0 && budget != 0 -> {
-                ((categoryTotalSum.toFloat() / budget.toFloat()) * 100).toInt()
-            }
-            else -> 0
-        }
-    }
-
-    private fun getBudgetText(category: Category): String {
-
-        val onLeft = SimpleBudgetApp.pref.getBoolean(
-                SimpleBudgetApp.res.getString(R.string.settings_key_currency_left), false)
-
-        val budget = getIntervalBudget(category, interval)
-        val catExpenses =
-                SimpleBudgetApp.createCurrencyString(getCategoryExpenses(category), true, !onLeft)
-
-        val currencySymbol = SimpleBudgetApp.pref.getString(
-                SimpleBudgetApp.res.getString(R.string.settings_key_currency),
-                SimpleBudgetApp.res.getStringArray(R.array.currencies_symbols)[0])
-
-        return when {
-            interval == ALL_TIME -> {
-                SimpleBudgetApp.createCurrencyString(getCategoryExpenses(category), true)
-            }
-            budget != 0 -> {
-                val budgetStr =
-                        SimpleBudgetApp.createCurrencyString(budget, true, onLeft)
-
-                "$catExpenses / $budgetStr"
-            }
-            else -> {
-                when (onLeft) {
-                    true -> "$catExpenses / -"
-                    false -> "$catExpenses / - $currencySymbol"
-                }
-            }
-        }
-    }
-
-    fun setInterval(interval: Int) {
-        this.interval = interval
-    }
-
-    fun setExpenses(expenses: MutableList<Expense>) {
-        this.expenses = expenses
-    }
-
     private fun isCategoryEmpty(category: Category): Boolean {
         return expenses.none { it.category == category && it.cost < 0}
     }
 
-    private fun getCategoryExpenses(category: Category): Int {
-        val categoryExpenses = expenses.filter { it.category == category && it.cost < 0}
-        return -categoryExpenses.sumBy { it.cost }
-    }
-
     fun updateCategories() {
+
         categories = db.getAllCategories().filter { !isCategoryEmpty(it) } .toMutableList()
 
-        categories.sortWith(compareBy({ -getBudgetProgress(it) }, { -getCategoryExpenses(it) }))
+        budgetHelper.categories = categories
+        budgetHelper.expenses = expenses
+        budgetHelper.interval = interval
+
+        categories.sortWith(compareBy({ -budgetHelper.getBudgetProgress(it) }, { -budgetHelper.getCategoryExpenses(it) }))
+
         notifyDataSetChanged()
-    }
-
-    private fun getIntervalBudget(category: Category, interval: Int): Int {
-
-        return when (interval) {
-            ALL_TIME -> 0
-            YEARLY_INTERVAL -> {
-                when (category.interval) {
-                    WEEKLY_INTERVAL -> category.budget * 52
-                    else -> category.budget * 12
-                }
-            }
-            QUARTERLY_INTERVAL -> {
-                when (category.interval) {
-                    WEEKLY_INTERVAL -> category.budget * 13
-                    else -> category.budget * 4
-                }
-            }
-            MONTHLY_INTERVAL -> {
-                when (category.interval) {
-                    WEEKLY_INTERVAL -> category.budget * 4
-                    else -> category.budget
-                }
-            }
-            else -> {
-                when (category.interval) {
-                    WEEKLY_INTERVAL -> category.budget
-                    else -> {
-                        (category.budget / 4.33f).toInt()
-                    }
-                }
-            }
-        }
     }
 
     inner class ViewHolder(budgetView: View) : RecyclerView.ViewHolder(budgetView) {

@@ -147,10 +147,6 @@ class MainActivity : AppCompatActivity() {
                 newFragment?.let { add(R.id.fragment_container, it) }
             }
 
-            if (fragment is DashboardFragment?) {
-                fab.visibility = View.VISIBLE
-            } else fab.visibility = View.GONE
-
             activeFragment?.let { hide(it) }
             newFragment?.let { show(it) }
             activeFragment = newFragment

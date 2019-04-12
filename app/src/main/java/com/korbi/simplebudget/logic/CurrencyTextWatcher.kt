@@ -22,12 +22,15 @@ import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
 import com.google.android.material.textfield.TextInputLayout
 import java.lang.StringBuilder
+import kotlin.math.round
 
 class CurrencyTextWatcher(private val inputView: EditText,
                           private val inputLayout: TextInputLayout,
                           private val separator: String,
-                          private val dialog: AlertDialog?,
-                          private val isNegativeAllowed: Boolean) : TextWatcher {
+                          private val isZeroAllowed: Boolean = false,
+                          private val isNegativeAllowed: Boolean = true,
+                          private val enableOkIfEmpty: Boolean = false,
+                          private val dialog: AlertDialog? = null) : TextWatcher {
 
     override fun afterTextChanged(s: Editable?) {
 
@@ -37,13 +40,26 @@ class CurrencyTextWatcher(private val inputView: EditText,
         }
 
         if (!s.isNullOrBlank()) inputLayout.error = ""
+
+        // enable or disable ok button for dialog
         if (dialog != null) {
-            val c = s.toString()
-            dialog.getButton(AlertDialog.BUTTON_POSITIVE).isEnabled =
-                    !(s.isNullOrBlank() || c == "." || c == "," || c == "-" || c == "-,"
-                            || c == "-.")
+            val c = s.toString().replace(",", ".")
+
+            with(dialog.getButton(AlertDialog.BUTTON_POSITIVE)) {
+                isEnabled = c.toFloatOrNull() != null
+
+                if (!isZeroAllowed) {
+                    if (c.toFloatOrNull() == null || round(c.toFloat()*100).toInt() == 0)
+                        isEnabled = false
+                }
+
+                if (enableOkIfEmpty) {
+                    if (s.isNullOrBlank()) isEnabled = true
+                }
+            }
         }
 
+        // handle input of valid currency amount
         var hasSeparator = false
         var separatorPosition: Int? = null
         val originalString = s.toString()

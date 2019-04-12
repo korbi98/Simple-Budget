@@ -22,6 +22,7 @@
     tools:context=".ui.fragments.StatisticFragment">
 
     <LinearLayout
+        android:id="@+id/statistic_main_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
@@ -38,18 +39,18 @@
             <include layout="@layout/interval_backdrop"/>
         </LinearLayout>
 
-        <RelativeLayout
-            android:id="@+id/statistic_main_layout"
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/statistic_tabs"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="wrap_content"
+            android:background="@color/gray_background"/>
 
-            <TextView
-                android:id="@+id/statisticText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/title_statistic"/>
-
-        </RelativeLayout>
+        <androidx.viewpager.widget.ViewPager
+            android:id="@+id/dashboard_viewpager"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingTop="10dp"
+            android:background="@color/gray_background"/>
 
     </LinearLayout>
 

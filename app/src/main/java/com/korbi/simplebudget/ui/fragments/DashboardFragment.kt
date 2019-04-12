@@ -16,80 +16,68 @@
 
 package com.korbi.simplebudget.ui.fragments
 
+import android.content.Context
 import android.content.Intent
+import android.content.res.ColorStateList
 import android.os.Bundle
-import android.util.SparseArray
+import android.util.Log
 import android.view.*
-import android.view.animation.AlphaAnimation
-import android.view.animation.Animation
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentStatePagerAdapter
-import com.google.android.material.tabs.TabLayout
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.chip.ChipGroup
 import com.korbi.simplebudget.MainActivity
 import com.korbi.simplebudget.R
 import com.korbi.simplebudget.SimpleBudgetApp
-import com.korbi.simplebudget.logic.ALL_TIME
-import com.korbi.simplebudget.logic.Expense
-import com.korbi.simplebudget.logic.IntervalSelectionBackdropHelper
-import com.korbi.simplebudget.ui.AddExpenses
+import com.korbi.simplebudget.logic.*
 import com.korbi.simplebudget.ui.IncomeManager
 import com.korbi.simplebudget.ui.ManageCategories
 import com.korbi.simplebudget.ui.SettingsActivity
 import kotlinx.android.synthetic.main.fragment_dashboard.view.*
 import kotlinx.android.synthetic.main.interval_backdrop.view.*
-import com.korbi.simplebudget.logic.MenuAnimator
+import com.korbi.simplebudget.logic.adapters.BudgetAdapter
+import com.korbi.simplebudget.ui.dialogs.BudgetDialog
+import com.korbi.simplebudget.ui.dialogs.CAT_INDEX
+import com.korbi.simplebudget.ui.dialogs.SET_TOTAL_BUDGET
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.fragment_dashboard.*
 
-class DashboardFragment : androidx.fragment.app.Fragment(), MainActivity.OnBackListener {
 
-    private lateinit var listener: DateSelectionListener
-    private lateinit var timeSelectionSpinner:Spinner
-    private lateinit var intervalSelectionLayout: View
+class DashboardFragment : androidx.fragment.app.Fragment(),
+                            MainActivity.OnBackListener,
+                            BudgetAdapter.OnLongItemClickListener,
+                            IntervalSelectionBackdropHelper {
+
+    override lateinit var mContext: Context
+    override lateinit var backdropLayout: LinearLayout
+    override lateinit var intervalChipGroup: ChipGroup
+    override lateinit var intervalSpinner: Spinner
+    override lateinit var intervalSpinnerLayout: View
+    override lateinit var mainLayout: View
+    override var deltaY = 0f
+
     private lateinit var expensesTextView: TextView
     private lateinit var incomeTextView: TextView
     private lateinit var balanceTextView: TextView
-    private lateinit var tabLayout: TabLayout
-    private lateinit var backdropLayout: LinearLayout
     private lateinit var mOptionsMenu: Menu
-    lateinit var intervalHelper: IntervalSelectionBackdropHelper
-    private val registeredFragments = SparseArray<Fragment>()
 
-    interface DateSelectionListener {
-        fun onDateSelectionChange()
-    }
+    private lateinit var budgetRecycler: RecyclerView
+    private lateinit var budgetAdapter: BudgetAdapter
+    private lateinit var totalBudgetLayout: RelativeLayout
+    private lateinit var totalBudgetTextView: TextView
+    private lateinit var totalBudgetAmount: TextView
+    private lateinit var totalBudgetProgress: ProgressBar
+    private lateinit var emptyMessage: TextView
+    private val budgetHelper = BudgetHelper()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
 
         return inflater.inflate(R.layout.fragment_dashboard, container, false).apply {
 
-            timeSelectionSpinner = backdrop_time_selection_spinner
-            intervalSelectionLayout = backdrop_time_selection_layout
-            expensesTextView = dashboard_total_expenses
-            incomeTextView = dashboard_total_income
-            balanceTextView = dashboard_balance
-            backdropLayout = dashboard_interval_layout
-
-            intervalHelper = IntervalSelectionBackdropHelper(
-                    context = context,
-                    backdropLayout = backdropLayout,
-                    intervalChipGroup = backdrop_interval_chip_group,
-                    intervalSpinner = timeSelectionSpinner,
-                    intervalLayout = intervalSelectionLayout,
-                    mainLayout = dashboard_main_layout).apply {
-                onAllTimeSelected = {
-                    sumExpenses(getExpensesForInterval(ALL_TIME, 0))
-
-                    if (::listener.isInitialized) {
-                        listener.onDateSelectionChange()
-                    }
-                }
-            }
 
             // prevent chips from being unselected
             chip_weekly.setOnClickListener { chip_weekly.isChecked = true }
@@ -98,102 +86,57 @@ class DashboardFragment : androidx.fragment.app.Fragment(), MainActivity.OnBackL
             chip_yearly.setOnClickListener { chip_yearly.isChecked = true }
             chip_all_time.setOnClickListener { chip_all_time.isChecked = true }
 
+            mContext = context
+            backdropLayout = dashboard_backdrop_layout
+            intervalChipGroup = backdrop_interval_chip_group
+            intervalSpinner = backdrop_time_selection_spinner
+            intervalSpinnerLayout = backdrop_time_selection_layout
+            mainLayout = dashboard_main_layout
+
+            expensesTextView = dashboard_total_expenses
+            incomeTextView = dashboard_total_income
+            balanceTextView = dashboard_balance
+
+            // Setup Budget
+            emptyMessage = budget_fragment_empty_message
+            budgetAdapter = BudgetAdapter(this@DashboardFragment)
+
+            budgetRecycler = dashboard_budget_recycler.apply {
+                setHasFixedSize(true)
+                layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
+                adapter = budgetAdapter
+            }
+
+            totalBudgetTextView = budget_total_text
+            totalBudgetAmount = budget_total_budget
+            totalBudgetProgress = budget_total_progress
+            totalBudgetLayout = budget_total_layout
+            totalBudgetLayout.setOnLongClickListener {
+                showBudgetDialog(SET_TOTAL_BUDGET)
+                true
+            }
+
+            // Measure height of interval backdrop
             viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
                 override fun onGlobalLayout() {
                     if (viewTreeObserver.isAlive)
                         viewTreeObserver.removeOnGlobalLayoutListener(this)
-                    intervalHelper.deltaY = backdropLayout.height.toFloat()
+                    deltaY = backdropLayout.height.toFloat()
                     backdropLayout.visibility = View.GONE
                     if (::mOptionsMenu.isInitialized) updateOptionsMenu()
                 }
             })
 
-
-            val viewPager = dashboard_viewpager
-            viewPager.adapter = object : FragmentStatePagerAdapter(childFragmentManager) {
-
-                override fun getCount(): Int {
-                    return 2
-                }
-
-                override fun instantiateItem(container: ViewGroup, position: Int): Any {
-                    val fragment = super.instantiateItem(container, position) as Fragment
-                    registeredFragments.put(position, fragment)
-                    return fragment
-                }
-
-                override fun destroyItem(container: ViewGroup, position: Int, `object`: Any) {
-                    registeredFragments.remove(position)
-                    super.destroyItem(container, position, `object`)
-                }
-
-                override fun getItem(position: Int): Fragment {
-                    return when (position) {
-                        1 -> PieChartFragment()
-                        else -> {
-                            val fragment = BudgetFragment()
-                            setListener(fragment.getListener())
-                            fragment
-                        }
-                    }
-                }
-            }
-
-            tabLayout = dashboard_tabs.apply {
-                addTab(this.newTab().setText(R.string.budget))
-                addTab(this.newTab().setText(R.string.distribution))
-                addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
-
-                    override fun onTabSelected(tab: TabLayout.Tab) {
-                        viewPager.currentItem = tab.position
-
-                        when (viewPager.currentItem) {
-                            1 -> {
-                                val pie = registeredFragments[1] as PieChartFragment
-                                setListener(pie.getListener())
-                                pie.updateView()
-                            }
-                            else -> {
-                                val budget = registeredFragments[viewPager.currentItem]
-                                        as BudgetFragment
-                                setListener(budget.getListener())
-                                budget.updateView()
-                            }
-                        }
-                    }
-                    override fun onTabReselected(p0: TabLayout.Tab?) {}
-                    override fun onTabUnselected(p0: TabLayout.Tab?) {}
-                })
-            }
-
-            viewPager.addOnPageChangeListener(TabLayout.TabLayoutOnPageChangeListener(tabLayout))
-
-            timeSelectionSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-                override fun onNothingSelected(parent: AdapterView<*>?) {parent?.setSelection(0)}
-
-                override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int,
-                                            id: Long) {
-                    intervalHelper.run {
-                        sumExpenses(getExpensesForInterval(getIntervalType(), position))
-                    }
-                    listener.onDateSelectionChange()
-                }
-            }
-
-            intervalHelper.selectIntervalChip()
+            initIntervalHelper()
             setHasOptionsMenu(true)
         }
     }
 
     override fun onResume() {
         super.onResume()
-        updateIntervalText()
+        updateIntervalText(false)
         SimpleBudgetApp.handleRecurringEntries()
-        intervalHelper.run {
-            setupTimeSelectionSpinner(getIntervalType())
-            sumExpenses(getExpensesForInterval(getIntervalType(), getInterval()))
-        }
-        if (::listener.isInitialized) listener.onDateSelectionChange()
+        setupTimeSelectionSpinner(getIntervalType())
     }
 
     override fun onHiddenChanged(hidden: Boolean) {
@@ -213,11 +156,15 @@ class DashboardFragment : androidx.fragment.app.Fragment(), MainActivity.OnBackL
 
     override fun onBackPressed() {
         if (backdropLayout.isVisible) {
-            backdropLayout.visibility = View.GONE
+            hideBackdropLayout()
             updateIntervalText()
         } else {
             activity?.finish()
         }
+    }
+
+    override fun onIntervalSelected() {
+        updateView()
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -233,30 +180,34 @@ class DashboardFragment : androidx.fragment.app.Fragment(), MainActivity.OnBackL
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
 
         R.id.menu_dashboard_interval_done -> {
-            hideIntervalLayout()
+            hideBackdropLayout()
             true
         }
         R.id.menu_dashboard_time_interval -> {
-            showIntervalLayout()
+            showBackdropLayout()
             true
         }
         R.id.menu_dashboard_categories -> {
-            val categoryManager = Intent(context, ManageCategories::class.java)
+            val categoryManager = Intent(mContext, ManageCategories::class.java)
             startActivity(categoryManager)
             true
         }
         R.id.menu_dashboard_regular_income -> {
-            val incomeManager = Intent(context, IncomeManager::class.java)
+            val incomeManager = Intent(mContext, IncomeManager::class.java)
             startActivity(incomeManager)
             true
         }
         R.id.menu_dashboard_settings -> {
-            val settings = Intent(context, SettingsActivity::class.java)
+            val settings = Intent(mContext, SettingsActivity::class.java)
             startActivity(settings)
             true
         }
 
         else -> super.onOptionsItemSelected(item)
+    }
+
+    override fun onLongClick(category: Category) {
+        showBudgetDialog(category.id)
     }
 
     fun updateOptionsMenu() {
@@ -275,7 +226,55 @@ class DashboardFragment : androidx.fragment.app.Fragment(), MainActivity.OnBackL
         }
     }
 
-    fun sumExpenses(expenses: MutableList<Expense>) {
+    fun updateView() {
+
+        sumExpenses()
+
+        with(budgetHelper) {
+
+            expenses = getExpensesForInterval()
+            interval = getIntervalType()
+
+            when (expenses.none { it.cost < 0 }) {
+                true -> {
+                    budgetRecycler.visibility = View.GONE
+                    emptyMessage.visibility = View.VISIBLE
+                }
+                false -> {
+                    budgetRecycler.visibility = View.VISIBLE
+                    emptyMessage.visibility = View.GONE
+                }
+            }
+
+            totalBudgetAmount.text = getTotalBudgetText()
+            totalBudgetProgress.progress = getTotalBudgetProgress()
+
+            totalBudgetTextView.text = when (getIntervalType()) {
+                ALL_TIME -> getString(R.string.total_expenses)
+                else -> getString(R.string.total_budget)
+            }
+
+            if (getTotalBudgetProgress() > 100) {
+                totalBudgetAmount.setTextColor(ContextCompat.getColor(
+                        requireContext(), R.color.expenseColor))
+                totalBudgetProgress.progressTintList = ColorStateList.valueOf(
+                        ContextCompat.getColor(requireContext(), R.color.expenseColor))
+            } else {
+                totalBudgetAmount.setTextColor(ContextCompat.getColor(requireContext(),
+                        R.color.text_color_white_secondary))
+                totalBudgetProgress.progressTintList = ColorStateList.valueOf(
+                        ContextCompat.getColor(requireContext(), R.color.colorPrimary))
+            }
+
+            budgetAdapter.expenses = expenses
+            budgetAdapter.interval = interval
+            budgetAdapter.updateCategories()
+        }
+    }
+
+    private fun sumExpenses() {
+
+        val expenses = getExpensesForInterval()
 
         val totalExpenses = expenses.filter { it.cost < 0 } .sumBy { it.cost }
         val totalIncome = expenses.filter {it.cost > 0} .sumBy { it.cost }
@@ -295,26 +294,20 @@ class DashboardFragment : androidx.fragment.app.Fragment(), MainActivity.OnBackL
         }
     }
 
-    fun setListener(listener: DateSelectionListener) {
-        this.listener = listener
+    private fun updateIntervalText(animate: Boolean = true) {
+        if (animate) {
+            (activity as MainActivity).setTitle(getIntervalString())
+        } else {
+            // don't animate title on startup
+            (activity as MainActivity).title = getIntervalString()
+        }
     }
 
-    private fun updateIntervalText() {
-        (activity as MainActivity).setTitle(when (timeSelectionSpinner.selectedItem) {
-            null -> getString(R.string.all_time)
-            else -> timeSelectionSpinner.selectedItem.toString()
-        })
-    }
+    private fun hideBackdropLayout() {
 
-    private fun hideIntervalLayout() {
+        deltaY = backdropLayout.height.toFloat()
 
-        intervalHelper.deltaY = backdropLayout.height.toFloat()
-
-        // for some reason, animation does not trigger when first child of layout is not gone
-        dashboard_table.visibility = View.GONE
-        dashboard_table.visibility = View.VISIBLE
-
-        intervalHelper.hideBackdrop {
+        hideBackdrop {
             updateIntervalText()
             (activity as AppCompatActivity).supportActionBar?.elevation = 4f
         }
@@ -334,20 +327,15 @@ class DashboardFragment : androidx.fragment.app.Fragment(), MainActivity.OnBackL
         }
     }
 
-    private fun showIntervalLayout() {
+    private fun showBackdropLayout() {
 
         (activity as AppCompatActivity).supportActionBar?.elevation = 0f
 
-        // for some reason, animation does not trigger when first child of layout is not gone
-        dashboard_main_layout.visibility = View.GONE
-        dashboard_main_layout.visibility = View.VISIBLE
-
-        dashboard_main_layout.invalidate()
-        intervalHelper.showBackdrop()
+        showBackdrop()
 
         (activity as MainActivity).setTitle(getString(R.string.select_interval))
 
-        intervalHelper.selectIntervalChip()
+        selectIntervalChip()
 
         with(mOptionsMenu) {
 
@@ -363,6 +351,13 @@ class DashboardFragment : androidx.fragment.app.Fragment(), MainActivity.OnBackL
             MenuAnimator.setVisibility(findItem(R.id.menu_dashboard_time_interval), false) { // endAction
                 MenuAnimator.setVisibility(findItem(R.id.menu_dashboard_interval_done), true)
             }
+        }
+    }
+
+    private fun showBudgetDialog(id: Int) {
+        BudgetDialog().let {
+            it.arguments = Bundle().apply { putInt(CAT_INDEX, id) }
+            it.show(childFragmentManager, "budgetDialog@Dashboard")
         }
     }
 }

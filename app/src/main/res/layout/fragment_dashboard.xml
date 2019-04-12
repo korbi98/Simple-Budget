@@ -20,7 +20,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/gray_background"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".ui.fragments.DashboardFragment">
 
     <LinearLayout
@@ -30,7 +30,7 @@
         tools:ignore="UselessParent">
 
         <LinearLayout
-            android:id="@+id/dashboard_interval_layout"
+            android:id="@+id/dashboard_backdrop_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
@@ -40,97 +40,178 @@
             <include layout="@layout/interval_backdrop"/>
         </LinearLayout>
 
-        <RelativeLayout
+        <LinearLayout
             android:id="@+id/dashboard_main_layout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:background="@color/default_background">
+            android:orientation="vertical">
 
-            <TableLayout
-                android:id="@+id/dashboard_table"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingTop="16dp"
-                android:layout_centerHorizontal="true"
-                android:paddingBottom="16dp">
-
-                <TableRow>
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/dashboard_expenses"
-                        android:layout_gravity="center_vertical" />
-                    <TextView
-                        android:id="@+id/dashboard_total_expenses"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/default_value"
-                        android:textSize="22sp"
-                        android:layout_gravity="end"
-                        android:layout_marginStart="8dp"
-                        android:textColor="@color/expenseColor" />
-                </TableRow>
-
-                <TableRow>
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/dashboard_income"
-                        android:layout_gravity="center_vertical" />
-                    <TextView
-                        android:id="@+id/dashboard_total_income"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/default_value"
-                        android:textSize="18sp"
-                        android:layout_gravity="end"
-                        android:layout_marginStart="8dp"
-                        android:textColor="@color/incomeColor" />
-                </TableRow>
-
-                <TableRow>
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/dashboard_balance"
-                        android:layout_gravity="center_vertical" />
-                    <TextView
-                        android:id="@+id/dashboard_balance"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/default_value"
-                        android:textSize="18sp"
-                        android:layout_marginStart="8dp"
-                        android:layout_gravity="end"/>
-                </TableRow>
-
-            </TableLayout>
-
-            <View
-                android:id="@+id/dashboard_divider"
-                android:layout_width="match_parent"
-                android:layout_height="3dp"
-                android:layout_below="@id/dashboard_table"
-                android:background="@color/colorPrimaryDark"
-                android:layout_gravity="bottom" />
-
-            <com.google.android.material.tabs.TabLayout
-                android:id="@+id/dashboard_tabs"
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/dashboard_divider"
-                android:background="@color/gray_background"/>
+                android:layout_marginTop="8dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                app:cardBackgroundColor="@color/gray_background"
+                app:contentPadding="8dp"
+                style="@style/CardView.Dark">
 
-            <androidx.viewpager.widget.ViewPager
-                android:id="@+id/dashboard_viewpager"
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/summary"
+                        android:textSize="18sp"/>
+
+                    <TableLayout
+                        android:id="@+id/dashboard_table"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:paddingBottom="8dp">
+
+                        <TableRow>
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/dashboard_expenses"
+                                android:layout_gravity="center_vertical" />
+                            <TextView
+                                android:id="@+id/dashboard_total_expenses"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/default_value"
+                                android:textSize="22sp"
+                                android:layout_gravity="end"
+                                android:layout_marginStart="8dp"
+                                android:textColor="@color/expenseColor" />
+                        </TableRow>
+
+                        <TableRow>
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/dashboard_income"
+                                android:layout_gravity="center_vertical" />
+                            <TextView
+                                android:id="@+id/dashboard_total_income"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/default_value"
+                                android:textSize="18sp"
+                                android:layout_gravity="end"
+                                android:layout_marginStart="8dp"
+                                android:textColor="@color/incomeColor" />
+                        </TableRow>
+
+                        <TableRow>
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/dashboard_balance"
+                                android:layout_gravity="center_vertical" />
+                            <TextView
+                                android:id="@+id/dashboard_balance"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/default_value"
+                                android:textSize="18sp"
+                                android:layout_marginStart="8dp"
+                                android:layout_gravity="end"/>
+                        </TableRow>
+
+                    </TableLayout>
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_below="@id/dashboard_tabs"
-                android:paddingTop="10dp"
-                android:background="@color/gray_background"/>
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                style="@style/CardView.Dark">
 
-        </RelativeLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="18sp"
+                        android:layout_margin="8dp"
+                        android:text="@string/budget"/>
+
+                    <RelativeLayout
+                        android:id="@+id/budget_total_layout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingTop="16dp"
+                        android:paddingEnd="20dp"
+                        android:paddingStart="20dp"
+                        android:paddingBottom="12dp"
+                        android:clickable="true"
+                        android:background="?android:attr/selectableItemBackground"
+                        android:focusable="true">
+
+                        <TextView
+                            android:id="@+id/budget_total_text"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentStart="true"
+                            android:layout_toStartOf="@id/budget_listening_category_budget"
+                            android:text="@string/total_budget"/>
+
+                        <TextView
+                            android:id="@+id/budget_total_budget"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textAlignment="viewEnd"
+                            android:layout_toEndOf="@id/budget_total_text"
+                            android:layout_alignParentEnd="true" />
+
+                        <ProgressBar
+                            android:id="@+id/budget_total_progress"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@id/budget_total_text"
+                            android:max="100"
+                            android:layout_marginTop="4dp"
+                            android:progressTint="@color/colorPrimary"
+                            style="@style/Widget.AppCompat.ProgressBar.Horizontal"/>
+
+                    </RelativeLayout>
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/dashboard_budget_recycler"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent" />
+
+                    <TextView
+                        android:id="@+id/budget_fragment_empty_message"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:singleLine="false"
+                        android:layout_marginTop="32dp"
+                        android:textAlignment="center"
+                        android:text="@string/empty_budget_list_message"/>
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+        </LinearLayout>
 
     </LinearLayout>
 

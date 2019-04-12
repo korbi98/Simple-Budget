@@ -16,10 +16,14 @@
 
 package com.korbi.simplebudget.logic
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
 import android.content.Context
+import android.util.Log
 import android.view.View
 import android.view.animation.Animation
 import android.view.animation.TranslateAnimation
+import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.LinearLayout
 import android.widget.Spinner
@@ -37,21 +41,33 @@ const val QUARTERLY_INTERVAL = 2
 const val MONTHLY_INTERVAL = 1
 const val WEEKLY_INTERVAL = 0
 
-class IntervalSelectionBackdropHelper(private val context: Context,
-                                      private val backdropLayout: LinearLayout,
-                                      private val intervalChipGroup: ChipGroup,
-                                      private val intervalSpinner: Spinner,
-                                      private val intervalLayout: View,
-                                      private val mainLayout: View,
-                                      var onAllTimeSelected: () -> Unit = {}) {
+interface IntervalSelectionBackdropHelper {
 
-    var deltaY = 0f
+    val mContext: Context
+    val backdropLayout: LinearLayout
+    val intervalChipGroup: ChipGroup
+    val intervalSpinner: Spinner
+    val intervalSpinnerLayout: View
+    val mainLayout: View
+    var deltaY: Float
 
-    init {
+
+    fun initIntervalHelper() {
         intervalChipGroup.setOnCheckedChangeListener { _, _ ->
             setupTimeSelectionSpinner(getIntervalType())
         }
+
+        intervalSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onNothingSelected(parent: AdapterView<*>?) {parent?.setSelection(0)}
+
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int,
+                                        id: Long) {
+                onIntervalSelected()
+            }
+        }
     }
+
+    fun onIntervalSelected()
 
     fun getInterval(): Int {
         return  intervalSpinner.selectedItemPosition
@@ -59,7 +75,7 @@ class IntervalSelectionBackdropHelper(private val context: Context,
 
     fun getIntervalType(): Int {
         val default = SimpleBudgetApp.pref.getInt(
-                context.getString(R.string.dashboard_time_selection_key), MONTHLY_INTERVAL)
+                mContext.getString(R.string.dashboard_time_selection_key), MONTHLY_INTERVAL)
 
         return when (intervalChipGroup.checkedChipId) {
             R.id.chip_weekly -> WEEKLY_INTERVAL
@@ -78,7 +94,7 @@ class IntervalSelectionBackdropHelper(private val context: Context,
 
     fun selectIntervalChip() {
         val selection = SimpleBudgetApp.pref.getInt(
-                context.getString(R.string.dashboard_time_selection_key), MONTHLY_INTERVAL)
+                mContext.getString(R.string.dashboard_time_selection_key), MONTHLY_INTERVAL)
 
         intervalChipGroup.check( when (selection) {
             WEEKLY_INTERVAL -> R.id.chip_weekly
@@ -91,29 +107,28 @@ class IntervalSelectionBackdropHelper(private val context: Context,
 
     fun setupTimeSelectionSpinner(intervalType: Int) {
 
-        intervalLayout.visibility = View.VISIBLE
+        intervalSpinnerLayout.visibility = View.VISIBLE
 
         val optionsArray = when (intervalType) {
             WEEKLY_INTERVAL -> DateHelper.getWeekSpinnerArray()
             QUARTERLY_INTERVAL -> DateHelper.getQuarterSpinnerArray()
             YEARLY_INTERVAL -> DateHelper.getYearSpinnerArray()
             ALL_TIME -> {
-                intervalLayout.visibility = View.GONE
-                onAllTimeSelected()
-
-                Array(0){""}
+                intervalSpinnerLayout.visibility = View.GONE
+                onIntervalSelected()
+                Array(1){""}
             }
             else -> DateHelper.getMonthSpinnerArray()
         }
         val position = when (intervalType) {
-            WEEKLY_INTERVAL -> optionsArray.indexOf(context.getString(R.string.this_week))
-            MONTHLY_INTERVAL -> optionsArray.indexOf(context.getString(R.string.this_month))
-            QUARTERLY_INTERVAL -> optionsArray.indexOf(context.getString(R.string.this_quarter))
+            WEEKLY_INTERVAL -> optionsArray.indexOf(mContext.getString(R.string.this_week))
+            MONTHLY_INTERVAL -> optionsArray.indexOf(mContext.getString(R.string.this_month))
+            QUARTERLY_INTERVAL -> optionsArray.indexOf(mContext.getString(R.string.this_quarter))
             YEARLY_INTERVAL -> optionsArray.indexOf(Year.now().toString())
             else -> 0
         }
 
-        intervalSpinner.adapter = ArrayAdapter<String>(context,
+        intervalSpinner.adapter = ArrayAdapter<String>(mContext,
                 android.R.layout.simple_spinner_dropdown_item, optionsArray)
 
         if (position != -1) {
@@ -121,7 +136,8 @@ class IntervalSelectionBackdropHelper(private val context: Context,
         }
     }
 
-    fun getExpensesForInterval (intervalType: Int, selectedInterval: Int): MutableList<Expense> {
+    fun getExpensesForInterval (intervalType: Int = getIntervalType(),
+                                selectedInterval: Int = getInterval()): MutableList<Expense> {
         val db = DBhandler.getInstance()
         var startDate = db.getOldestDate()
         var endDate = db.getNewestDate()
@@ -173,7 +189,7 @@ class IntervalSelectionBackdropHelper(private val context: Context,
     }
 
     fun hideBackdrop(onFinish: () -> Unit = {}) {
-        backdropLayout.animation = TranslateAnimation(0f,0f, 0f, -deltaY).apply {
+        backdropLayout.startAnimation(TranslateAnimation(0f,0f, 0f, -deltaY).apply {
             duration = 200
             setAnimationListener(object : Animation.AnimationListener {
                 override fun onAnimationStart(animation: Animation?) {
@@ -186,9 +202,10 @@ class IntervalSelectionBackdropHelper(private val context: Context,
                     onFinish()
                 }
             })
-        }
+            startNow()
+        })
 
-        mainLayout.animation = TranslateAnimation(0f,0f, 0f, -deltaY).apply {
+        mainLayout.startAnimation(TranslateAnimation(0f,0f, 0f, -deltaY).apply {
             duration = 200
             setAnimationListener(object : Animation.AnimationListener {
                 override fun onAnimationStart(animation: Animation?) {
@@ -199,11 +216,11 @@ class IntervalSelectionBackdropHelper(private val context: Context,
                     onFinish()
                 }
             })
-        }
+        })
     }
 
     fun showBackdrop() {
-        backdropLayout.animation = TranslateAnimation(0f,0f, -deltaY, 0f).apply {
+        backdropLayout.startAnimation(TranslateAnimation(0f,0f, -deltaY, 0f).apply {
             duration = 200
             setAnimationListener(object : Animation.AnimationListener {
                 override fun onAnimationStart(animation: Animation?) {}
@@ -213,9 +230,9 @@ class IntervalSelectionBackdropHelper(private val context: Context,
                     backdropLayout.clearAnimation()
                 }
             })
-        }
+        })
 
-        mainLayout.animation = TranslateAnimation(0f,0f, 0f, deltaY).apply {
+        mainLayout.startAnimation(TranslateAnimation(0f,0f, 0f, deltaY).apply {
             duration = 200
             setAnimationListener(object : Animation.AnimationListener {
                 override fun onAnimationStart(animation: Animation?) {}
@@ -224,6 +241,14 @@ class IntervalSelectionBackdropHelper(private val context: Context,
                     mainLayout.clearAnimation()
                 }
             })
+        })
+    }
+
+    fun getIntervalString(): String {
+        return when {
+            getIntervalType() != ALL_TIME ->
+                intervalSpinner.selectedItem?.toString() ?: mContext.getString(R.string.all_time)
+            else -> mContext.getString(R.string.all_time)
         }
     }
 }

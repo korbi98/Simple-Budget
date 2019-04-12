@@ -44,7 +44,7 @@ import kotlinx.android.synthetic.main.fragment_pie_chart.view.*
 import java.text.DecimalFormat
 
 
-class PieChartFragment : androidx.fragment.app.Fragment(),  DashboardFragment.DateSelectionListener {
+class PieChartFragment : androidx.fragment.app.Fragment() {
 
     private lateinit var pieChart: PieChart
     private val colors = intArrayOf(
@@ -173,17 +173,17 @@ class PieChartFragment : androidx.fragment.app.Fragment(),  DashboardFragment.Da
         return expenses.none { it.category == category && it.cost < 0}
     }
 
-    override fun onDateSelectionChange() {
-        updateView()
-    }
-
-    fun getListener(): DashboardFragment.DateSelectionListener {
-        return this
-    }
+//    override fun onDateSelectionChange() {
+//        updateView()
+//    }
+//
+//    fun getListener(): DashboardFragment.DateSelectionListener {
+//        return this
+//    }
 
     fun updateView() {
         val dashboard = requireParentFragment() as DashboardFragment
-        with(dashboard.intervalHelper) {
+        with(dashboard) {
             val expenses = if (getInterval() != -1) {
                 getExpensesForInterval(getIntervalType(), getInterval())
             } else {

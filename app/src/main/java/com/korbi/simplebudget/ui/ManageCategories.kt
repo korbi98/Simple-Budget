@@ -31,6 +31,7 @@ import com.korbi.simplebudget.logic.Category
 import com.korbi.simplebudget.logic.adapters.CategoryAdapter
 import com.korbi.simplebudget.logic.dragAndDrop.ItemTouchHelperCallback
 import com.korbi.simplebudget.ui.dialogs.AddEditCategoryDialog
+import com.korbi.simplebudget.ui.dialogs.BudgetDialog
 import com.korbi.simplebudget.ui.dialogs.CAT_INDEX
 import kotlinx.android.synthetic.main.activity_manage_categories.*
 import kotlinx.android.synthetic.main.category_manager_migrate_category.*
@@ -146,6 +147,13 @@ class ManageCategories : AppCompatActivity(), AddEditCategoryDialog.OnSaveListen
                             android.R.layout.simple_spinner_dropdown_item, categoryNameList)
 
         dialog.show()
+    }
+
+    override fun onSetBudget(category: Category) {
+        BudgetDialog().let {
+            it.arguments = Bundle().apply { putInt(CAT_INDEX, category.id) }
+            it.show(supportFragmentManager, "budgetDialog@categories")
+        }
     }
 
     override fun onStartDrag(viewHolder: CategoryAdapter.ViewHolder) {

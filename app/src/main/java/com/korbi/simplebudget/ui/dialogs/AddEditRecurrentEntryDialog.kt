@@ -179,7 +179,7 @@ class AddEditRecurrentEntryDialog : DialogFragment() {
         val separator = DecimalFormatSymbols.getInstance().decimalSeparator.toString()
 
         currencyInput.addTextChangedListener(CurrencyTextWatcher(currencyInput, inputLayout,
-                separator, dialog, true))
+                separator, isZeroAllowed = false, isNegativeAllowed = true, dialog = dialog))
 
     }
 

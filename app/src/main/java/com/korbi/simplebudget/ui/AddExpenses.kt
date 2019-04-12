@@ -119,10 +119,8 @@ class AddExpenses : AppCompatActivity() {
         val amountString = currencyInput.text.toString().replace(",", ".")
 
         when {
-            currencyInput.text.isNullOrBlank() || amountString == "." || amountString == "-"
-                                                                        || amountString == "-."->
+            amountString.toFloatOrNull() == null || round(amountString.toFloat() * 100).toInt() == 0 ->
                 currencyEditLayout.error = getString(R.string.no_amount_warning)
-
 
             (this::expenseToUpdate.isInitialized) -> { // update existing expense
                 val amount = when (noDecimal) {
@@ -224,7 +222,7 @@ class AddExpenses : AppCompatActivity() {
 
         currencyInput = add_expense_currency_input.apply {
             addTextChangedListener(
-                    CurrencyTextWatcher(this, inputLayout, separator, null, true))
+                    CurrencyTextWatcher(this, inputLayout, separator))
 
             setOnEditorActionListener { v, actionId, _ ->
                 if (actionId == EditorInfo.IME_ACTION_DONE) {

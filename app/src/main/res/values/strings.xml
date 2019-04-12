@@ -171,6 +171,8 @@
     <string name="select_interval">Select interval:</string>
     <string name="quarterly">Quarterly</string>
     <string name="yearly">Yearly</string>
+    <string name="summary">Summary</string>
+    <string name="set_budget">Set budget</string>
 
 
     <string-array name="default_categories">
