@@ -20,6 +20,7 @@ import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.util.SparseBooleanArray
 import android.view.*
 import androidx.recyclerview.widget.RecyclerView
 import com.korbi.simplebudget.R
@@ -29,6 +30,8 @@ import android.widget.SearchView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
+import androidx.core.util.containsKey
+import androidx.core.util.set
 import androidx.core.view.iterator
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bignerdranch.expandablerecyclerview.ExpandableRecyclerAdapter
@@ -48,6 +51,13 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
                                                         FilterBottomSheet.OnFilterFragmentListener,
                                                         HistoryAdapter.ClickRecurrentEntryListener {
 
+    val expandedStateMap = SparseBooleanArray()
+    private var typeSelection = TYPE_BOTH //0 for both, 1 for expenses, 2 for income
+    private var dateSelection = SELECT_ALL //0 last 30 days, 1 last 90 days, 2 this year, 3 all time
+    private lateinit var fromDateSelection: LocalDate
+    private lateinit var toDateSelection: LocalDate
+    private var categorySelection = BooleanArray(0) //true if category selected false else
+
     private lateinit var emptyMessage: TextView
     private lateinit var historyRecycler: RecyclerView
     private lateinit var historyAdapter: HistoryAdapter
@@ -61,6 +71,9 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
+
+        fromDateSelection = LocalDate.now()
+        toDateSelection = LocalDate.now()
 
         val rootview = inflater.inflate(R.layout.fragment_history, container, false)
 
@@ -83,11 +96,11 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
     override fun onResume() {
         super.onResume()
         SimpleBudgetApp.handleRecurringEntries()
-        updateView(getHistoryEntries((activity as MainActivity).typeSelection,
-                                        (activity as MainActivity).dateSelection,
-                                        (activity as MainActivity).fromDateSelection,
-                                        (activity as MainActivity).toDateSelection,
-                                        (activity as MainActivity).categorySelection))
+        if (categorySelection.size != db.getAllCategories().size) {
+            categorySelection = BooleanArray(db.getAllCategories().size) { true }
+        }
+        updateView(getHistoryEntries(typeSelection, dateSelection, fromDateSelection,
+                                        toDateSelection, categorySelection))
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -126,11 +139,8 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
             mOptionsMenu.findItem(R.id.menu_history_filter_reset).isVisible = false
         }
         searchView.setOnCloseListener {
-            updateView(getHistoryEntries((activity as MainActivity).typeSelection,
-                    (activity as MainActivity).dateSelection,
-                    (activity as MainActivity).fromDateSelection,
-                    (activity as MainActivity).toDateSelection,
-                    (activity as MainActivity).categorySelection))
+            updateView(getHistoryEntries(typeSelection, dateSelection, fromDateSelection,
+                    toDateSelection, categorySelection))
             updateOptionsMenu()
             false
         }
@@ -142,14 +152,13 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
         R.id.menu_history_filter -> {
 
             val bundle = Bundle().apply {
-                putInt(TYPE_PREFILL, (activity as MainActivity).typeSelection)
-                putInt(DATE_PREFILL, (activity as MainActivity).dateSelection)
+                putInt(TYPE_PREFILL, typeSelection)
+                putInt(DATE_PREFILL, dateSelection)
                 putString(FROM_DATE_PRESELECT,
-                        dateFormatter.format((activity as MainActivity).fromDateSelection))
+                        dateFormatter.format(fromDateSelection))
                 putString(TO_DATE_PRESELECT,
-                        dateFormatter.format((activity as MainActivity).toDateSelection))
-                putBooleanArray(CATEGORY_PRESELECT,
-                        (activity as MainActivity).categorySelection)
+                        dateFormatter.format(toDateSelection))
+                putBooleanArray(CATEGORY_PRESELECT, categorySelection)
             }
 
             FilterBottomSheet().also {
@@ -161,10 +170,8 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
         }
 
         R.id.menu_history_filter_reset -> {
-            onSelectionChanged(TYPE_BOTH, SELECT_ALL,
-                    (activity as MainActivity).fromDateSelection,
-                    (activity as MainActivity).toDateSelection,
-                    BooleanArray((activity as MainActivity).categorySelection.size){true})
+            onSelectionChanged(TYPE_BOTH, SELECT_ALL, fromDateSelection, toDateSelection,
+                    BooleanArray(categorySelection.size){true})
             true
         }
         else -> super.onOptionsItemSelected(item)
@@ -193,7 +200,10 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
                             db.getExpensesByDate(month.atDay(1), month.atEndOfMonth())
                     expenses = filterExpenses(expenses, type, date, fromDate, toDate, categories)
 
-                    historyEntries.add(HistoryEntry(expenses, dateString))
+                    val isCurrentInterval = DateHelper.isBetween(
+                            LocalDate.now(), month.atDay(1), month.atEndOfMonth())
+
+                    historyEntries.add(HistoryEntry(expenses, dateString, isCurrentInterval))
                 }
             }
 
@@ -206,7 +216,10 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
                     var expenses = db.getExpensesByDate(week[0], week[1])
                     expenses = filterExpenses(expenses, type, date, fromDate, toDate, categories)
 
-                    historyEntries.add(HistoryEntry(expenses, dateString))
+
+                    val isCurrentInterval =
+                            DateHelper.isBetween(LocalDate.now(), week[0], week[1])
+                    historyEntries.add(HistoryEntry(expenses, dateString, isCurrentInterval))
                 }
             }
         }
@@ -269,7 +282,6 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
             setTitle(getString(R.string.delete_expenses_message))
             setPositiveButton(getString(R.string.yes)) { _, _ ->
                 db.deleteExpenses(historyAdapter.getAndDeleteSelectedIndices())
-                updateWidget()
                 mActionMode?.finish()
             }
             setNegativeButton(getString(R.string.no)) { dialog, _ ->
@@ -350,9 +362,7 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
     private fun performSearch(searchPhrase: String): MutableList<HistoryEntry> {
         val search = searchPhrase.toLowerCase()
         val searchedList = getHistoryEntries(TYPE_BOTH, SELECT_ALL,
-                (activity as MainActivity).fromDateSelection,
-                (activity as MainActivity).toDateSelection,
-                BooleanArray((activity as MainActivity).categorySelection.size) { true })
+                fromDateSelection, toDateSelection, BooleanArray(categorySelection.size) { true })
 
         for (hEntry in searchedList.iterator()) {
             val expenseIterator = hEntry.childList.iterator()
@@ -376,11 +386,11 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
             ExpandCollapseListener {
 
                 override fun onParentCollapsed(parentPosition: Int) {
-                    (activity as MainActivity).expandedStateMap[parentPosition] = false
+                    expandedStateMap[parentPosition] = false
                 }
 
                 override fun onParentExpanded(parentPosition: Int) {
-                    (activity as MainActivity).expandedStateMap[parentPosition] = true
+                    expandedStateMap[parentPosition] = true
                 }
             })
             sort()
@@ -390,7 +400,7 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
         updateExpandedStateMap()
 
         for (index in historyAdapter.parentList.indices) {
-            when ((activity as MainActivity).expandedStateMap[index]) {
+            when (expandedStateMap[index]) {
                 true -> historyAdapter.expandParent(index)
             }
         }
@@ -401,11 +411,11 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
                                     fromDate: LocalDate,
                                     toDate: LocalDate,
                                     categories: BooleanArray) {
-        (activity as MainActivity).typeSelection = type
-        (activity as MainActivity).dateSelection = date
-        (activity as MainActivity).categorySelection = categories
-        (activity as MainActivity).fromDateSelection = fromDate
-        (activity as MainActivity).toDateSelection = toDate
+        typeSelection = type
+        dateSelection = date
+        categorySelection = categories
+        fromDateSelection = fromDate
+        toDateSelection = toDate
         updateView(getHistoryEntries(type, date, fromDate, toDate, categories))
         updateOptionsMenu()
     }
@@ -448,22 +458,15 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
 
     private fun updateExpandedStateMap() {
         for (index in historyAdapter.parentList.indices) {
-            if (!(activity as MainActivity).expandedStateMap.containsKey(index)) {
-                (activity as MainActivity).expandedStateMap[index] = false
+            if (!expandedStateMap.containsKey(index)) {
+                expandedStateMap[index] = false
             }
         }
     }
 
     private fun updateOptionsMenu() {
-        with(activity as MainActivity) {
-            mOptionsMenu.findItem(R.id.menu_history_filter_reset).isVisible =
-                    (typeSelection != TYPE_BOTH || dateSelection != SELECT_ALL ||
-                            !categorySelection.none { !it })
-        }
-    }
-
-    private fun updateWidget() {
-        activity?.sendBroadcast(
-                SimpleBudgetApp.updateWidgetIntent(requireContext(), requireActivity().application))
+        mOptionsMenu.findItem(R.id.menu_history_filter_reset).isVisible =
+                (typeSelection != TYPE_BOTH || dateSelection != SELECT_ALL ||
+                        !categorySelection.none { !it })
     }
 }

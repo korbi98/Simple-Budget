@@ -20,14 +20,15 @@ import com.bignerdranch.expandablerecyclerview.model.Parent
 import com.korbi.simplebudget.logic.Expense
 
 class HistoryEntry(private val expenses: MutableList<Expense>,
-                   private val dateString: String) : Parent<Expense>{
+                   private val dateString: String,
+                   private val isExpanded: Boolean = false) : Parent<Expense>{
 
     override fun getChildList(): MutableList<Expense> {
         return expenses
     }
 
     override fun isInitiallyExpanded(): Boolean {
-        return false
+        return isExpanded
     }
 
     fun getDateString(): String {

@@ -17,62 +17,145 @@
 package com.korbi.simplebudget.ui.fragments
 
 
+import android.content.Context
 import android.os.Bundle
+import android.util.SparseArray
 import android.view.*
 import android.widget.LinearLayout
+import android.widget.Spinner
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentPagerAdapter
 import com.google.android.material.chip.ChipGroup
+import com.google.android.material.tabs.TabLayout
 import com.korbi.simplebudget.MainActivity
 import com.korbi.simplebudget.R
 import com.korbi.simplebudget.SimpleBudgetApp
 import com.korbi.simplebudget.logic.IntervalSelectionBackdropHelper
 import com.korbi.simplebudget.logic.MenuAnimator
-import kotlinx.android.synthetic.main.fragment_statistic.*
 import kotlinx.android.synthetic.main.interval_backdrop.view.*
 import kotlinx.android.synthetic.main.fragment_statistic.view.*
 
 
-class StatisticFragment : androidx.fragment.app.Fragment() {
+class StatisticFragment : androidx.fragment.app.Fragment(), IntervalSelectionBackdropHelper {
 
+    override lateinit var mContext: Context
+    override lateinit var backdropLayout: LinearLayout
+    override lateinit var mainLayout: View
+    override lateinit var intervalChipGroup: ChipGroup
+    override lateinit var intervalSpinner: Spinner
+    override lateinit var intervalSpinnerLayout: View
+    override var deltaY: Float = 0f
 
-    private lateinit var backdropLayout: LinearLayout
     private lateinit var mOptionsMenu: Menu
-    private lateinit var mainLayout: View
-    private lateinit var intervalChipGroup: ChipGroup
+    private val registeredFragments = SparseArray<Fragment>()
+    private lateinit var listener: DateSelectionListener
 
+    interface DateSelectionListener {
+        fun onDateSelectionChange()
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        // Inflate the layout for this fragment
+
         return inflater.inflate(R.layout.fragment_statistic, container, false).apply {
 
+            mContext = context
+
             backdropLayout = statistic_interval_layout
-
-
+            mainLayout = statistic_main_layout
+            intervalChipGroup = backdrop_interval_chip_group
+            intervalSpinner = backdrop_time_selection_spinner
+            intervalSpinnerLayout = backdrop_time_selection_layout
 
             viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
                 override fun onGlobalLayout() {
                     if (viewTreeObserver.isAlive)
                         viewTreeObserver.removeOnGlobalLayoutListener(this)
-                    //intervalHelper.deltaY = backdropLayout.height.toFloat()
+                    deltaY = backdropLayout.height.toFloat()
                     backdropLayout.visibility = View.GONE
+                    if (::mOptionsMenu.isInitialized) updateOptionsMenu()
                 }
             })
 
+            val viewpager = statistic_viewpager
+            viewpager.adapter = object : FragmentPagerAdapter(childFragmentManager) {
+
+                override fun getCount(): Int {
+                    return 3
+                }
+
+                override fun getItem(position: Int): Fragment {
+
+                    return when (position) {
+
+                        1 -> {
+                            DistributionFragment().also {
+                                listener = it
+                            }
+                        }
+
+                        else -> DistributionFragment().also {
+                            listener = it
+                        }
+                    }
+                }
+            }
+
+            statistic_tabs.apply {
+                addTab(newTab().setText(R.string.budget))
+                addTab(newTab().setText(R.string.distribution))
+                addTab(newTab().setText("Saving Potential"))
+                addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+                    override fun onTabSelected(tab: TabLayout.Tab?) {
+                        viewpager.currentItem = tab?.position ?: 1
+                    }
+
+                    override fun onTabReselected(tab: TabLayout.Tab?) {}
+                    override fun onTabUnselected(tab: TabLayout.Tab?) {}
+                })
+            }
+
+            viewpager.addOnPageChangeListener(
+                    TabLayout.TabLayoutOnPageChangeListener(statistic_tabs))
+
+            viewpager.currentItem = 1
+
+            initIntervalHelper()
             setHasOptionsMenu(true)
         }
     }
 
+    override fun onIntervalSelected() {
+        listener.onDateSelectionChange()
+    }
 
     override fun onResume() {
         super.onResume()
         SimpleBudgetApp.handleRecurringEntries()
     }
 
+    override fun onHiddenChanged(hidden: Boolean) {
+        super.onHiddenChanged(hidden)
+        when (hidden) {
+            true -> {
+                if (backdropLayout.isVisible) {
+                    backdropLayout.visibility = View.GONE
+                    updateOptionsMenu()
+                }
+            }
+            false -> {
+
+            }
+        }
+    }
+
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         menu.clear()
         mOptionsMenu = menu
         inflater.inflate(R.menu.menu_statictics, menu)
+        updateOptionsMenu()
     }
 
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
@@ -87,18 +170,24 @@ class StatisticFragment : androidx.fragment.app.Fragment() {
         else -> super.onOptionsItemSelected(item)
     }
 
+    fun updateOptionsMenu() {
+        with(mOptionsMenu) {
+
+            findItem(R.id.menu_statistic_time_interval)?.apply {
+                isVisible = !backdropLayout.isVisible
+                icon.alpha = 255
+            }
+            findItem(R.id.menu_statistic_interval_done)?.isVisible = backdropLayout.isVisible
+        }
+    }
+
     private fun hideIntervalLayout() {
 
-        //intervalHelper.deltaY = backdropLayout.height.toFloat()
+        deltaY = backdropLayout.height.toFloat()
 
-        statistic_tabs.visibility = View.GONE
-        statistic_tabs.visibility = View.VISIBLE
-
-//        intervalHelper.hideBackdrop {
-//            (activity as AppCompatActivity).supportActionBar?.elevation = 4f
-//        }
-
-        //statisticText.invalidate()
+        hideBackdrop {
+            (activity as AppCompatActivity).supportActionBar?.elevation = 4f
+        }
 
         with(mOptionsMenu) {
             MenuAnimator.setVisibility(findItem(R.id.menu_statistic_interval_done), false) {
@@ -107,20 +196,15 @@ class StatisticFragment : androidx.fragment.app.Fragment() {
         }
     }
 
-
     private fun showIntervalLayout() {
 
         (activity as AppCompatActivity).supportActionBar?.elevation = 0f
 
-        // for some reason, animation does not trigger when intervalTextView is not gone
-        statistic_tabs.visibility = View.GONE
-        statistic_tabs.visibility = View.VISIBLE
-
-        //intervalHelper.showBackdrop()
+        showBackdrop()
 
         (activity as MainActivity).setTitle(getString(R.string.select_interval))
 
-        //intervalHelper.selectIntervalChip()
+        selectIntervalChip()
         backdropLayout.invalidate()
 
         with(mOptionsMenu) {

@@ -26,6 +26,7 @@ import android.widget.TextView
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentPagerAdapter
 import androidx.fragment.app.FragmentTransaction
 import com.korbi.simplebudget.database.DBhandler
 import com.korbi.simplebudget.ui.AddExpenses
@@ -43,20 +44,12 @@ class MainActivity : AppCompatActivity() {
         fun onBackPressed()
     }
 
-    val expandedStateMap = HashMap<Int, Boolean>()
-    var typeSelection = TYPE_BOTH //0 for both, 1 for expenses, 2 for income
-    var dateSelection = SELECT_ALL //0 last 30 days, 1 last 90 days, 2 this year, 3 all time
-    lateinit var fromDateSelection: LocalDate
-    lateinit var toDateSelection: LocalDate
-    lateinit var categorySelection: BooleanArray //1 if category selected 0 else
-
     private lateinit var listener: OnBackListener
 
     var dashboard: DashboardFragment? = null
     private var history: HistoryFragment? = null
     private var statistics: StatisticFragment? = null
     private var activeFragment: Fragment? = dashboard
-
 
     private val mOnNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
 
@@ -89,14 +82,12 @@ class MainActivity : AppCompatActivity() {
 
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
         navigation.selectedItemId = R.id.navigation_dashboard
+
+
         showFragment(dashboard)
 
         // make sure, that the keyboard doesn't push the bottomnavigationbar upwards
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING)
-
-        categorySelection = BooleanArray(DBhandler.getInstance().getAllCategories().size) { true }
-        fromDateSelection = LocalDate.now()
-        toDateSelection = LocalDate.now()
 
         if (SimpleBudgetApp.pref.getBoolean(
                         getString(R.string.settings_key_initial_start), true)) {

@@ -70,7 +70,6 @@ class DashboardFragment : androidx.fragment.app.Fragment(),
     private lateinit var totalBudgetTextView: TextView
     private lateinit var totalBudgetAmount: TextView
     private lateinit var totalBudgetProgress: ProgressBar
-    private lateinit var emptyMessage: TextView
     private val budgetHelper = BudgetHelper()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -98,7 +97,6 @@ class DashboardFragment : androidx.fragment.app.Fragment(),
             balanceTextView = dashboard_balance
 
             // Setup Budget
-            emptyMessage = budget_fragment_empty_message
             budgetAdapter = BudgetAdapter(this@DashboardFragment)
 
             budgetRecycler = dashboard_budget_recycler.apply {
@@ -128,6 +126,7 @@ class DashboardFragment : androidx.fragment.app.Fragment(),
             })
 
             initIntervalHelper()
+            selectIntervalChip()
             setHasOptionsMenu(true)
         }
     }
@@ -137,10 +136,26 @@ class DashboardFragment : androidx.fragment.app.Fragment(),
         updateIntervalText(false)
         SimpleBudgetApp.handleRecurringEntries()
         setupTimeSelectionSpinner(getIntervalType())
+
+    }
+
+    override fun onStop() {
+        super.onStop()
+        if (backdropLayout.isVisible) {
+            backdropLayout.visibility = View.GONE
+            updateOptionsMenu()
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        updateIntervalText()
+        updateView()
     }
 
     override fun onHiddenChanged(hidden: Boolean) {
         super.onHiddenChanged(hidden)
+
         when (hidden) {
             true -> {
                 if (backdropLayout.isVisible) {
@@ -150,6 +165,7 @@ class DashboardFragment : androidx.fragment.app.Fragment(),
             }
             false -> {
                 updateIntervalText()
+                updateView()
             }
         }
     }
@@ -234,17 +250,6 @@ class DashboardFragment : androidx.fragment.app.Fragment(),
 
             expenses = getExpensesForInterval()
             interval = getIntervalType()
-
-            when (expenses.none { it.cost < 0 }) {
-                true -> {
-                    budgetRecycler.visibility = View.GONE
-                    emptyMessage.visibility = View.VISIBLE
-                }
-                false -> {
-                    budgetRecycler.visibility = View.VISIBLE
-                    emptyMessage.visibility = View.GONE
-                }
-            }
 
             totalBudgetAmount.text = getTotalBudgetText()
             totalBudgetProgress.progress = getTotalBudgetProgress()
