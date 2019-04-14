@@ -28,8 +28,7 @@ import com.korbi.simplebudget.ui.DistributionPieChart
 import kotlinx.android.synthetic.main.fragment_distribution.view.*
 
 
-class DistributionFragment : androidx.fragment.app.Fragment(),
-        StatisticFragment.DateSelectionListener {
+class DistributionFragment : androidx.fragment.app.Fragment(), StatisticFragment.DateSelectionListener {
 
     private lateinit var expenseChart: DistributionPieChart
     private lateinit var incomeChart: DistributionPieChart
