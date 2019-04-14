@@ -18,6 +18,8 @@ package com.korbi.simplebudget
 
 import android.content.Intent
 import android.os.Bundle
+import android.transition.AutoTransition
+import android.transition.TransitionManager
 import android.util.Log
 import android.view.*
 import android.view.animation.AlphaAnimation
@@ -35,6 +37,7 @@ import com.korbi.simplebudget.ui.TYPE_BOTH
 import com.korbi.simplebudget.ui.dialogs.SetupDialog
 import com.korbi.simplebudget.ui.fragments.*
 import kotlinx.android.synthetic.main.activity_main.*
+import org.threeten.bp.Duration
 import org.threeten.bp.LocalDate
 import kotlin.ClassCastException
 
@@ -47,8 +50,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var listener: OnBackListener
 
     var dashboard: DashboardFragment? = null
-    private var history: HistoryFragment? = null
-    private var statistics: StatisticFragment? = null
+    var history: HistoryFragment? = null
+    var statistics: StatisticFragment? = null
     private var activeFragment: Fragment? = dashboard
 
     private val mOnNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
@@ -65,7 +68,7 @@ class MainActivity : AppCompatActivity() {
                     return@OnNavigationItemSelectedListener true
                 }
                 R.id.navigation_statistic -> {
-                    setTitle(getString(R.string.title_statistic))
+                    setTitle(title = getString(R.string.title_statistic))
                     showFragment(statistics)
                     return@OnNavigationItemSelectedListener true
                 }
@@ -77,6 +80,8 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        TransitionManager.beginDelayedTransition(main_layout)
 
         setSupportActionBar(toolbar)
 
@@ -115,6 +120,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun showFragment(fragment: Fragment?) {
+
         with(supportFragmentManager.beginTransaction()) {
 
             var newFragment = fragment
@@ -169,6 +175,12 @@ class MainActivity : AppCompatActivity() {
             })
         }
         titleView?.startAnimation(anim)
+    }
+
+    fun animateLayoutChanges(duration: Long = 100) {
+        TransitionManager.beginDelayedTransition(main_layout, AutoTransition().also {
+            it.duration = duration
+        })
     }
 
     private fun updateWidget() {

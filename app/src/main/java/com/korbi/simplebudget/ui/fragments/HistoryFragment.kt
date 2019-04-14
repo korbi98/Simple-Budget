@@ -19,9 +19,13 @@ package com.korbi.simplebudget.ui.fragments
 import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
+import android.transition.AutoTransition
+import android.transition.TransitionManager
 import android.util.Log
 import android.util.SparseBooleanArray
 import android.view.*
+import android.widget.FrameLayout
+import android.widget.LinearLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.korbi.simplebudget.R
 import com.korbi.simplebudget.database.DBhandler
@@ -39,6 +43,8 @@ import com.korbi.simplebudget.MainActivity
 import com.korbi.simplebudget.SimpleBudgetApp
 import com.korbi.simplebudget.logic.*
 import com.korbi.simplebudget.ui.*
+import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.filter_bottom_sheet.*
 import kotlinx.android.synthetic.main.fragment_history.view.*
 import org.threeten.bp.LocalDate
 import org.threeten.bp.format.DateTimeFormatter
@@ -100,7 +106,7 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
             categorySelection = BooleanArray(db.getAllCategories().size) { true }
         }
         updateView(getHistoryEntries(typeSelection, dateSelection, fromDateSelection,
-                                        toDateSelection, categorySelection))
+                                        toDateSelection, categorySelection, true))
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -124,6 +130,7 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
             }
 
             fun search() {
+                (requireActivity() as MainActivity).animateLayoutChanges(200)
                 historyAdapter = HistoryAdapter(performSearch(searchView.query.toString()), this@HistoryFragment, this@HistoryFragment)
                 historyRecycler.adapter = historyAdapter
                 historyAdapter.sort()
@@ -139,8 +146,9 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
             mOptionsMenu.findItem(R.id.menu_history_filter_reset).isVisible = false
         }
         searchView.setOnCloseListener {
+            (requireActivity() as MainActivity).animateLayoutChanges()
             updateView(getHistoryEntries(typeSelection, dateSelection, fromDateSelection,
-                    toDateSelection, categorySelection))
+                    toDateSelection, categorySelection, true))
             updateOptionsMenu()
             false
         }
@@ -164,12 +172,13 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
             FilterBottomSheet().also {
                 it.arguments = bundle
                 it.setListener(this)
-                it.show(requireActivity().supportFragmentManager, tag)
+                it.show(requireFragmentManager(), tag)
             }
             true
         }
 
         R.id.menu_history_filter_reset -> {
+
             onSelectionChanged(TYPE_BOTH, SELECT_ALL, fromDateSelection, toDateSelection,
                     BooleanArray(categorySelection.size){true})
             true
@@ -181,7 +190,8 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
                                   date: Int,
                                   fromDate: LocalDate,
                                   toDate: LocalDate,
-                                  categories: BooleanArray): MutableList<HistoryEntry> {
+                                  categories: BooleanArray,
+                                  expandCurrentDate: Boolean = false): MutableList<HistoryEntry> {
 
         val historyEntries = mutableListOf<HistoryEntry>()
 
@@ -202,6 +212,7 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
 
                     val isCurrentInterval = DateHelper.isBetween(
                             LocalDate.now(), month.atDay(1), month.atEndOfMonth())
+                            && expandCurrentDate
 
                     historyEntries.add(HistoryEntry(expenses, dateString, isCurrentInterval))
                 }
@@ -376,6 +387,9 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
     }
 
     private fun updateView(hEntries: MutableList<HistoryEntry>) {
+
+        (requireActivity() as MainActivity).animateLayoutChanges()
+
         emptyMessage.visibility = when (hEntries.none { it.childList.isNotEmpty() }) {
             true -> View.VISIBLE
             false -> View.GONE
@@ -403,6 +417,11 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
             when (expandedStateMap[index]) {
                 true -> historyAdapter.expandParent(index)
             }
+        }
+
+        with (historyRecycler.layoutManager as LinearLayoutManager) {
+            val firstPos = findFirstVisibleItemPosition()
+            Log.d("test", firstPos.toString())
         }
     }
 
@@ -465,6 +484,7 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
     }
 
     private fun updateOptionsMenu() {
+        (requireActivity() as MainActivity).animateLayoutChanges()
         mOptionsMenu.findItem(R.id.menu_history_filter_reset).isVisible =
                 (typeSelection != TYPE_BOTH || dateSelection != SELECT_ALL ||
                         !categorySelection.none { !it })

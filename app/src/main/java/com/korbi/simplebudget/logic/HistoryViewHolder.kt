@@ -16,12 +16,10 @@
 
 package com.korbi.simplebudget.logic
 
-import android.animation.ObjectAnimator
 import android.content.Context
-import android.util.Log
-import com.bignerdranch.expandablerecyclerview.ParentViewHolder
 import android.view.View
 import androidx.core.content.ContextCompat
+import com.bignerdranch.expandablerecyclerview.ParentViewHolder
 import com.korbi.simplebudget.R
 import com.korbi.simplebudget.SimpleBudgetApp
 import kotlinx.android.synthetic.main.history_date_listening.view.*
@@ -39,19 +37,12 @@ class HistoryViewHolder(private val historyEntryView: View) : ParentViewHolder<H
 
     override fun collapseView() {
         super.collapseView()
-        ObjectAnimator.ofFloat(expandArrow, "rotation", 90f, 0f).apply {
-            duration = 200
-            start()
-        }
+        expandArrow.animate().rotation(0f).setDuration(100).start()
     }
 
     override fun expandView() {
         super.expandView()
-        ObjectAnimator.ofFloat(expandArrow, "rotation", 0f, 90f).apply {
-            duration = 200
-            start()
-        }
-
+        expandArrow.animate().rotation(90f).setDuration(100).start()
     }
 
     fun bind (week: String) {
@@ -71,13 +62,11 @@ class HistoryViewHolder(private val historyEntryView: View) : ParentViewHolder<H
         }
 
         if (isExpanded) {
-            ObjectAnimator.ofFloat(expandArrow, "rotation", 0f, 90f).apply {
-                duration = 0
-                start()
-            }
+            expandArrow.animate().rotation(90f).setDuration(100).start()
         }
 
         historyEntryView.setOnClickListener {
+
             if (isExpanded) {
                 collapseView()
             } else {

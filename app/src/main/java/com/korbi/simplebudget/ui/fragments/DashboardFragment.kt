@@ -20,6 +20,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.os.Bundle
+import android.transition.TransitionManager
 import android.util.Log
 import android.view.*
 import android.widget.*
@@ -56,8 +57,7 @@ class DashboardFragment : androidx.fragment.app.Fragment(),
     override lateinit var intervalChipGroup: ChipGroup
     override lateinit var intervalSpinner: Spinner
     override lateinit var intervalSpinnerLayout: View
-    override lateinit var mainLayout: View
-    override var deltaY = 0f
+    override lateinit var mainLayout: FrameLayout
 
     private lateinit var expensesTextView: TextView
     private lateinit var incomeTextView: TextView
@@ -90,7 +90,7 @@ class DashboardFragment : androidx.fragment.app.Fragment(),
             intervalChipGroup = backdrop_interval_chip_group
             intervalSpinner = backdrop_time_selection_spinner
             intervalSpinnerLayout = backdrop_time_selection_layout
-            mainLayout = dashboard_main_layout
+            mainLayout = dashboard_layout
 
             expensesTextView = dashboard_total_expenses
             incomeTextView = dashboard_total_income
@@ -114,17 +114,6 @@ class DashboardFragment : androidx.fragment.app.Fragment(),
                 true
             }
 
-            // Measure height of interval backdrop
-            viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
-                override fun onGlobalLayout() {
-                    if (viewTreeObserver.isAlive)
-                        viewTreeObserver.removeOnGlobalLayoutListener(this)
-                    deltaY = backdropLayout.height.toFloat()
-                    backdropLayout.visibility = View.GONE
-                    if (::mOptionsMenu.isInitialized) updateOptionsMenu()
-                }
-            })
-
             initIntervalHelper()
             selectIntervalChip()
             setHasOptionsMenu(true)
@@ -136,7 +125,8 @@ class DashboardFragment : androidx.fragment.app.Fragment(),
         updateIntervalText(false)
         SimpleBudgetApp.handleRecurringEntries()
         setupTimeSelectionSpinner(getIntervalType())
-
+        backdropLayout.visibility = View.GONE
+        if (::mOptionsMenu.isInitialized)updateOptionsMenu()
     }
 
     override fun onStop() {
@@ -190,6 +180,7 @@ class DashboardFragment : androidx.fragment.app.Fragment(),
 
         (activity as MainActivity).toolbar.overflowIcon?.let { MenuAnimator.showIcon(it) }
 
+        (requireActivity() as MainActivity).animateLayoutChanges()
         updateOptionsMenu()
     }
 
@@ -226,7 +217,7 @@ class DashboardFragment : androidx.fragment.app.Fragment(),
         showBudgetDialog(category.id)
     }
 
-    fun updateOptionsMenu() {
+    private fun updateOptionsMenu() {
         with(mOptionsMenu) {
 
             findItem(R.id.menu_dashboard_time_interval).apply {
@@ -238,7 +229,6 @@ class DashboardFragment : androidx.fragment.app.Fragment(),
             findItem(R.id.menu_dashboard_settings).isVisible = !backdropLayout.isVisible
             findItem(R.id.menu_dashboard_interval_done).isVisible = backdropLayout.isVisible
             (activity as MainActivity).toolbar.overflowIcon?.alpha = 255
-
         }
     }
 
@@ -310,14 +300,10 @@ class DashboardFragment : androidx.fragment.app.Fragment(),
 
     private fun hideBackdropLayout() {
 
-        deltaY = backdropLayout.height.toFloat()
-
         hideBackdrop {
             updateIntervalText()
             (activity as AppCompatActivity).supportActionBar?.elevation = 4f
         }
-
-        //dashboard_table.invalidate()
 
         with(mOptionsMenu) {
 

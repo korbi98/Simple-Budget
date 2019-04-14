@@ -62,7 +62,9 @@ object DateHelper {
                 true -> date2.with( DayOfWeek.SATURDAY ).plusWeeks(1)
             }
 
-            weeks.add(arrayOf(firstDayOfWeek, lastDayOfWeek))
+            if (db.getExpensesByDate(firstDayOfWeek, lastDayOfWeek).isNotEmpty()) {
+                weeks.add(arrayOf(firstDayOfWeek, lastDayOfWeek))
+            }
 
             date2 = date2.minusWeeks(1)
         }
@@ -78,7 +80,9 @@ object DateHelper {
         val date1 = YearMonth.from(db.getOldestDate())
 
         do {
-            months.add(date2)
+            if (db.getExpensesByDate(date2.atDay(1), date2.atEndOfMonth()).isNotEmpty()) {
+                months.add(date2)
+            }
             date2 = date2.minusMonths(1)
         }
         while (date2.isAfter(date1.minusMonths(1)))

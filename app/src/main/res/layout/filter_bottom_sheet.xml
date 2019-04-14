@@ -23,10 +23,7 @@
     android:id="@+id/bottom_sheet_design"
     android:layout_height="match_parent"
     android:paddingStart="12dp"
-    android:paddingEnd="12dp"
-    android:paddingBottom="24dp"
-    android:layout_marginTop="4000dp"
-    android:background="@color/gray_background">
+    android:paddingEnd="12dp">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -226,13 +223,16 @@
         android:textColor="@android:color/secondary_text_dark"
         android:text="@string/filter_fragment_category_textview"/>
 
-        <com.google.android.material.chip.ChipGroup
-            android:id="@+id/filter_category_chip_group"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="8dp"
-            app:chipSpacingVertical="16dp">
+    <com.google.android.material.chip.ChipGroup
+        android:id="@+id/filter_category_chip_group"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="24dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        app:chipSpacingVertical="16dp">
 
-        </com.google.android.material.chip.ChipGroup>
+    </com.google.android.material.chip.ChipGroup>
 
 </LinearLayout>

@@ -19,18 +19,20 @@ package com.korbi.simplebudget.logic
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.content.Context
+import android.transition.*
 import android.util.Log
+import android.view.Gravity
 import android.view.View
 import android.view.animation.Animation
 import android.view.animation.TranslateAnimation
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
-import android.widget.LinearLayout
-import android.widget.Spinner
+import android.widget.*
+import androidx.core.transition.addListener
+import androidx.core.transition.doOnEnd
 import com.google.android.material.chip.ChipGroup
 import com.korbi.simplebudget.R
 import com.korbi.simplebudget.SimpleBudgetApp
 import com.korbi.simplebudget.database.DBhandler
+import kotlinx.android.synthetic.main.fragment_dashboard.*
 import org.threeten.bp.LocalDate
 import org.threeten.bp.Year
 import org.threeten.bp.YearMonth
@@ -48,8 +50,7 @@ interface IntervalSelectionBackdropHelper {
     val intervalChipGroup: ChipGroup
     val intervalSpinner: Spinner
     val intervalSpinnerLayout: View
-    val mainLayout: View
-    var deltaY: Float
+    val mainLayout: FrameLayout
 
 
     fun initIntervalHelper() {
@@ -107,14 +108,14 @@ interface IntervalSelectionBackdropHelper {
 
     fun setupTimeSelectionSpinner(intervalType: Int) {
 
-        intervalSpinnerLayout.visibility = View.VISIBLE
+        if (intervalType != ALL_TIME) setIntervalSpinnerVisibility(true)
 
         val optionsArray = when (intervalType) {
             WEEKLY_INTERVAL -> DateHelper.getWeekSpinnerArray()
             QUARTERLY_INTERVAL -> DateHelper.getQuarterSpinnerArray()
             YEARLY_INTERVAL -> DateHelper.getYearSpinnerArray()
             ALL_TIME -> {
-                intervalSpinnerLayout.visibility = View.GONE
+                setIntervalSpinnerVisibility(false)
                 onIntervalSelected()
                 Array(1){""}
             }
@@ -189,59 +190,35 @@ interface IntervalSelectionBackdropHelper {
     }
 
     fun hideBackdrop(onFinish: () -> Unit = {}) {
-        backdropLayout.startAnimation(TranslateAnimation(0f,0f, 0f, -deltaY).apply {
-            duration = 200
-            setAnimationListener(object : Animation.AnimationListener {
-                override fun onAnimationStart(animation: Animation?) {
 
-                }
-                override fun onAnimationRepeat(animation: Animation?) {}
-                override fun onAnimationEnd(animation: Animation?) {
-                    backdropLayout.visibility = View.GONE
-                    backdropLayout.clearAnimation()
-                    onFinish()
-                }
-            })
-            startNow()
-        })
+        val transitionSet = TransitionSet().apply {
+            addTransition(Slide(Gravity.TOP))
+            addTransition(ChangeBounds())
 
-        mainLayout.startAnimation(TranslateAnimation(0f,0f, 0f, -deltaY).apply {
-            duration = 200
-            setAnimationListener(object : Animation.AnimationListener {
-                override fun onAnimationStart(animation: Animation?) {
-                }
-                override fun onAnimationRepeat(animation: Animation?) {}
-                override fun onAnimationEnd(animation: Animation?) {
-                    mainLayout.clearAnimation()
-                    onFinish()
-                }
-            })
-        })
+            doOnEnd {
+                onFinish()
+            }
+        }
+
+        TransitionManager.beginDelayedTransition(mainLayout, transitionSet)
+        backdropLayout.visibility = View.GONE
+    }
+
+    fun setIntervalSpinnerVisibility(visible: Boolean) {
+
+        TransitionManager.beginDelayedTransition(mainLayout, AutoTransition().apply { duration = 100 })
+        intervalSpinnerLayout.visibility = if (visible) View.VISIBLE else View.GONE
     }
 
     fun showBackdrop() {
-        backdropLayout.startAnimation(TranslateAnimation(0f,0f, -deltaY, 0f).apply {
-            duration = 200
-            setAnimationListener(object : Animation.AnimationListener {
-                override fun onAnimationStart(animation: Animation?) {}
-                override fun onAnimationRepeat(animation: Animation?) {}
-                override fun onAnimationEnd(animation: Animation?) {
-                    backdropLayout.visibility = View.VISIBLE
-                    backdropLayout.clearAnimation()
-                }
-            })
-        })
 
-        mainLayout.startAnimation(TranslateAnimation(0f,0f, 0f, deltaY).apply {
-            duration = 200
-            setAnimationListener(object : Animation.AnimationListener {
-                override fun onAnimationStart(animation: Animation?) {}
-                override fun onAnimationRepeat(animation: Animation?) {}
-                override fun onAnimationEnd(animation: Animation?) {
-                    mainLayout.clearAnimation()
-                }
-            })
-        })
+        val transitionSet = TransitionSet().apply {
+            addTransition(Slide(Gravity.TOP))
+            addTransition(ChangeBounds())
+        }
+
+        TransitionManager.beginDelayedTransition(mainLayout, transitionSet)
+        backdropLayout.visibility = View.VISIBLE
     }
 
     fun getIntervalString(): String {

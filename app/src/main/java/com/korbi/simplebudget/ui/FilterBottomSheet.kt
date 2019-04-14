@@ -19,6 +19,8 @@ package com.korbi.simplebudget.ui
 import android.app.DatePickerDialog
 import android.content.res.TypedArray
 import android.os.Bundle
+import android.transition.AutoTransition
+import android.transition.TransitionManager
 import android.util.Log
 import android.view.ViewGroup
 import android.view.LayoutInflater
@@ -31,8 +33,13 @@ import androidx.core.content.ContextCompat
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import com.google.android.material.textfield.TextInputLayout
+import com.korbi.simplebudget.MainActivity
 import com.korbi.simplebudget.SimpleBudgetApp
+import com.korbi.simplebudget.ui.fragments.HistoryFragment
+import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.filter_bottom_sheet.*
 import kotlinx.android.synthetic.main.filter_bottom_sheet.view.*
+import kotlinx.android.synthetic.main.interval_backdrop.*
 import org.threeten.bp.LocalDate
 import org.threeten.bp.format.DateTimeFormatter
 
@@ -69,6 +76,7 @@ class FilterBottomSheet :  BottomSheetDialogFragment() {
     private lateinit var customDateSelection: LinearLayout
     private lateinit var typeArray: Array<Int>
     private lateinit var dateArray: Array<Int>
+    private lateinit var mainLayout: LinearLayout
     private var typeSelection = TYPE_BOTH
     private var dateSelection = SELECT_ALL
     private var fromDate: LocalDate = LocalDate.now()
@@ -82,81 +90,82 @@ class FilterBottomSheet :  BottomSheetDialogFragment() {
                                             savedInstanceState: Bundle?): View? {
 
 
-        val rootView = inflater.inflate(R.layout.filter_bottom_sheet, container, false)
+        return inflater.inflate(R.layout.filter_bottom_sheet, container, false).apply {
 
-        typeArray = arrayOf(R.id.chip_both, R.id.chip_expense, R.id.chip_income)
-        dateArray = arrayOf(R.id.chip_all_time, R.id.chip_last30, R.id.chip_last90,
-                            R.id.chip_this_year, R.id.chip_specific_time)
+            mainLayout = bottom_sheet_design
 
-        typeGroup = rootView.filter_type_group.apply {
-            setOnCheckedChangeListener { group, checkedId ->
-                typeSelection = when (checkedId) {
-                    R.id.chip_both -> TYPE_BOTH
-                    R.id.chip_expense -> TYPE_EXPENSE
-                    R.id.chip_income -> TYPE_INCOME
-                    else -> {
-                        group.check(R.id.chip_both)
-                        TYPE_BOTH
+            typeArray = arrayOf(R.id.chip_both, R.id.chip_expense, R.id.chip_income)
+            dateArray = arrayOf(R.id.chip_all_time, R.id.chip_last30, R.id.chip_last90,
+                    R.id.chip_this_year, R.id.chip_specific_time)
+
+            typeGroup = filter_type_group.apply {
+                setOnCheckedChangeListener { group, checkedId ->
+                    typeSelection = when (checkedId) {
+                        R.id.chip_both -> TYPE_BOTH
+                        R.id.chip_expense -> TYPE_EXPENSE
+                        R.id.chip_income -> TYPE_INCOME
+                        else -> {
+                            group.check(R.id.chip_both)
+                            TYPE_BOTH
+                        }
                     }
+                    filter()
                 }
-                filter()
             }
-        }
-        dateGroup = rootView.filter_date_chip_group.apply {
-            setOnCheckedChangeListener { group, checkedId ->
-                dateSelection = when (checkedId) {
-                    R.id.chip_last30 -> SELECT_LAST30
-                    R.id.chip_last90 -> SELECT_LAST90
-                    R.id.chip_this_year -> SELECT_YEAR
-                    R.id.chip_all_time -> SELECT_ALL
-                    R.id.chip_specific_time -> SELECT_CUSTOM
-                    else -> {
-                        group.check(R.id.chip_all_time)
-                        SELECT_ALL
+            dateGroup = filter_date_chip_group.apply {
+                setOnCheckedChangeListener { group, checkedId ->
+                    dateSelection = when (checkedId) {
+                        R.id.chip_last30 -> SELECT_LAST30
+                        R.id.chip_last90 -> SELECT_LAST90
+                        R.id.chip_this_year -> SELECT_YEAR
+                        R.id.chip_all_time -> SELECT_ALL
+                        R.id.chip_specific_time -> SELECT_CUSTOM
+                        else -> {
+                            group.check(R.id.chip_all_time)
+                            SELECT_ALL
+                        }
                     }
+                    checkIfShowCustomSelection()
+                    filter()
                 }
-                checkIfShowCustomSelection()
+            }
+
+            categoryGroup = filter_category_chip_group
+            categoryChips = mutableListOf()
+
+            fromDateLayout = filter_date_from_input_layout
+            toDateLayout = filter_date_to_input_layout
+
+            fromDateInput = filter_date_from_input.apply {
+                setOnClickListener {
+                    setDate(SET_FROM_DATE)
+                }
+            }
+            toDateInput = filter_date_to_input.apply {
+                setOnClickListener {
+                    setDate(SET_TO_DATE)
+                }
+            }
+
+            filter_cancel_button.setOnClickListener {
+                typeSelection = TYPE_BOTH
+                dateSelection = SELECT_ALL
+                categorySelection = BooleanArray(categoryChips.size) { true }
                 filter()
+                dialog?.cancel()
             }
-        }
 
-        categoryGroup = rootView.filter_category_chip_group
-        categoryChips = mutableListOf()
-
-        fromDateLayout = rootView.filter_date_from_input_layout
-        toDateLayout = rootView.filter_date_to_input_layout
-
-        fromDateInput = rootView.filter_date_from_input.apply {
-            setOnClickListener {
-                setDate(SET_FROM_DATE)
+            filter_confirm_button.setOnClickListener {
+                dialog?.dismiss()
             }
+
+            customDateSelection = filter_specific_range_layout
+
+            setupCategoryGroup()
+            prefillSelection()
+            checkIfShowCustomSelection()
+            updateDatePickerText()
         }
-        toDateInput = rootView.filter_date_to_input.apply {
-            setOnClickListener {
-                setDate(SET_TO_DATE)
-            }
-        }
-
-        rootView.filter_cancel_button.setOnClickListener {
-            typeSelection = TYPE_BOTH
-            dateSelection = SELECT_ALL
-            categorySelection = BooleanArray(categoryChips.size) { true }
-            filter()
-            dialog?.cancel()
-        }
-
-        rootView.filter_confirm_button.setOnClickListener {
-            dialog?.dismiss()
-        }
-
-        customDateSelection = rootView.filter_specific_range_layout
-
-        setupCategoryGroup()
-        prefillSelection()
-        checkIfShowCustomSelection()
-        updateDatePickerText()
-
-        return rootView
     }
 
     private fun setupCategoryGroup(){
@@ -223,6 +232,9 @@ class FilterBottomSheet :  BottomSheetDialogFragment() {
     }
 
     private fun checkIfShowCustomSelection() {
+
+        TransitionManager.beginDelayedTransition(mainLayout, AutoTransition().apply { duration = 150 })
+
         customDateSelection.visibility = when(dateGroup.checkedChipId) {
             R.id.chip_specific_time -> LinearLayout.VISIBLE
             else -> LinearLayout.GONE

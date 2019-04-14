@@ -19,8 +19,11 @@ package com.korbi.simplebudget.ui.fragments
 
 import android.content.Context
 import android.os.Bundle
+import android.transition.AutoTransition
+import android.transition.TransitionManager
 import android.util.SparseArray
 import android.view.*
+import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.Spinner
 import androidx.appcompat.app.AppCompatActivity
@@ -34,6 +37,7 @@ import com.korbi.simplebudget.R
 import com.korbi.simplebudget.SimpleBudgetApp
 import com.korbi.simplebudget.logic.IntervalSelectionBackdropHelper
 import com.korbi.simplebudget.logic.MenuAnimator
+import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.interval_backdrop.view.*
 import kotlinx.android.synthetic.main.fragment_statistic.view.*
 
@@ -42,11 +46,10 @@ class StatisticFragment : androidx.fragment.app.Fragment(), IntervalSelectionBac
 
     override lateinit var mContext: Context
     override lateinit var backdropLayout: LinearLayout
-    override lateinit var mainLayout: View
+    override lateinit var mainLayout: FrameLayout
     override lateinit var intervalChipGroup: ChipGroup
     override lateinit var intervalSpinner: Spinner
     override lateinit var intervalSpinnerLayout: View
-    override var deltaY: Float = 0f
 
     private lateinit var mOptionsMenu: Menu
     private val registeredFragments = SparseArray<Fragment>()
@@ -69,15 +72,6 @@ class StatisticFragment : androidx.fragment.app.Fragment(), IntervalSelectionBac
             intervalSpinner = backdrop_time_selection_spinner
             intervalSpinnerLayout = backdrop_time_selection_layout
 
-            viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
-                override fun onGlobalLayout() {
-                    if (viewTreeObserver.isAlive)
-                        viewTreeObserver.removeOnGlobalLayoutListener(this)
-                    deltaY = backdropLayout.height.toFloat()
-                    backdropLayout.visibility = View.GONE
-                    if (::mOptionsMenu.isInitialized) updateOptionsMenu()
-                }
-            })
 
             val viewpager = statistic_viewpager
             viewpager.adapter = object : FragmentPagerAdapter(childFragmentManager) {
@@ -134,6 +128,8 @@ class StatisticFragment : androidx.fragment.app.Fragment(), IntervalSelectionBac
     override fun onResume() {
         super.onResume()
         SimpleBudgetApp.handleRecurringEntries()
+        backdropLayout.visibility = View.GONE
+        if (::mOptionsMenu.isInitialized) updateOptionsMenu()
     }
 
     override fun onHiddenChanged(hidden: Boolean) {
@@ -170,7 +166,8 @@ class StatisticFragment : androidx.fragment.app.Fragment(), IntervalSelectionBac
         else -> super.onOptionsItemSelected(item)
     }
 
-    fun updateOptionsMenu() {
+    private fun updateOptionsMenu() {
+        (requireActivity() as MainActivity).animateLayoutChanges()
         with(mOptionsMenu) {
 
             findItem(R.id.menu_statistic_time_interval)?.apply {
@@ -182,8 +179,6 @@ class StatisticFragment : androidx.fragment.app.Fragment(), IntervalSelectionBac
     }
 
     private fun hideIntervalLayout() {
-
-        deltaY = backdropLayout.height.toFloat()
 
         hideBackdrop {
             (activity as AppCompatActivity).supportActionBar?.elevation = 4f
@@ -213,4 +208,6 @@ class StatisticFragment : androidx.fragment.app.Fragment(), IntervalSelectionBac
             }
         }
     }
+
+
 }
