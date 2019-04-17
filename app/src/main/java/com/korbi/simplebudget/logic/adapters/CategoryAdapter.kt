@@ -18,8 +18,6 @@ package com.korbi.simplebudget.logic.adapters
 
 import android.annotation.SuppressLint
 import android.content.res.TypedArray
-import android.os.Bundle
-import android.util.Log
 import android.view.*
 import android.widget.ImageView
 import android.widget.TextView
@@ -27,11 +25,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.korbi.simplebudget.R
 import com.korbi.simplebudget.SimpleBudgetApp
 import com.korbi.simplebudget.database.DBhandler
-import com.korbi.simplebudget.logic.Category
-import com.korbi.simplebudget.logic.dragAndDrop.ItemTouchHelperAdapter
-import com.korbi.simplebudget.logic.dragAndDrop.ItemTouchHelperViewHolder
-import com.korbi.simplebudget.ui.dialogs.BudgetDialog
-import com.korbi.simplebudget.ui.dialogs.CAT_INDEX
+import com.korbi.simplebudget.logic.model.Category
+import com.korbi.simplebudget.utilities.dragAndDrop.ItemTouchHelperAdapter
+import com.korbi.simplebudget.utilities.dragAndDrop.ItemTouchHelperViewHolder
 import kotlinx.android.synthetic.main.category_manager_listening.view.*
 import java.util.*
 

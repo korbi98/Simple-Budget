@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-package com.korbi.simplebudget
+package com.korbi.simplebudget.ui
 
 import android.content.Intent
 import android.os.Bundle
 import android.transition.AutoTransition
 import android.transition.TransitionManager
-import android.util.Log
 import android.view.*
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
@@ -28,17 +27,12 @@ import android.widget.TextView
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentPagerAdapter
 import androidx.fragment.app.FragmentTransaction
-import com.korbi.simplebudget.database.DBhandler
-import com.korbi.simplebudget.ui.AddExpenses
-import com.korbi.simplebudget.ui.SELECT_ALL
-import com.korbi.simplebudget.ui.TYPE_BOTH
+import com.korbi.simplebudget.R
+import com.korbi.simplebudget.SimpleBudgetApp
 import com.korbi.simplebudget.ui.dialogs.SetupDialog
 import com.korbi.simplebudget.ui.fragments.*
 import kotlinx.android.synthetic.main.activity_main.*
-import org.threeten.bp.Duration
-import org.threeten.bp.LocalDate
 import kotlin.ClassCastException
 
 class MainActivity : AppCompatActivity() {
@@ -50,8 +44,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var listener: OnBackListener
 
     var dashboard: DashboardFragment? = null
-    var history: HistoryFragment? = null
-    var statistics: StatisticFragment? = null
+    private var history: HistoryFragment? = null
+    private var statistics: StatisticFragment? = null
     private var activeFragment: Fragment? = dashboard
 
     private val mOnNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->

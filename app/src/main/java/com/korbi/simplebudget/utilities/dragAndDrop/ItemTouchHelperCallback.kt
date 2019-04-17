@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.korbi.simplebudget.logic.dragAndDrop
+package com.korbi.simplebudget.utilities.dragAndDrop
 
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView

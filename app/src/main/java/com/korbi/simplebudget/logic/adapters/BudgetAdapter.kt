@@ -18,8 +18,6 @@ package com.korbi.simplebudget.logic.adapters
 
 import android.content.res.ColorStateList
 import android.content.res.TypedArray
-import android.preference.PreferenceManager
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -30,12 +28,12 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.korbi.simplebudget.R
 import com.korbi.simplebudget.SimpleBudgetApp
-import com.korbi.simplebudget.SimpleBudgetApp.Companion.decimalFormat
 import com.korbi.simplebudget.database.DBhandler
 import com.korbi.simplebudget.logic.*
-import com.korbi.simplebudget.ui.fragments.*
+import com.korbi.simplebudget.logic.model.Category
+import com.korbi.simplebudget.logic.model.Expense
+import com.korbi.simplebudget.utilities.MONTHLY_INTERVAL
 import kotlinx.android.synthetic.main.budget_listening.view.*
-import java.text.DecimalFormat
 
 class BudgetAdapter(private val listener: OnLongItemClickListener) :
                                         RecyclerView.Adapter<BudgetAdapter.ViewHolder>() {

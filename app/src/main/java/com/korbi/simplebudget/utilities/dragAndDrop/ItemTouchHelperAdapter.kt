@@ -14,12 +14,9 @@
  * limitations under the License.
  */
 
-package com.korbi.simplebudget.logic.dragAndDrop
+package com.korbi.simplebudget.utilities.dragAndDrop
 
-interface ItemTouchHelperViewHolder {
+interface ItemTouchHelperAdapter {
 
-    fun onItemSelected()
-
-    fun onItemClear()
-
+    fun onItemMove(fromPosition: Int, toPosition: Int)
 }

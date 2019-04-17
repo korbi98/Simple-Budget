@@ -17,8 +17,6 @@
 package com.korbi.simplebudget.logic.adapters
 
 import android.content.res.TypedArray
-import android.text.Layout
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.View
@@ -29,16 +27,9 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.korbi.simplebudget.R
 import com.korbi.simplebudget.SimpleBudgetApp
-import com.korbi.simplebudget.database.DBhandler
-import com.korbi.simplebudget.logic.Category
-import com.korbi.simplebudget.logic.Expense
-import com.korbi.simplebudget.logic.MONTHLY_ROOT
-import com.korbi.simplebudget.logic.WEEKLY_ROOT
-import com.korbi.simplebudget.ui.dialogs.INCOME_INDEX
+import com.korbi.simplebudget.logic.model.Expense
+import com.korbi.simplebudget.utilities.*
 import kotlinx.android.synthetic.main.income_manager_listening.view.*
-import java.text.DateFormatSymbols
-import java.text.NumberFormat
-import java.util.*
 
 class IncomeAdapter(private val incomeList: MutableList<Expense>,
                     val editListener: OnEditListener) :

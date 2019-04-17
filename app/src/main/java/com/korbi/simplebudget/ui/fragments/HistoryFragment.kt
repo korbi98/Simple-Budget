@@ -19,13 +19,9 @@ package com.korbi.simplebudget.ui.fragments
 import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
-import android.transition.AutoTransition
-import android.transition.TransitionManager
 import android.util.Log
 import android.util.SparseBooleanArray
 import android.view.*
-import android.widget.FrameLayout
-import android.widget.LinearLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.korbi.simplebudget.R
 import com.korbi.simplebudget.database.DBhandler
@@ -36,15 +32,14 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
 import androidx.core.util.containsKey
 import androidx.core.util.set
-import androidx.core.view.iterator
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bignerdranch.expandablerecyclerview.ExpandableRecyclerAdapter
-import com.korbi.simplebudget.MainActivity
+import com.korbi.simplebudget.ui.MainActivity
 import com.korbi.simplebudget.SimpleBudgetApp
 import com.korbi.simplebudget.logic.*
+import com.korbi.simplebudget.logic.model.Expense
 import com.korbi.simplebudget.ui.*
-import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.filter_bottom_sheet.*
+import com.korbi.simplebudget.utilities.*
 import kotlinx.android.synthetic.main.fragment_history.view.*
 import org.threeten.bp.LocalDate
 import org.threeten.bp.format.DateTimeFormatter
@@ -109,6 +104,15 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
                                         toDateSelection, categorySelection, true))
     }
 
+    override fun onHiddenChanged(hidden: Boolean) {
+        super.onHiddenChanged(hidden)
+
+        if (hidden) {
+            mActionMode?.finish()
+            mActionMode = null
+        }
+    }
+
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         mOptionsMenu = menu
         menu.clear()
@@ -152,7 +156,7 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
             updateOptionsMenu()
             false
         }
-
+        (requireActivity() as MainActivity).animateLayoutChanges()
         updateOptionsMenu()
     }
 
@@ -179,6 +183,7 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
 
         R.id.menu_history_filter_reset -> {
 
+            (requireActivity() as MainActivity).animateLayoutChanges()
             onSelectionChanged(TYPE_BOTH, SELECT_ALL, fromDateSelection, toDateSelection,
                     BooleanArray(categorySelection.size){true})
             true
@@ -200,7 +205,7 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
 
         when (historyGrouping) {
             MONTHLY_INTERVAL.toString() -> {
-                for (month in DateHelper.getMonths()) {
+                for ((index, month) in DateHelper.getMonths().withIndex()) {
 
                     val dateString =
                             month.month.getDisplayName(TextStyle.FULL, Locale.getDefault()) + " " +
@@ -214,12 +219,14 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
                             LocalDate.now(), month.atDay(1), month.atEndOfMonth())
                             && expandCurrentDate
 
+                    if (isCurrentInterval) expandedStateMap[index] = true
+
                     historyEntries.add(HistoryEntry(expenses, dateString, isCurrentInterval))
                 }
             }
 
             WEEKLY_INTERVAL.toString() -> {
-                for (week in DateHelper.getWeeks()) {
+                for ((index, week) in DateHelper.getWeeks().withIndex()) {
 
                     val dateString =
                             "${dateFormatter.format(week[0])} - ${dateFormatter.format(week[1])}"
@@ -230,6 +237,9 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
 
                     val isCurrentInterval =
                             DateHelper.isBetween(LocalDate.now(), week[0], week[1])
+
+                    if (isCurrentInterval) expandedStateMap[index] = true
+
                     historyEntries.add(HistoryEntry(expenses, dateString, isCurrentInterval))
                 }
             }
@@ -388,8 +398,6 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
 
     private fun updateView(hEntries: MutableList<HistoryEntry>) {
 
-        (requireActivity() as MainActivity).animateLayoutChanges()
-
         emptyMessage.visibility = when (hEntries.none { it.childList.isNotEmpty() }) {
             true -> View.VISIBLE
             false -> View.GONE
@@ -484,7 +492,6 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
     }
 
     private fun updateOptionsMenu() {
-        (requireActivity() as MainActivity).animateLayoutChanges()
         mOptionsMenu.findItem(R.id.menu_history_filter_reset).isVisible =
                 (typeSelection != TYPE_BOTH || dateSelection != SELECT_ALL ||
                         !categorySelection.none { !it })

@@ -35,8 +35,6 @@ class DistributionFragment : androidx.fragment.app.Fragment(), StatisticFragment
     private lateinit var expenseEmptyMsg: TextView
     private lateinit var incomeEmptyMsg: TextView
 
-
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
 

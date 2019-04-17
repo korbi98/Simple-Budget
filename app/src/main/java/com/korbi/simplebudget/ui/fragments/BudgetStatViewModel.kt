@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package com.korbi.simplebudget.logic.dragAndDrop
+package com.korbi.simplebudget.ui.fragments
 
-interface ItemTouchHelperAdapter {
+import androidx.lifecycle.ViewModel
 
-    fun onItemMove(fromPosition: Int, toPosition: Int)
+class BudgetStatViewModel : ViewModel() {
+    // TODO: Implement the ViewModel
 }

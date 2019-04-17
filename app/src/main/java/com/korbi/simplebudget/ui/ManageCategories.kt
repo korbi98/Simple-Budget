@@ -18,7 +18,6 @@ package com.korbi.simplebudget.ui
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
@@ -27,12 +26,12 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.korbi.simplebudget.R
 import com.korbi.simplebudget.database.DBhandler
-import com.korbi.simplebudget.logic.Category
+import com.korbi.simplebudget.logic.model.Category
 import com.korbi.simplebudget.logic.adapters.CategoryAdapter
-import com.korbi.simplebudget.logic.dragAndDrop.ItemTouchHelperCallback
+import com.korbi.simplebudget.utilities.dragAndDrop.ItemTouchHelperCallback
 import com.korbi.simplebudget.ui.dialogs.AddEditCategoryDialog
 import com.korbi.simplebudget.ui.dialogs.BudgetDialog
-import com.korbi.simplebudget.ui.dialogs.CAT_INDEX
+import com.korbi.simplebudget.utilities.CAT_INDEX
 import kotlinx.android.synthetic.main.activity_manage_categories.*
 import kotlinx.android.synthetic.main.category_manager_migrate_category.*
 

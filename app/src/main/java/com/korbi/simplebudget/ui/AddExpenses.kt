@@ -16,13 +16,10 @@
 
 package com.korbi.simplebudget.ui
 
-import android.annotation.SuppressLint
 import android.app.DatePickerDialog
 import android.content.res.TypedArray
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
-import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
@@ -33,25 +30,18 @@ import androidx.core.content.ContextCompat
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import com.google.android.material.textfield.TextInputLayout
-import com.jakewharton.threetenabp.AndroidThreeTen
 import com.korbi.simplebudget.R
 import com.korbi.simplebudget.SimpleBudgetApp
 import com.korbi.simplebudget.database.DBhandler
-import com.korbi.simplebudget.logic.Category
+import com.korbi.simplebudget.logic.model.Category
 import com.korbi.simplebudget.logic.CurrencyTextWatcher
-import com.korbi.simplebudget.logic.Expense
-import com.korbi.simplebudget.logic.NON_RECURRING
+import com.korbi.simplebudget.logic.model.Expense
+import com.korbi.simplebudget.utilities.*
 import kotlinx.android.synthetic.main.activity_add_expenses.*
 import org.threeten.bp.LocalDate
 import org.threeten.bp.format.DateTimeFormatter
 import java.text.DecimalFormatSymbols
 import kotlin.math.round
-
-const val EXPENSE_INDEX = "prefill_index"
-const val EXPENSE_DESC = "prefill_desc"
-const val EXPENSE_COST = "prefill_cost"
-const val EXPENSE_DATE = "prefill_date"
-const val EXPENSE_CAT = "prefill_cat"
 
 class AddExpenses : AppCompatActivity() {
 

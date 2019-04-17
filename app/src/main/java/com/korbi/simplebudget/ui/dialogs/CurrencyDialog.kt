@@ -33,11 +33,11 @@ import androidx.fragment.app.DialogFragment
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import com.korbi.simplebudget.R
+import com.korbi.simplebudget.utilities.*
 import kotlinx.android.synthetic.main.currency_dialog.*
 import java.lang.ClassCastException
 import java.lang.IllegalStateException
 
-const val NO_SELECTION = 100
 
 class CurrencyDialog : DialogFragment() {
 

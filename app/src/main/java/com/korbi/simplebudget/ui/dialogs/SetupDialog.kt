@@ -23,16 +23,12 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import android.preference.PreferenceManager
 import android.widget.Button
-import android.widget.RelativeLayout
-import android.widget.TextView
 import androidx.fragment.app.DialogFragment
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
-import com.korbi.simplebudget.MainActivity
+import com.korbi.simplebudget.ui.MainActivity
 import com.korbi.simplebudget.R
-import com.korbi.simplebudget.logic.MONTHLY_INTERVAL
-import com.korbi.simplebudget.logic.WEEKLY_INTERVAL
-import com.korbi.simplebudget.ui.fragments.DashboardFragment
+import com.korbi.simplebudget.utilities.*
 import kotlinx.android.synthetic.main.setup_dialog.*
 import java.lang.IllegalStateException
 

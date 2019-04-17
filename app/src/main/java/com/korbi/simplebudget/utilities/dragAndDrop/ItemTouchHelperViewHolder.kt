@@ -14,24 +14,12 @@
  * limitations under the License.
  */
 
-package com.korbi.simplebudget.logic
+package com.korbi.simplebudget.utilities.dragAndDrop
 
-import com.bignerdranch.expandablerecyclerview.model.Parent
-import com.korbi.simplebudget.logic.model.Expense
+interface ItemTouchHelperViewHolder {
 
-class HistoryEntry(private val expenses: MutableList<Expense>,
-                   private val dateString: String,
-                   private val isExpanded: Boolean = false) : Parent<Expense>{
+    fun onItemSelected()
 
-    override fun getChildList(): MutableList<Expense> {
-        return expenses
-    }
+    fun onItemClear()
 
-    override fun isInitiallyExpanded(): Boolean {
-        return isExpanded
-    }
-
-    fun getDateString(): String {
-        return dateString
-    }
 }

@@ -29,8 +29,8 @@ import com.github.mikephil.charting.data.PieEntry
 import com.korbi.simplebudget.R
 import com.korbi.simplebudget.SimpleBudgetApp
 import com.korbi.simplebudget.database.DBhandler
-import com.korbi.simplebudget.logic.Category
-import com.korbi.simplebudget.logic.Expense
+import com.korbi.simplebudget.logic.model.Category
+import com.korbi.simplebudget.logic.model.Expense
 import java.text.DecimalFormat
 import kotlin.math.absoluteValue
 

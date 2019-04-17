@@ -20,7 +20,6 @@ import android.annotation.SuppressLint
 import android.app.DatePickerDialog
 import android.app.Dialog
 import android.os.Bundle
-import android.util.Log
 import android.widget.ArrayAdapter
 import android.widget.EditText
 import android.widget.Spinner
@@ -33,14 +32,14 @@ import com.korbi.simplebudget.R
 import com.korbi.simplebudget.SimpleBudgetApp
 import com.korbi.simplebudget.database.DBhandler
 import com.korbi.simplebudget.logic.*
+import com.korbi.simplebudget.logic.model.Expense
+import com.korbi.simplebudget.utilities.*
 import kotlinx.android.synthetic.main.income_manager_add_dialog.*
 import org.threeten.bp.LocalDate
 import org.threeten.bp.format.DateTimeFormatter
 import java.lang.ClassCastException
 import java.text.DecimalFormatSymbols
 import kotlin.math.round
-
-const val INCOME_INDEX = "id"
 
 class AddEditRecurrentEntryDialog : DialogFragment() {
 
