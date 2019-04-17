@@ -47,6 +47,27 @@ class DistributionPieChart(context: Context, attr: AttributeSet) : PieChart(cont
             Color.parseColor("#7f8c8d"),
             Color.parseColor("#2ecc71"))
 
+    fun initPie() {
+        setUsePercentValues(true)
+        centerText = context.getString(R.string.distribution)
+        setCenterTextSize(14f)
+        setCenterTextColor(Color.WHITE)
+        holeRadius = 45f
+        setHoleColor(ContextCompat.getColor(context, R.color.gray_background))
+        setTransparentCircleAlpha(0)
+        description.text = ""
+        isRotationEnabled = false
+
+        legend.apply {
+            form = Legend.LegendForm.CIRCLE
+            textColor = Color.WHITE
+            textSize = 12f
+            horizontalAlignment = Legend.LegendHorizontalAlignment.CENTER
+            verticalAlignment = Legend.LegendVerticalAlignment.TOP
+            isWordWrapEnabled = true
+        }
+    }
+
     fun createPieData(expenses: MutableList<Expense>, showIncome: Boolean = false) {
 
         fun selectExpensesOrIncome(): List<Expense> = when(showIncome){
@@ -112,42 +133,21 @@ class DistributionPieChart(context: Context, attr: AttributeSet) : PieChart(cont
         }
         dataSet.setColors(colors, 255)
 
-        this.legend.apply {
-            form = Legend.LegendForm.CIRCLE
-            textColor = Color.WHITE
-            textSize = 12f
-            horizontalAlignment = Legend.LegendHorizontalAlignment.CENTER
-            verticalAlignment = Legend.LegendVerticalAlignment.TOP
-            isWordWrapEnabled = true
-            setCustom(legendEntries)
-        }
+        legend.setCustom(legendEntries)
 
-        this.run {
-            data = PieData(dataSet).apply {
-                setValueFormatter { value, _, _, _ ->
+        data = PieData(dataSet).apply {
+            setValueFormatter { value, _, _, _ ->
 
-                    val formatter = DecimalFormat("#0.0")
+                val formatter = DecimalFormat("#0.0")
 
-                    if (value < 2.5) {
-                        ""
-                    } else {
-                        "${formatter.format(value)} %"
-                    }
+                if (value < 2.5) {
+                    ""
+                } else {
+                    "${formatter.format(value)} %"
                 }
             }
-
-            setUsePercentValues(true)
-            centerText = context.getString(R.string.distribution)
-            setCenterTextSize(14f)
-            setCenterTextColor(Color.WHITE)
-            holeRadius = 45f
-            setHoleColor(ContextCompat.getColor(context, R.color.gray_background))
-            setTransparentCircleAlpha(0)
-            description.text = ""
-            isRotationEnabled = false
-
-            invalidate()
         }
+        invalidate()
     }
 
     private fun getCurrencyString(amount: Int): String {

@@ -74,18 +74,25 @@ class StatisticFragment : androidx.fragment.app.Fragment(), IntervalSelectionBac
             viewpager.adapter = object : FragmentStatePagerAdapter(childFragmentManager) {
 
                 override fun getCount(): Int {
-                    return 3
+                    return 2
+                }
+
+                override fun instantiateItem(container: ViewGroup, position: Int): Any {
+                    val fragment = super.instantiateItem(container, position) as Fragment
+                    registeredFragments.put(position, fragment)
+                    return fragment
+                }
+
+                override fun destroyItem(container: ViewGroup, position: Int, `object`: Any) {
+                    registeredFragments.remove(position)
+                    super.destroyItem(container, position, `object`)
                 }
 
                 override fun getItem(position: Int): Fragment {
 
                     return when (position) {
 
-                        0 -> {
-                            DistributionFragment().also {
-                                listener = it
-                            }
-                        }
+                        1 -> BudgetStatFragment()
 
                         else -> DistributionFragment().also {
                             listener = it
@@ -95,12 +102,25 @@ class StatisticFragment : androidx.fragment.app.Fragment(), IntervalSelectionBac
             }
 
             statistic_tabs.apply {
-                addTab(newTab().setText(R.string.budget))
                 addTab(newTab().setText(R.string.distribution))
-                addTab(newTab().setText("Saving Potential"))
+                addTab(newTab().setText(R.string.budget))
                 addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
                     override fun onTabSelected(tab: TabLayout.Tab?) {
                         viewpager.currentItem = tab?.position ?: 1
+
+                        when (viewpager.currentItem) {
+                            1 -> {
+                                val budgetFragment = registeredFragments[1] as BudgetStatFragment
+                                listener = budgetFragment
+                                budgetFragment.updateView()
+                            }
+                            else -> {
+                                val distributionFragment =
+                                        registeredFragments[viewpager.currentItem] as DistributionFragment
+                                listener = distributionFragment
+                                distributionFragment.updateView()
+                            }
+                        }
                     }
 
                     override fun onTabReselected(tab: TabLayout.Tab?) {}
@@ -110,8 +130,6 @@ class StatisticFragment : androidx.fragment.app.Fragment(), IntervalSelectionBac
 
             viewpager.addOnPageChangeListener(
                     TabLayout.TabLayoutOnPageChangeListener(statistic_tabs))
-
-            viewpager.currentItem = 1
 
             initIntervalHelper()
             setHasOptionsMenu(true)

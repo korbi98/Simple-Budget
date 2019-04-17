@@ -26,6 +26,7 @@ import android.content.res.Resources
 import androidx.preference.PreferenceManager
 import com.jakewharton.threetenabp.AndroidThreeTen
 import com.korbi.simplebudget.database.DBhandler
+import com.korbi.simplebudget.logic.HistoryHelper
 import com.korbi.simplebudget.logic.model.Expense
 import com.korbi.simplebudget.utilities.*
 import com.korbi.simplebudget.widget.SimpleBudgetWidget
@@ -125,6 +126,9 @@ class SimpleBudgetApp : Application() {
         pref = PreferenceManager.getDefaultSharedPreferences(this)
         decimalFormat = DecimalFormat(res.getString(R.string.number_format))
         DBhandler.createInstance(this)
+
+        HistoryHelper.fromDateSelection = LocalDate.now()
+        HistoryHelper.toDateSelection = LocalDate.now()
     }
 
 }

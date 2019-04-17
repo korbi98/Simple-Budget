@@ -49,7 +49,8 @@ class BudgetHelper {
                 SimpleBudgetApp.res.getStringArray(R.array.currencies_symbols)[0])
 
         return when {
-            interval == ALL_TIME -> expensesString
+            interval == ALL_TIME ->
+                SimpleBudgetApp.createCurrencyString(getCategoryExpenses(category), true)
 
             budget != 0 -> {
                 val budgetStr = SimpleBudgetApp.createCurrencyString(budget, true, onLeft)
@@ -75,7 +76,7 @@ class BudgetHelper {
         val budgetString = SimpleBudgetApp.createCurrencyString(totalExpenses, true, !onLeft)
 
         return when {
-            interval == ALL_TIME -> budgetString
+            interval == ALL_TIME -> SimpleBudgetApp.createCurrencyString(totalExpenses, true)
 
             totalBudget != 0 -> {
                 val str = SimpleBudgetApp.createCurrencyString(totalBudget, true, onLeft)
@@ -122,7 +123,7 @@ class BudgetHelper {
         }
     }
 
-    private fun getIntervalBudget(selectedInterval: Int, category: Category? = null): Int {
+    fun getIntervalBudget(selectedInterval: Int, category: Category? = null): Int {
 
         val budget = category?.budget ?: SimpleBudgetApp.pref.getInt(
                 SimpleBudgetApp.res.getString(R.string.total_budget_key), 0)

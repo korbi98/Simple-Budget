@@ -87,14 +87,14 @@ class BudgetAdapter(private val listener: OnLongItemClickListener) :
 
     fun updateCategories() {
 
-        categories = db.getAllCategories().filter { !isCategoryEmpty(it) } .toMutableList()
-
-        budgetHelper.categories = categories
         budgetHelper.expenses = expenses
         budgetHelper.interval = interval
 
-        categories.sortWith(compareBy({ -budgetHelper.getBudgetProgress(it) }, { -budgetHelper.getCategoryExpenses(it) }))
+        categories = db.getAllCategories().filter { !isCategoryEmpty(it) } .toMutableList().apply {
+            sortWith(compareBy({ -budgetHelper.getBudgetProgress(it) }, { -budgetHelper.getCategoryExpenses(it) }))
+        }
 
+        budgetHelper.categories = categories
         notifyDataSetChanged()
     }
 

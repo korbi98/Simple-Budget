@@ -173,7 +173,9 @@
     <string name="yearly">Yearly</string>
     <string name="summary">Summary</string>
     <string name="set_budget">Set budget</string>
-
+    <string name="running_charges">Running charges</string>
+    <string name="variable_expenses">Variable expenses</string>
+    <string name="running_charges_title">Running charges / variable expenses</string>
 
     <string-array name="default_categories">
         <item>Food</item>

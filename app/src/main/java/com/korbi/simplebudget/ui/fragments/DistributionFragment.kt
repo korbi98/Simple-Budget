@@ -16,24 +16,31 @@
 
 package com.korbi.simplebudget.ui.fragments
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import com.github.mikephil.charting.charts.PieChart
 import com.korbi.simplebudget.R
 import com.korbi.simplebudget.SimpleBudgetApp
+import com.korbi.simplebudget.logic.model.Expense
 import com.korbi.simplebudget.ui.DistributionPieChart
+import com.korbi.simplebudget.utilities.NON_RECURRING
 import kotlinx.android.synthetic.main.fragment_distribution.view.*
+import java.text.NumberFormat
+import kotlin.math.absoluteValue
+import kotlin.math.round
 
 
 class DistributionFragment : androidx.fragment.app.Fragment(), StatisticFragment.DateSelectionListener {
 
     private lateinit var expenseChart: DistributionPieChart
-    private lateinit var incomeChart: DistributionPieChart
     private lateinit var expenseEmptyMsg: TextView
-    private lateinit var incomeEmptyMsg: TextView
+    private lateinit var runningChargeText: TextView
+    private lateinit var variableExpenseText: TextView
+    private lateinit var runningChargePercentText: TextView
+    private lateinit var variableExpensePercentageText: TextView
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -42,9 +49,13 @@ class DistributionFragment : androidx.fragment.app.Fragment(), StatisticFragment
         val rootView = inflater.inflate(R.layout.fragment_distribution, container, false)
 
         expenseChart = rootView.distribution_expense_chart
-        incomeChart = rootView.distribution_income_chart
         expenseEmptyMsg = rootView.distribution_expense_empty_msg
-        incomeEmptyMsg = rootView.distribution_income_empty_msg
+        variableExpenseText = rootView.distribution_variable_expenses
+        runningChargeText = rootView.distribution_running_charges
+        variableExpensePercentageText = rootView.distribution_variable_expenses_percentage
+        runningChargePercentText = rootView.distribution_running_charges_percentage
+
+        expenseChart.initPie()
 
         return rootView
     }
@@ -58,7 +69,7 @@ class DistributionFragment : androidx.fragment.app.Fragment(), StatisticFragment
         updateView()
     }
 
-    private fun updateView() {
+    fun updateView() {
         val dashboard = requireParentFragment() as StatisticFragment
         with(dashboard) {
             val expenses = if (getInterval() != -1) {
@@ -68,23 +79,48 @@ class DistributionFragment : androidx.fragment.app.Fragment(), StatisticFragment
                         getString(R.string.dashboard_time_selection_key), 1), 0)
             }
 
-            if (expenses.filter { it.cost < 0 } .sumBy { it.cost } != 0) {
-                expenseEmptyMsg.visibility = View.GONE
-                expenseChart.visibility = View.VISIBLE
-                expenseChart.createPieData(expenses)
-            } else {
-                expenseChart.visibility = View.GONE
-                expenseEmptyMsg.visibility = View.VISIBLE
-            }
-
-            if (expenses.filter { it.cost > 0 } .sumBy { it.cost } != 0) {
-                incomeEmptyMsg.visibility = View.GONE
-                incomeChart.visibility = View.VISIBLE
-                incomeChart.createPieData(expenses, true)
-            } else {
-                incomeChart.visibility = View.GONE
-                incomeEmptyMsg.visibility = View.VISIBLE
-            }
+            updatePieChart(expenses)
+            updateRunningCharges(expenses)
         }
+    }
+
+    private fun updatePieChart(expenses: MutableList<Expense>) {
+        if (expenses.filter { it.cost < 0 } .sumBy { it.cost } != 0) {
+            expenseEmptyMsg.visibility = View.GONE
+            expenseChart.visibility = View.VISIBLE
+            expenseChart.createPieData(expenses)
+        } else {
+            expenseChart.visibility = View.GONE
+            expenseEmptyMsg.visibility = View.VISIBLE
+        }
+    }
+
+    @SuppressLint("SetTextI18n")
+    private fun updateRunningCharges(expenses: MutableList<Expense>) {
+        val expensesOnly = expenses.filter { it.cost < 0 }
+        val runningCharges = expensesOnly.filter { it.interval != NON_RECURRING }
+        val variableExpenses = expensesOnly.filter { it.interval == NON_RECURRING }
+
+        val totalAmount = expensesOnly.sumBy {it.cost } .absoluteValue
+        val runningTotalAmount = runningCharges.sumBy { it.cost } .absoluteValue
+        val variableTotalAmount = variableExpenses.sumBy { it.cost } .absoluteValue
+
+        val runningChargePercentage = if (totalAmount != 0) {
+            runningTotalAmount.toFloat()/totalAmount.toFloat()
+        } else 0f
+
+
+        val variableExpensePercentage = if (totalAmount != 0) {
+            1 - runningChargePercentage
+        } else 0f
+
+        val formatter = NumberFormat.getPercentInstance().apply { maximumFractionDigits = 1 }
+
+        runningChargeText.text = SimpleBudgetApp.createCurrencyString(runningTotalAmount)
+        variableExpenseText.text = SimpleBudgetApp.createCurrencyString(variableTotalAmount)
+
+        runningChargePercentText.text = "(${formatter.format(runningChargePercentage)})"
+        variableExpensePercentageText.text = "(${formatter.format(variableExpensePercentage)})"
+
     }
 }

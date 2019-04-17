@@ -121,9 +121,9 @@ class DashboardFragment : androidx.fragment.app.Fragment(),
         super.onResume()
         updateIntervalText(false)
         SimpleBudgetApp.handleRecurringEntries()
-        setupTimeSelectionSpinner(getIntervalType())
         backdropLayout.visibility = View.GONE
-        if (::mOptionsMenu.isInitialized)updateOptionsMenu()
+        if (::mOptionsMenu.isInitialized) updateOptionsMenu()
+        setupTimeSelectionSpinner(getIntervalType())
     }
 
     override fun onStop() {

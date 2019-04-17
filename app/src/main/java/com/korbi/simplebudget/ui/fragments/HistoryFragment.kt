@@ -52,13 +52,6 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
                                                         FilterBottomSheet.OnFilterFragmentListener,
                                                         HistoryAdapter.ClickRecurrentEntryListener {
 
-    val expandedStateMap = SparseBooleanArray()
-    private var typeSelection = TYPE_BOTH //0 for both, 1 for expenses, 2 for income
-    private var dateSelection = SELECT_ALL //0 last 30 days, 1 last 90 days, 2 this year, 3 all time
-    private lateinit var fromDateSelection: LocalDate
-    private lateinit var toDateSelection: LocalDate
-    private var categorySelection = BooleanArray(0) //true if category selected false else
-
     private lateinit var emptyMessage: TextView
     private lateinit var historyRecycler: RecyclerView
     private lateinit var historyAdapter: HistoryAdapter
@@ -68,13 +61,8 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
     private var mActionMode: ActionMode? = null
     private var parentPosition = 1 // position to update when update expenses
 
-    private val dateFormatter = DateTimeFormatter.ofPattern("dd.MM.yy")
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-
-        fromDateSelection = LocalDate.now()
-        toDateSelection = LocalDate.now()
 
         val rootview = inflater.inflate(R.layout.fragment_history, container, false)
 
@@ -83,6 +71,8 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
             layoutManager = LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
             setHasFixedSize(true)
         }
+
+
 
         setHasOptionsMenu(true)
         return rootview
@@ -97,11 +87,14 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
     override fun onResume() {
         super.onResume()
         SimpleBudgetApp.handleRecurringEntries()
-        if (categorySelection.size != db.getAllCategories().size) {
-            categorySelection = BooleanArray(db.getAllCategories().size) { true }
+
+        HistoryHelper.run {
+            if (categorySelection.size != db.getAllCategories().size) {
+                categorySelection = BooleanArray(db.getAllCategories().size) { true }
+            }
+            updateView(getHistoryEntries(typeSelection, dateSelection, fromDateSelection,
+                    toDateSelection, categorySelection, true))
         }
-        updateView(getHistoryEntries(typeSelection, dateSelection, fromDateSelection,
-                                        toDateSelection, categorySelection, true))
     }
 
     override fun onHiddenChanged(hidden: Boolean) {
@@ -151,8 +144,11 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
         }
         searchView.setOnCloseListener {
             (requireActivity() as MainActivity).animateLayoutChanges()
-            updateView(getHistoryEntries(typeSelection, dateSelection, fromDateSelection,
-                    toDateSelection, categorySelection, true))
+
+           HistoryHelper.run {
+                updateView(getHistoryEntries(typeSelection, dateSelection, fromDateSelection,
+                        toDateSelection, categorySelection, true))
+            }
             updateOptionsMenu()
             false
         }
@@ -163,88 +159,21 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
         R.id.menu_history_filter -> {
 
-            val bundle = Bundle().apply {
-                putInt(TYPE_PREFILL, typeSelection)
-                putInt(DATE_PREFILL, dateSelection)
-                putString(FROM_DATE_PRESELECT,
-                        dateFormatter.format(fromDateSelection))
-                putString(TO_DATE_PRESELECT,
-                        dateFormatter.format(toDateSelection))
-                putBooleanArray(CATEGORY_PRESELECT, categorySelection)
-            }
-
-            FilterBottomSheet().also {
-                it.arguments = bundle
-                it.setListener(this)
-                it.show(requireFragmentManager(), tag)
-            }
+            HistoryHelper.createPrefilledFilterSheet()
+                    .also { it.setListener(this) }.show(requireFragmentManager(), tag)
             true
         }
 
         R.id.menu_history_filter_reset -> {
 
             (requireActivity() as MainActivity).animateLayoutChanges()
-            onSelectionChanged(TYPE_BOTH, SELECT_ALL, fromDateSelection, toDateSelection,
-                    BooleanArray(categorySelection.size){true})
+            onSelectionChanged(TYPE_BOTH, SELECT_ALL,
+                                HistoryHelper.fromDateSelection,
+                                HistoryHelper.toDateSelection,
+                                BooleanArray(HistoryHelper.categorySelection.size){true})
             true
         }
         else -> super.onOptionsItemSelected(item)
-    }
-
-    private fun getHistoryEntries(type: Int,
-                                  date: Int,
-                                  fromDate: LocalDate,
-                                  toDate: LocalDate,
-                                  categories: BooleanArray,
-                                  expandCurrentDate: Boolean = false): MutableList<HistoryEntry> {
-
-        val historyEntries = mutableListOf<HistoryEntry>()
-
-        val historyGrouping = SimpleBudgetApp.pref.getString(
-                getString(R.string.settings_key_history_grouping), "1")
-
-        when (historyGrouping) {
-            MONTHLY_INTERVAL.toString() -> {
-                for ((index, month) in DateHelper.getMonths().withIndex()) {
-
-                    val dateString =
-                            month.month.getDisplayName(TextStyle.FULL, Locale.getDefault()) + " " +
-                                    month.year.toString()
-
-                    var expenses =
-                            db.getExpensesByDate(month.atDay(1), month.atEndOfMonth())
-                    expenses = filterExpenses(expenses, type, date, fromDate, toDate, categories)
-
-                    val isCurrentInterval = DateHelper.isBetween(
-                            LocalDate.now(), month.atDay(1), month.atEndOfMonth())
-                            && expandCurrentDate
-
-                    if (isCurrentInterval) expandedStateMap[index] = true
-
-                    historyEntries.add(HistoryEntry(expenses, dateString, isCurrentInterval))
-                }
-            }
-
-            WEEKLY_INTERVAL.toString() -> {
-                for ((index, week) in DateHelper.getWeeks().withIndex()) {
-
-                    val dateString =
-                            "${dateFormatter.format(week[0])} - ${dateFormatter.format(week[1])}"
-
-                    var expenses = db.getExpensesByDate(week[0], week[1])
-                    expenses = filterExpenses(expenses, type, date, fromDate, toDate, categories)
-
-
-                    val isCurrentInterval =
-                            DateHelper.isBetween(LocalDate.now(), week[0], week[1])
-
-                    if (isCurrentInterval) expandedStateMap[index] = true
-
-                    historyEntries.add(HistoryEntry(expenses, dateString, isCurrentInterval))
-                }
-            }
-        }
-        return historyEntries
     }
 
     private val mActionModeCallBack = object : ActionMode.Callback {
@@ -322,68 +251,18 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
             putExtra(EXPENSE_INDEX, expenseToUpdate.id)
             putExtra(EXPENSE_DESC, expenseToUpdate.description)
             putExtra(EXPENSE_COST, expenseToUpdate.cost)
-            putExtra(EXPENSE_DATE, dateFormatter.format(expenseToUpdate.date))
+            putExtra(EXPENSE_DATE, HistoryHelper.dateFormatter.format(expenseToUpdate.date))
             putExtra(EXPENSE_CAT, expenseToUpdate.category.id)
             startActivityForResult(this, 1)
         }
     }
 
-    private fun filterExpenses(expenses: MutableList<Expense>,
-                               typeSelection: Int,
-                               dateSelection: Int,
-                               fromDate: LocalDate,
-                               toDate: LocalDate,
-                               categorySelection: BooleanArray) : MutableList<Expense> {
-
-        // filter income or expense
-        val typeFilteredList: List<Expense> = when (typeSelection) {
-            TYPE_EXPENSE -> expenses.filter { it.cost <= 0} // Expenses
-            TYPE_INCOME -> expenses.filter { it.cost > 0 } // Income
-            else -> expenses
-        }
-
-        // filter date selection
-        val currentDate = LocalDate.now()
-
-        val dateFilteredList: List<Expense> = when (dateSelection) {
-            SELECT_LAST30 -> {
-                typeFilteredList.filter {
-                    it.date.isAfter(currentDate.minusDays(31)) &&
-                            it.date.isBefore(currentDate.plusDays(1))
-                }
-            }
-            SELECT_LAST90 -> {
-                typeFilteredList.filter {
-                    it.date.isAfter(currentDate.minusDays(91)) &&
-                            it.date.isBefore(currentDate.plusDays(1))
-                }
-            }
-            SELECT_YEAR -> {
-                typeFilteredList.filter {
-                    it.date.isAfter(currentDate.with(TemporalAdjusters.firstDayOfYear()))&&
-                            it.date.isBefore(currentDate.plusDays(1))
-                }
-            }
-            SELECT_CUSTOM -> {
-                typeFilteredList.filter {
-                    it.date.isAfter(fromDate.minusDays(1)) &&
-                            it.date.isBefore(toDate.plusDays(1))
-                }
-            }
-            else -> typeFilteredList
-        }
-
-        val categoryFilteredList = dateFilteredList.filter {
-            categorySelection[it.category.position]
-        }
-
-        return categoryFilteredList.toMutableList()
-    }
-
     private fun performSearch(searchPhrase: String): MutableList<HistoryEntry> {
         val search = searchPhrase.toLowerCase()
-        val searchedList = getHistoryEntries(TYPE_BOTH, SELECT_ALL,
-                fromDateSelection, toDateSelection, BooleanArray(categorySelection.size) { true })
+        val searchedList = HistoryHelper.getHistoryEntries(TYPE_BOTH, SELECT_ALL,
+                HistoryHelper.fromDateSelection,
+                HistoryHelper.toDateSelection,
+                BooleanArray(HistoryHelper.categorySelection.size) { true })
 
         for (hEntry in searchedList.iterator()) {
             val expenseIterator = hEntry.childList.iterator()
@@ -408,11 +287,11 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
             ExpandCollapseListener {
 
                 override fun onParentCollapsed(parentPosition: Int) {
-                    expandedStateMap[parentPosition] = false
+                    HistoryHelper.expandedStateMap[parentPosition] = false
                 }
 
                 override fun onParentExpanded(parentPosition: Int) {
-                    expandedStateMap[parentPosition] = true
+                    HistoryHelper.expandedStateMap[parentPosition] = true
                 }
             })
             sort()
@@ -422,14 +301,9 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
         updateExpandedStateMap()
 
         for (index in historyAdapter.parentList.indices) {
-            when (expandedStateMap[index]) {
+            when (HistoryHelper.expandedStateMap[index]) {
                 true -> historyAdapter.expandParent(index)
             }
-        }
-
-        with (historyRecycler.layoutManager as LinearLayoutManager) {
-            val firstPos = findFirstVisibleItemPosition()
-            Log.d("test", firstPos.toString())
         }
     }
 
@@ -438,12 +312,14 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
                                     fromDate: LocalDate,
                                     toDate: LocalDate,
                                     categories: BooleanArray) {
-        typeSelection = type
-        dateSelection = date
-        categorySelection = categories
-        fromDateSelection = fromDate
-        toDateSelection = toDate
-        updateView(getHistoryEntries(type, date, fromDate, toDate, categories))
+        HistoryHelper.run {
+            typeSelection = type
+            dateSelection = date
+            categorySelection = categories
+            fromDateSelection = fromDate
+            toDateSelection = toDate
+            updateView(getHistoryEntries(type, date, fromDate, toDate, categories))
+        }
         updateOptionsMenu()
     }
 
@@ -485,15 +361,16 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
 
     private fun updateExpandedStateMap() {
         for (index in historyAdapter.parentList.indices) {
-            if (!expandedStateMap.containsKey(index)) {
-                expandedStateMap[index] = false
+            if (!HistoryHelper.expandedStateMap.containsKey(index)) {
+                HistoryHelper.expandedStateMap[index] = false
             }
         }
     }
 
     private fun updateOptionsMenu() {
         mOptionsMenu.findItem(R.id.menu_history_filter_reset).isVisible =
-                (typeSelection != TYPE_BOTH || dateSelection != SELECT_ALL ||
-                        !categorySelection.none { !it })
+                        (HistoryHelper.typeSelection != TYPE_BOTH ||
+                        HistoryHelper.dateSelection != SELECT_ALL ||
+                        !HistoryHelper.categorySelection.none { !it })
     }
 }

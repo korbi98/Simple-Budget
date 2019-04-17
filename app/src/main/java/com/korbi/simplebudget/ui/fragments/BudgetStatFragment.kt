@@ -16,7 +16,6 @@
 
 package com.korbi.simplebudget.ui.fragments
 
-import androidx.lifecycle.ViewModelProviders
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -24,24 +23,40 @@ import android.view.View
 import android.view.ViewGroup
 
 import com.korbi.simplebudget.R
+import com.korbi.simplebudget.SimpleBudgetApp
+import com.korbi.simplebudget.ui.BudgetSpiderChart
+import kotlinx.android.synthetic.main.fragment_budget_stat.view.*
 
-class BudgetStatFragment : Fragment() {
+class BudgetStatFragment : Fragment(), StatisticFragment.DateSelectionListener {
 
-    companion object {
-        fun newInstance() = BudgetStatFragment()
-    }
-
-    private lateinit var viewModel: BudgetStatViewModel
+    private lateinit var spiderChart: BudgetSpiderChart
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.budget_stat_fragment, container, false)
+        val rootview =  inflater.inflate(R.layout.fragment_budget_stat, container, false)
+
+        spiderChart = rootview.stat_budget_spider_chart
+
+        return rootview
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProviders.of(this).get(BudgetStatViewModel::class.java)
-        // TODO: Use the ViewModel
+    override fun onDateSelectionChange() {
+
+    }
+
+    fun updateView() {
+        val dashboard = requireParentFragment() as StatisticFragment
+        with(dashboard) {
+            val expenses = if (getInterval() != -1) {
+                getExpensesForInterval(getIntervalType(), getInterval())
+            } else {
+                getExpensesForInterval(SimpleBudgetApp.pref.getInt(
+                        getString(R.string.dashboard_time_selection_key), 1), 0)
+            }
+
+            spiderChart.setChartData(expenses, getIntervalType())
+
+        }
     }
 
 }

@@ -41,7 +41,7 @@
                 android:padding="8dp">
 
                 <TextView
-                    android:id="@+id/distribution_expense_label"
+                    android:id="@+id/distribution_expense_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/dashboard_expenses"
@@ -54,7 +54,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
                     app:layout_constraintDimensionRatio="w,1:1"
-                    app:layout_constraintTop_toBottomOf="@id/distribution_expense_label"/>
+                    app:layout_constraintTop_toBottomOf="@id/distribution_expense_title"/>
 
                 <TextView
                     android:id="@+id/distribution_expense_empty_msg"
@@ -62,7 +62,7 @@
                     android:layout_height="wrap_content"
                     android:textAlignment="center"
                     android:text="@string/empty_pie_message"
-                    app:layout_constraintTop_toBottomOf="@id/distribution_expense_label"
+                    app:layout_constraintTop_toBottomOf="@id/distribution_expense_title"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"/>
@@ -78,39 +78,87 @@
             app:cardBackgroundColor="@color/gray_background"
             style="@style/CardView.Dark">
 
-            <androidx.constraintlayout.widget.ConstraintLayout
+            <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:padding="8dp">
 
                 <TextView
-                    android:id="@+id/distribution_income_label"
+                    android:id="@+id/distribution_running_charges_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/running_charges_title"
+                    android:textSize="18sp"
+                    android:layout_marginBottom="8dp"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentStart="true"/>
+
+                <LinearLayout
+                    android:id="@+id/distribution_running_charges_lin_layout"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/income"
-                    android:textSize="18sp"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"/>
+                    android:orientation="vertical"
+                    android:layout_marginEnd="32dp"
+                    android:layout_below="@id/distribution_running_charges_title">
 
-                <com.korbi.simplebudget.ui.DistributionPieChart
-                    android:id="@+id/distribution_income_chart"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    app:layout_constraintDimensionRatio="w,1:1"
-                    app:layout_constraintTop_toBottomOf="@id/distribution_income_label"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/running_charges"/>
 
-                <TextView
-                    android:id="@+id/distribution_income_empty_msg"
-                    android:layout_width="match_parent"
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/variable_expenses"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/distribution_running_charges_lin_layout2"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textAlignment="center"
-                    android:text="@string/empty_pie_message"
-                    app:layout_constraintTop_toBottomOf="@id/distribution_income_label"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"/>
+                    android:orientation="vertical"
+                    android:layout_marginEnd="8dp"
+                    android:layout_centerHorizontal="true"
+                    android:layout_below="@id/distribution_running_charges_title"
+                    android:layout_toEndOf="@id/distribution_running_charges_lin_layout">
 
-            </androidx.constraintlayout.widget.ConstraintLayout>
+                    <TextView
+                        android:id="@+id/distribution_running_charges"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textAlignment="viewEnd"/>
+
+                    <TextView
+                        android:id="@+id/distribution_variable_expenses"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textAlignment="viewEnd"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_below="@id/distribution_running_charges_title"
+                    android:layout_toEndOf="@id/distribution_running_charges_lin_layout2">
+
+                    <TextView
+                        android:id="@+id/distribution_running_charges_percentage"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textAlignment="viewEnd"/>
+
+                    <TextView
+                        android:id="@+id/distribution_variable_expenses_percentage"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textAlignment="viewEnd"/>
+
+                </LinearLayout>
+
+            </RelativeLayout>
 
         </com.google.android.material.card.MaterialCardView>
 
