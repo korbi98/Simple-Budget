@@ -32,9 +32,7 @@ import com.korbi.simplebudget.SimpleBudgetApp
 import com.korbi.simplebudget.database.DBhandler
 import com.korbi.simplebudget.logic.Category
 import com.korbi.simplebudget.logic.Expense
-import com.korbi.simplebudget.logic.MONTHLY_ROOT
-import com.korbi.simplebudget.logic.WEEKLY_ROOT
-import com.korbi.simplebudget.ui.dialogs.INCOME_INDEX
+import com.korbi.simplebudget.utilities.*
 import kotlinx.android.synthetic.main.income_manager_listening.view.*
 import java.text.DateFormatSymbols
 import java.text.NumberFormat

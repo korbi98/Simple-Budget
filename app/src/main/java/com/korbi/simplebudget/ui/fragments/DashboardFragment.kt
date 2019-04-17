@@ -41,8 +41,7 @@ import kotlinx.android.synthetic.main.fragment_dashboard.view.*
 import kotlinx.android.synthetic.main.interval_backdrop.view.*
 import com.korbi.simplebudget.logic.adapters.BudgetAdapter
 import com.korbi.simplebudget.ui.dialogs.BudgetDialog
-import com.korbi.simplebudget.ui.dialogs.CAT_INDEX
-import com.korbi.simplebudget.ui.dialogs.SET_TOTAL_BUDGET
+import com.korbi.simplebudget.utilities.*
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.fragment_dashboard.*
 
@@ -139,6 +138,7 @@ class DashboardFragment : androidx.fragment.app.Fragment(),
 
     override fun onStart() {
         super.onStart()
+
         updateIntervalText()
         updateView()
     }
@@ -146,17 +146,14 @@ class DashboardFragment : androidx.fragment.app.Fragment(),
     override fun onHiddenChanged(hidden: Boolean) {
         super.onHiddenChanged(hidden)
 
-        when (hidden) {
-            true -> {
-                if (backdropLayout.isVisible) {
-                    backdropLayout.visibility = View.GONE
-                    updateOptionsMenu()
-                }
+        if (hidden) {
+            if (backdropLayout.isVisible) {
+                backdropLayout.visibility = View.GONE
+                updateOptionsMenu()
             }
-            false -> {
-                updateIntervalText()
-                updateView()
-            }
+        } else {
+            updateIntervalText()
+            updateView()
         }
     }
 
@@ -220,14 +217,14 @@ class DashboardFragment : androidx.fragment.app.Fragment(),
     private fun updateOptionsMenu() {
         with(mOptionsMenu) {
 
-            findItem(R.id.menu_dashboard_time_interval).apply {
+            findItem(R.id.menu_dashboard_time_interval)?.apply {
                 isVisible = !backdropLayout.isVisible
                 icon.alpha = 255
             }
-            findItem(R.id.menu_dashboard_categories).isVisible = !backdropLayout.isVisible
-            findItem(R.id.menu_dashboard_regular_income).isVisible = !backdropLayout.isVisible
-            findItem(R.id.menu_dashboard_settings).isVisible = !backdropLayout.isVisible
-            findItem(R.id.menu_dashboard_interval_done).isVisible = backdropLayout.isVisible
+            findItem(R.id.menu_dashboard_categories)?.isVisible = !backdropLayout.isVisible
+            findItem(R.id.menu_dashboard_regular_income)?.isVisible = !backdropLayout.isVisible
+            findItem(R.id.menu_dashboard_settings)?.isVisible = !backdropLayout.isVisible
+            findItem(R.id.menu_dashboard_interval_done)?.isVisible = backdropLayout.isVisible
             (activity as MainActivity).toolbar.overflowIcon?.alpha = 255
         }
     }

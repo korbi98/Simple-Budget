@@ -215,7 +215,7 @@ class FilterBottomSheet :  BottomSheetDialogFragment() {
         for ((index, isSelected) in categorySelection.withIndex()) {
             categoryChips[index].isChecked = isSelected
         }
-        filter()
+
     }
 
     private fun filter() {

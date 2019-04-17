@@ -46,30 +46,37 @@ object DateHelper {
         }
         var date1 = db.getOldestDate()
 
-        val startOnSunday = SimpleBudgetApp.pref.getBoolean(
-                SimpleBudgetApp.res.getString(R.string.settings_key_start_week_sunday), false)
 
-        if (startOnSunday) date1 = date1.minusWeeks(1)
+        if (isSundayFirstDay()) date1 = date1.minusWeeks(1)
 
-        do {
+        weeks.add(arrayOf(getFirstWeekDay(date2), getLastWeekDay(date2)))
+        date2 = date2.minusWeeks(1)
 
-            val firstDayOfWeek = when (startOnSunday) {
-                false-> date2.with( DayOfWeek.MONDAY )
-                true -> date2.with( DayOfWeek.SUNDAY )
-            }
-            val lastDayOfWeek = when (startOnSunday) {
-                false -> date2.with( DayOfWeek.SUNDAY )
-                true -> date2.with( DayOfWeek.SATURDAY ).plusWeeks(1)
-            }
+        while (date2.isAfter(date1.minusWeeks(1))) {
 
-            if (db.getExpensesByDate(firstDayOfWeek, lastDayOfWeek).isNotEmpty()) {
-                weeks.add(arrayOf(firstDayOfWeek, lastDayOfWeek))
+            if (db.getExpensesByDate(getFirstWeekDay(date2), getLastWeekDay(date2)).isNotEmpty()) {
+                weeks.add(arrayOf(getFirstWeekDay(date2), getLastWeekDay(date2)))
             }
 
             date2 = date2.minusWeeks(1)
         }
-        while (date2.isAfter(date1.minusWeeks(1)))
+
         return weeks
+    }
+
+    private fun getFirstWeekDay(date: LocalDate): LocalDate =  when (isSundayFirstDay()){
+        false-> date.with( DayOfWeek.MONDAY )
+        true -> date.with( DayOfWeek.SUNDAY )
+    }
+
+    private fun getLastWeekDay(date: LocalDate): LocalDate =  when (isSundayFirstDay()){
+        false -> date.with( DayOfWeek.SUNDAY )
+        true -> date.with( DayOfWeek.SATURDAY ).plusWeeks(1)
+    }
+
+    private fun isSundayFirstDay(): Boolean {
+        return SimpleBudgetApp.pref.getBoolean(
+                SimpleBudgetApp.res.getString(R.string.settings_key_start_week_sunday), false)
     }
 
     fun getMonths(): MutableList<YearMonth> {
@@ -79,13 +86,16 @@ object DateHelper {
         var date2 = YearMonth.from(db.getNewestDate())
         val date1 = YearMonth.from(db.getOldestDate())
 
-        do {
+        months.add(date2)
+        date2 = date2.minusMonths(1)
+
+        while (date2.isAfter(date1.minusMonths(1))) {
             if (db.getExpensesByDate(date2.atDay(1), date2.atEndOfMonth()).isNotEmpty()) {
                 months.add(date2)
             }
             date2 = date2.minusMonths(1)
         }
-        while (date2.isAfter(date1.minusMonths(1)))
+
         return months
     }
 

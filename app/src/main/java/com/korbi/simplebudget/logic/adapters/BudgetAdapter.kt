@@ -34,6 +34,7 @@ import com.korbi.simplebudget.SimpleBudgetApp.Companion.decimalFormat
 import com.korbi.simplebudget.database.DBhandler
 import com.korbi.simplebudget.logic.*
 import com.korbi.simplebudget.ui.fragments.*
+import com.korbi.simplebudget.utilities.MONTHLY_INTERVAL
 import kotlinx.android.synthetic.main.budget_listening.view.*
 import java.text.DecimalFormat
 

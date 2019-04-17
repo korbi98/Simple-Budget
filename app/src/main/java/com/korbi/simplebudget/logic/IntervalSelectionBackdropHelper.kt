@@ -32,16 +32,11 @@ import com.google.android.material.chip.ChipGroup
 import com.korbi.simplebudget.R
 import com.korbi.simplebudget.SimpleBudgetApp
 import com.korbi.simplebudget.database.DBhandler
+import com.korbi.simplebudget.utilities.*
 import kotlinx.android.synthetic.main.fragment_dashboard.*
 import org.threeten.bp.LocalDate
 import org.threeten.bp.Year
 import org.threeten.bp.YearMonth
-
-const val ALL_TIME = 4
-const val YEARLY_INTERVAL = 3
-const val QUARTERLY_INTERVAL = 2
-const val MONTHLY_INTERVAL = 1
-const val WEEKLY_INTERVAL = 0
 
 interface IntervalSelectionBackdropHelper {
 
@@ -71,7 +66,9 @@ interface IntervalSelectionBackdropHelper {
     fun onIntervalSelected()
 
     fun getInterval(): Int {
-        return  intervalSpinner.selectedItemPosition
+        with(intervalSpinner.selectedItemPosition) {
+            return if (this < 0) 0 else this
+        }
     }
 
     fun getIntervalType(): Int {
@@ -153,6 +150,10 @@ interface IntervalSelectionBackdropHelper {
                     } .toMutableList()
                 }
                 weeks.add(0, DateHelper.getWeeks()[0])
+
+                Log.d("test1", DateHelper.getWeeks().size.toString())
+                Log.d("test2", DateHelper.getMonths().size.toString())
+                Log.d("test3", selectedInterval.toString())
 
                 val week = weeks[selectedInterval]
                 startDate = week[0]

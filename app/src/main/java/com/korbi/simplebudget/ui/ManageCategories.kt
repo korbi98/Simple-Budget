@@ -32,7 +32,7 @@ import com.korbi.simplebudget.logic.adapters.CategoryAdapter
 import com.korbi.simplebudget.logic.dragAndDrop.ItemTouchHelperCallback
 import com.korbi.simplebudget.ui.dialogs.AddEditCategoryDialog
 import com.korbi.simplebudget.ui.dialogs.BudgetDialog
-import com.korbi.simplebudget.ui.dialogs.CAT_INDEX
+import com.korbi.simplebudget.utilities.CAT_INDEX
 import kotlinx.android.synthetic.main.activity_manage_categories.*
 import kotlinx.android.synthetic.main.category_manager_migrate_category.*
 

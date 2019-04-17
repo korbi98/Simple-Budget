@@ -40,18 +40,12 @@ import com.korbi.simplebudget.database.DBhandler
 import com.korbi.simplebudget.logic.Category
 import com.korbi.simplebudget.logic.CurrencyTextWatcher
 import com.korbi.simplebudget.logic.Expense
-import com.korbi.simplebudget.logic.NON_RECURRING
+import com.korbi.simplebudget.utilities.*
 import kotlinx.android.synthetic.main.activity_add_expenses.*
 import org.threeten.bp.LocalDate
 import org.threeten.bp.format.DateTimeFormatter
 import java.text.DecimalFormatSymbols
 import kotlin.math.round
-
-const val EXPENSE_INDEX = "prefill_index"
-const val EXPENSE_DESC = "prefill_desc"
-const val EXPENSE_COST = "prefill_cost"
-const val EXPENSE_DATE = "prefill_date"
-const val EXPENSE_CAT = "prefill_cat"
 
 class AddExpenses : AppCompatActivity() {
 

@@ -30,6 +30,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentPagerAdapter
+import androidx.fragment.app.FragmentStatePagerAdapter
 import com.google.android.material.chip.ChipGroup
 import com.google.android.material.tabs.TabLayout
 import com.korbi.simplebudget.MainActivity
@@ -74,7 +75,7 @@ class StatisticFragment : androidx.fragment.app.Fragment(), IntervalSelectionBac
 
 
             val viewpager = statistic_viewpager
-            viewpager.adapter = object : FragmentPagerAdapter(childFragmentManager) {
+            viewpager.adapter = object : FragmentStatePagerAdapter(childFragmentManager) {
 
                 override fun getCount(): Int {
                     return 3
@@ -134,16 +135,10 @@ class StatisticFragment : androidx.fragment.app.Fragment(), IntervalSelectionBac
 
     override fun onHiddenChanged(hidden: Boolean) {
         super.onHiddenChanged(hidden)
-        when (hidden) {
-            true -> {
-                if (backdropLayout.isVisible) {
-                    backdropLayout.visibility = View.GONE
-                    updateOptionsMenu()
-                }
-            }
-            false -> {
 
-            }
+        if (hidden && backdropLayout.isVisible) {
+            backdropLayout.visibility = View.GONE
+            updateOptionsMenu()
         }
     }
 

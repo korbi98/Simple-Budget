@@ -29,6 +29,7 @@ import androidx.core.text.bold
 import com.bignerdranch.expandablerecyclerview.ChildViewHolder
 import com.korbi.simplebudget.R
 import com.korbi.simplebudget.SimpleBudgetApp
+import com.korbi.simplebudget.utilities.NON_RECURRING
 import kotlinx.android.synthetic.main.expense_listening.view.*
 import org.threeten.bp.format.DateTimeFormatter
 

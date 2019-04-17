@@ -35,10 +35,11 @@ import android.widget.GridView
 import androidx.core.content.ContextCompat
 import com.korbi.simplebudget.database.DBhandler
 import com.korbi.simplebudget.logic.Category
+import com.korbi.simplebudget.utilities.CAT_INDEX
 import kotlinx.android.synthetic.main.add_edit_category_dialog.*
 import java.lang.ClassCastException
 
-const val CAT_INDEX = "id"
+
 
 class AddEditCategoryDialog : DialogFragment() {
 

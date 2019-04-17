@@ -31,7 +31,6 @@ import com.korbi.simplebudget.logic.Category
 import com.korbi.simplebudget.logic.dragAndDrop.ItemTouchHelperAdapter
 import com.korbi.simplebudget.logic.dragAndDrop.ItemTouchHelperViewHolder
 import com.korbi.simplebudget.ui.dialogs.BudgetDialog
-import com.korbi.simplebudget.ui.dialogs.CAT_INDEX
 import kotlinx.android.synthetic.main.category_manager_listening.view.*
 import java.util.*
 

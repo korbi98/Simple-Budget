@@ -19,10 +19,6 @@ package com.korbi.simplebudget.logic
 import org.threeten.bp.LocalDate
 import java.util.Date
 
-const val NON_RECURRING = -1
-const val MONTHLY_ROOT = -2
-const val WEEKLY_ROOT = -3
-
 data class Expense(var id: Int,
                    var description: String,
                    var cost: Int,
