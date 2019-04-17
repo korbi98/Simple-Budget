@@ -32,7 +32,7 @@ import com.korbi.simplebudget.utilities.*
 import kotlinx.android.synthetic.main.income_manager_listening.view.*
 
 class IncomeAdapter(private val incomeList: MutableList<Expense>,
-                    val editListener: OnEditListener) :
+                    private val editListener: OnEditListener) :
         RecyclerView.Adapter<IncomeAdapter.ViewHolder>() {
 
     private val iconIdArray: TypedArray = SimpleBudgetApp.res

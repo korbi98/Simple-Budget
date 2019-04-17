@@ -62,9 +62,8 @@ class HistoryViewHolder(private val historyEntryView: View) : ParentViewHolder<H
             else -> View.VISIBLE
         }
 
-        if (isExpanded) {
-            expandArrow.animate().rotation(90f).setDuration(0).start()
-        }
+        if (isExpanded) expandArrow.animate().rotation(90f).setDuration(0).start()
+        else expandArrow.animate().rotation(0f).setDuration(0).start()
 
         historyEntryView.setOnClickListener {
 

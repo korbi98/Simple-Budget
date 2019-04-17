@@ -28,11 +28,11 @@ import com.korbi.simplebudget.utilities.NON_RECURRING
 import java.util.*
 
 
-class HistoryAdapter(private val historyEntries: MutableList<HistoryEntry>,
+class HistoryAdapter(private val data: MutableList<HistoryEntry>,
                      private val listener: ExpenseViewHolder.ExpenseAdapterListener,
                      private val recurrentListener: ClickRecurrentEntryListener) :
                                             ExpandableRecyclerAdapter<HistoryEntry, Expense,
-                                                    HistoryViewHolder, ExpenseViewHolder>(historyEntries) {
+                                                    HistoryViewHolder, ExpenseViewHolder>(data) {
 
     private var currentSelectedChild = -1
     private var currentSelectedParent = -1
@@ -57,7 +57,7 @@ class HistoryAdapter(private val historyEntries: MutableList<HistoryEntry>,
 
     override fun onBindParentViewHolder(parentViewHolder: HistoryViewHolder,
                                         position: Int, parent: HistoryEntry) {
-        parentViewHolder.bind(historyEntries[position].getDateString())
+        parentViewHolder.bind(data[position].getDateString())
 
         if (parent.childList.isNullOrEmpty()) {
             parentViewHolder.itemView.visibility = View.GONE
@@ -72,7 +72,7 @@ class HistoryAdapter(private val historyEntries: MutableList<HistoryEntry>,
 
     override fun onBindChildViewHolder(childViewHolder: ExpenseViewHolder, parentPosition: Int,
                                        childPosition: Int, child: Expense) {
-        childViewHolder.bind(historyEntries[parentPosition].childList[childPosition])
+        childViewHolder.bind(data[parentPosition].childList[childPosition])
 
         if (selectedItems[parentPosition][childPosition]) {
             childViewHolder.itemView.background = childViewHolder.context
@@ -87,7 +87,7 @@ class HistoryAdapter(private val historyEntries: MutableList<HistoryEntry>,
     }
 
     fun toggleSelection(parentPosition: Int, childPosition: Int) {
-        if (historyEntries[parentPosition].childList[childPosition].interval == NON_RECURRING) {
+        if (data[parentPosition].childList[childPosition].interval == NON_RECURRING) {
             selectedItems[parentPosition][childPosition] = !selectedItems[parentPosition][childPosition]
             currentSelectedParent = parentPosition
             currentSelectedChild = childPosition
@@ -113,7 +113,7 @@ class HistoryAdapter(private val historyEntries: MutableList<HistoryEntry>,
 
     fun initializeSelectedItems() {
         selectedItems.clear()
-        for ((hIndex, hEntry) in historyEntries.withIndex()) {
+        for ((hIndex, hEntry) in data.withIndex()) {
             selectedItems.add(hIndex, mutableListOf())
             for (eIndex in hEntry.childList.indices) {
                 selectedItems[hIndex].add(eIndex, false)
@@ -128,8 +128,8 @@ class HistoryAdapter(private val historyEntries: MutableList<HistoryEntry>,
             var sCounter = 0
             for ((sIndex, state) in entry.withIndex()) {
                 if (state) {
-                    indices.add(historyEntries[eIndex].childList[sIndex - sCounter].id.toString())
-                    historyEntries[eIndex].childList.removeAt(sIndex - sCounter)
+                    indices.add(data[eIndex].childList[sIndex - sCounter].id.toString())
+                    data[eIndex].childList.removeAt(sIndex - sCounter)
                     notifyChildRemoved(eIndex, sIndex-sCounter)
                     notifyParentChanged(eIndex)
                     sCounter++
@@ -145,7 +145,7 @@ class HistoryAdapter(private val historyEntries: MutableList<HistoryEntry>,
     }
 
     fun sort() {
-        for (entry in historyEntries) {
+        for (entry in data) {
             entry.childList.sortWith(
                     compareByDescending<Expense> { it.date } .thenByDescending { it.id } )
         }

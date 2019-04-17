@@ -31,9 +31,9 @@ import com.korbi.simplebudget.utilities.dragAndDrop.ItemTouchHelperViewHolder
 import kotlinx.android.synthetic.main.category_manager_listening.view.*
 import java.util.*
 
-class CategoryAdapter(val categoryList: MutableList<Category>,
-                      val startDragListener: OnStartDragListener,
-                      val editListener: OnEditListener) :
+class CategoryAdapter(private val categoryList: MutableList<Category>,
+                      private val startDragListener: OnStartDragListener,
+                      private val editListener: OnEditListener) :
                             RecyclerView.Adapter<CategoryAdapter.ViewHolder>(),
                             ItemTouchHelperAdapter {
 

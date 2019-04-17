@@ -67,9 +67,24 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
         val rootview = inflater.inflate(R.layout.fragment_history, container, false)
 
         emptyMessage = rootview.history_fragment_empty_message
+
+        historyAdapter = HistoryAdapter(HistoryHelper.data, this, this).apply {
+            setExpandCollapseListener(object : ExpandableRecyclerAdapter.ExpandCollapseListener {
+
+                override fun onParentCollapsed(parentPosition: Int) {
+                    HistoryHelper.expandedStateMap[parentPosition] = false
+                }
+
+                override fun onParentExpanded(parentPosition: Int) {
+                    HistoryHelper.expandedStateMap[parentPosition] = true
+                }
+            })
+        }
+
         historyRecycler = rootview.historyList.apply {
             layoutManager = LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
             setHasFixedSize(true)
+            adapter = historyAdapter
         }
 
 
@@ -128,10 +143,12 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
 
             fun search() {
                 (requireActivity() as MainActivity).animateLayoutChanges(200)
-                historyAdapter = HistoryAdapter(performSearch(searchView.query.toString()), this@HistoryFragment, this@HistoryFragment)
-                historyRecycler.adapter = historyAdapter
-                historyAdapter.sort()
-                historyAdapter.initializeSelectedItems()
+                HistoryHelper.setData(performSearch(searchView.query.toString()))
+                historyAdapter.run {
+                    sort()
+                    initializeSelectedItems()
+                    notifyParentDataSetChanged(false)
+                }
 
                 for (index in historyAdapter.parentList.indices) {
                     historyAdapter.expandParent(index)
@@ -282,22 +299,13 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
             false -> View.GONE
         }
 
-        historyAdapter = HistoryAdapter(hEntries, this, this).apply {
-            setExpandCollapseListener(object : ExpandableRecyclerAdapter.
-            ExpandCollapseListener {
-
-                override fun onParentCollapsed(parentPosition: Int) {
-                    HistoryHelper.expandedStateMap[parentPosition] = false
-                }
-
-                override fun onParentExpanded(parentPosition: Int) {
-                    HistoryHelper.expandedStateMap[parentPosition] = true
-                }
-            })
+        HistoryHelper.setData(hEntries)
+        historyAdapter.run {
             sort()
             initializeSelectedItems()
+            notifyParentDataSetChanged(false)
         }
-        historyRecycler.adapter = historyAdapter
+
         updateExpandedStateMap()
 
         for (index in historyAdapter.parentList.indices) {
