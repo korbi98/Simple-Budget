@@ -16,18 +16,12 @@
 
 package com.korbi.simplebudget.logic.model
 
-import androidx.room.ColumnInfo
-import androidx.room.Entity
-import androidx.room.PrimaryKey
-import com.korbi.simplebudget.utilities.*
-
-@Entity
-data class Category(@PrimaryKey @ColumnInfo(name = COL_ID) var id: Int,
-                    @ColumnInfo(name = COL_CATEGORY) var name: String,
-                    @ColumnInfo(name = COL_DRAWABLE) var icon: Int,
-                    @ColumnInfo(name = COL_POSITION) var position: Int,
-                    @ColumnInfo(name = COL_BUDGET) var budget: Int,
-                    @ColumnInfo(name = COL_INTERVAL) var interval: Int) {
+data class Category(var id: Int,
+                    var name: String,
+                    var icon: Int,
+                    var position: Int,
+                    var budget: Int,
+                    var interval: Int) {
 
     override fun equals(other: Any?): Boolean {
         other as Category

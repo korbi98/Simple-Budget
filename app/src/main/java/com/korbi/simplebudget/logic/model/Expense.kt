@@ -16,19 +16,14 @@
 
 package com.korbi.simplebudget.logic.model
 
-import androidx.room.ColumnInfo
-import androidx.room.Entity
-import androidx.room.PrimaryKey
-import com.korbi.simplebudget.utilities.*
 import org.threeten.bp.LocalDate
 
-@Entity(tableName = EXPENSE_TABLE)
-data class Expense(@PrimaryKey @ColumnInfo(name = COL_ID) var id: Int,
-                   @ColumnInfo(name = COL_DESCRIPTION) var description: String,
-                   @ColumnInfo(name = COL_COST) var cost: Int,
-                   @ColumnInfo(name = COL_DATE) var date: LocalDate,
-                   @ColumnInfo(name = COL_CATEGORY) var category: Category,
-                   @ColumnInfo(name = COL_INTERVAL) var interval: Int) {
+data class Expense(var id: Int,
+                   var description: String,
+                   var cost: Int,
+                   var date: LocalDate,
+                   var category: Category,
+                   var interval: Int) {
 
 
     override fun equals(other: Any?): Boolean {
