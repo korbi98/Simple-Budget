@@ -18,7 +18,6 @@ package com.korbi.simplebudget.ui
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -27,7 +26,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.korbi.simplebudget.R
 import com.korbi.simplebudget.database.DBhandler
-import com.korbi.simplebudget.logic.Expense
+import com.korbi.simplebudget.logic.model.Expense
 import com.korbi.simplebudget.logic.adapters.IncomeAdapter
 import com.korbi.simplebudget.ui.dialogs.AddEditRecurrentEntryDialog
 import com.korbi.simplebudget.utilities.*

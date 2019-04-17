@@ -33,7 +33,7 @@
         <!-- empty text for label to prevent showing app name before setTitle animation.
          Whitespace is necessary -->
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.MainActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait">
             <intent-filter>

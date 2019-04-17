@@ -20,8 +20,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.os.Bundle
-import android.transition.TransitionManager
-import android.util.Log
 import android.view.*
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
@@ -30,7 +28,7 @@ import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.chip.ChipGroup
-import com.korbi.simplebudget.MainActivity
+import com.korbi.simplebudget.ui.MainActivity
 import com.korbi.simplebudget.R
 import com.korbi.simplebudget.SimpleBudgetApp
 import com.korbi.simplebudget.logic.*
@@ -40,10 +38,10 @@ import com.korbi.simplebudget.ui.SettingsActivity
 import kotlinx.android.synthetic.main.fragment_dashboard.view.*
 import kotlinx.android.synthetic.main.interval_backdrop.view.*
 import com.korbi.simplebudget.logic.adapters.BudgetAdapter
+import com.korbi.simplebudget.logic.model.Category
 import com.korbi.simplebudget.ui.dialogs.BudgetDialog
 import com.korbi.simplebudget.utilities.*
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.fragment_dashboard.*
 
 
 class DashboardFragment : androidx.fragment.app.Fragment(),

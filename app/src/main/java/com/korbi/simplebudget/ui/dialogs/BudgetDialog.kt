@@ -30,6 +30,7 @@ import com.korbi.simplebudget.R
 import com.korbi.simplebudget.SimpleBudgetApp
 import com.korbi.simplebudget.database.DBhandler
 import com.korbi.simplebudget.logic.*
+import com.korbi.simplebudget.logic.model.Category
 import com.korbi.simplebudget.ui.fragments.*
 import com.korbi.simplebudget.utilities.*
 import kotlinx.android.synthetic.main.budget_dialog.*

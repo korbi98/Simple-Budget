@@ -18,6 +18,8 @@ package com.korbi.simplebudget.logic
 
 import com.korbi.simplebudget.R
 import com.korbi.simplebudget.SimpleBudgetApp
+import com.korbi.simplebudget.logic.model.Category
+import com.korbi.simplebudget.logic.model.Expense
 import com.korbi.simplebudget.utilities.*
 
 class BudgetHelper {

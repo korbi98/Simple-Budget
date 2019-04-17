@@ -17,23 +17,13 @@
 
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/history_main_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.MainActivity">
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/historyList"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+    tools:context=".ui.fragments.BudgetStatFragment">
 
     <TextView
-        android:id="@+id/history_fragment_empty_message"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:singleLine="false"
-        android:textAlignment="center"
-        android:text="@string/empty_history_view_message"/>
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="Hello" />
 
 </FrameLayout>

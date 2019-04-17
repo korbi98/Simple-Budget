@@ -16,24 +16,19 @@
 
 package com.korbi.simplebudget.logic
 
-import android.animation.Animator
-import android.animation.AnimatorListenerAdapter
 import android.content.Context
 import android.transition.*
 import android.util.Log
 import android.view.Gravity
 import android.view.View
-import android.view.animation.Animation
-import android.view.animation.TranslateAnimation
 import android.widget.*
-import androidx.core.transition.addListener
 import androidx.core.transition.doOnEnd
 import com.google.android.material.chip.ChipGroup
 import com.korbi.simplebudget.R
 import com.korbi.simplebudget.SimpleBudgetApp
 import com.korbi.simplebudget.database.DBhandler
+import com.korbi.simplebudget.logic.model.Expense
 import com.korbi.simplebudget.utilities.*
-import kotlinx.android.synthetic.main.fragment_dashboard.*
 import org.threeten.bp.LocalDate
 import org.threeten.bp.Year
 import org.threeten.bp.YearMonth

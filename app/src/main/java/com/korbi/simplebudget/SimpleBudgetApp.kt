@@ -26,7 +26,7 @@ import android.content.res.Resources
 import androidx.preference.PreferenceManager
 import com.jakewharton.threetenabp.AndroidThreeTen
 import com.korbi.simplebudget.database.DBhandler
-import com.korbi.simplebudget.logic.Expense
+import com.korbi.simplebudget.logic.model.Expense
 import com.korbi.simplebudget.utilities.*
 import com.korbi.simplebudget.widget.SimpleBudgetWidget
 import org.threeten.bp.LocalDate
@@ -96,11 +96,11 @@ class SimpleBudgetApp : Application() {
                     }
                     if (expenses.none { it.interval == recurring.id && it.date == date}) {
                         val newRecurringEntry = Expense(db.getLatestCategoryID(),
-                                                        recurring.description,
-                                                        recurring.cost,
-                                                        date,
-                                                        recurring.category,
-                                                        recurring.id)
+                                recurring.description,
+                                recurring.cost,
+                                date,
+                                recurring.category,
+                                recurring.id)
                         db.addExpense(newRecurringEntry)
                     }
                 }

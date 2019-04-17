@@ -23,6 +23,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bignerdranch.expandablerecyclerview.ExpandableRecyclerAdapter
 import com.korbi.simplebudget.R
 import com.korbi.simplebudget.logic.*
+import com.korbi.simplebudget.logic.model.Expense
 import com.korbi.simplebudget.utilities.NON_RECURRING
 import java.util.*
 

@@ -37,3 +37,16 @@ const val EXPENSE_CAT = "prefill_cat"
 
 const val SET_TOTAL_BUDGET = -100
 const val NO_SELECTION = 100
+
+const val CATEGORY_TABLE = "categories"
+const val EXPENSE_TABLE = "expenses"
+
+const val COL_ID = "_id"
+const val COL_COST = "cost"
+const val COL_DESCRIPTION = "description"
+const val COL_DATE = "date"
+const val COL_INTERVAL = "interval"
+const val COL_CATEGORY = "category"
+const val COL_DRAWABLE = "drawable"
+const val COL_POSITION = "position"
+const val COL_BUDGET = "budget"

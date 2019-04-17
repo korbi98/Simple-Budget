@@ -19,8 +19,6 @@ package com.korbi.simplebudget.ui.fragments
 
 import android.content.Context
 import android.os.Bundle
-import android.transition.AutoTransition
-import android.transition.TransitionManager
 import android.util.SparseArray
 import android.view.*
 import android.widget.FrameLayout
@@ -29,16 +27,14 @@ import android.widget.Spinner
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentPagerAdapter
 import androidx.fragment.app.FragmentStatePagerAdapter
 import com.google.android.material.chip.ChipGroup
 import com.google.android.material.tabs.TabLayout
-import com.korbi.simplebudget.MainActivity
+import com.korbi.simplebudget.ui.MainActivity
 import com.korbi.simplebudget.R
 import com.korbi.simplebudget.SimpleBudgetApp
 import com.korbi.simplebudget.logic.IntervalSelectionBackdropHelper
 import com.korbi.simplebudget.logic.MenuAnimator
-import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.interval_backdrop.view.*
 import kotlinx.android.synthetic.main.fragment_statistic.view.*
 
@@ -85,7 +81,7 @@ class StatisticFragment : androidx.fragment.app.Fragment(), IntervalSelectionBac
 
                     return when (position) {
 
-                        1 -> {
+                        0 -> {
                             DistributionFragment().also {
                                 listener = it
                             }

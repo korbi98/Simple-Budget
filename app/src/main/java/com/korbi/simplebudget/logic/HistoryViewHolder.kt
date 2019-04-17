@@ -22,11 +22,12 @@ import androidx.core.content.ContextCompat
 import com.bignerdranch.expandablerecyclerview.ParentViewHolder
 import com.korbi.simplebudget.R
 import com.korbi.simplebudget.SimpleBudgetApp
+import com.korbi.simplebudget.logic.model.Expense
 import kotlinx.android.synthetic.main.history_date_listening.view.*
 
 
 class HistoryViewHolder(private val historyEntryView: View) : ParentViewHolder<HistoryEntry,
-                                                                        Expense>(historyEntryView) {
+        Expense>(historyEntryView) {
 
     val context: Context = historyEntryView.context
 
