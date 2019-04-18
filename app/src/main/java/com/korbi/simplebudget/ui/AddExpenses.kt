@@ -210,9 +210,12 @@ class AddExpenses : AppCompatActivity() {
         inputLayout.hint = getString(R.string.amount_input_hint) + " $currencySymbol"
         val separator = DecimalFormatSymbols.getInstance().decimalSeparator.toString()
 
+        val noDecimal = SimpleBudgetApp.pref.getBoolean(
+                SimpleBudgetApp.res.getString(R.string.settings_key_currency_decimal), false)
+
         currencyInput = add_expense_currency_input.apply {
             addTextChangedListener(
-                    CurrencyTextWatcher(this, inputLayout, separator))
+                    CurrencyTextWatcher(this, inputLayout, separator, isCommaAllowed = noDecimal))
 
             setOnEditorActionListener { v, actionId, _ ->
                 if (actionId == EditorInfo.IME_ACTION_DONE) {

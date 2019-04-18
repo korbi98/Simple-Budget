@@ -37,6 +37,9 @@ import kotlin.math.round
 class SimpleBudgetApp : Application() {
 
     companion object {
+        var selectedInterval = 0
+        var selectedIntervalType = MONTHLY_INTERVAL
+
         lateinit var res: Resources
         lateinit var pref: SharedPreferences
         lateinit var decimalFormat: DecimalFormat
@@ -47,9 +50,9 @@ class SimpleBudgetApp : Application() {
 
             val onLeft = pref.getBoolean(
                     res.getString(R.string.settings_key_currency_left), false)
-            val noDecimal = pref.getBoolean(
-                    res.getString(R.string.settings_key_currency_decimal), false)
-            val amountString = when (noDecimal) {
+            val amountString = when (pref.getBoolean(
+                    res.getString(R.string.settings_key_currency_decimal), false)) {
+
                 false -> {
                     val decimalAmount = amount.toFloat()/100
                     val hasNoDecimal = round(decimalAmount) == decimalAmount
@@ -127,8 +130,10 @@ class SimpleBudgetApp : Application() {
         decimalFormat = DecimalFormat(res.getString(R.string.number_format))
         DBhandler.createInstance(this)
 
+        selectedIntervalType = pref.getInt(
+                getString(R.string.selected_interval_type_key), MONTHLY_INTERVAL)
+
         HistoryHelper.fromDateSelection = LocalDate.now()
         HistoryHelper.toDateSelection = LocalDate.now()
     }
-
 }

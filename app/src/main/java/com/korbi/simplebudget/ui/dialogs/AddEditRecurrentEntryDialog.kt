@@ -177,8 +177,12 @@ class AddEditRecurrentEntryDialog : DialogFragment() {
         inputLayout.hint = getString(R.string.amount_input_hint) + " $currencySymbol"
         val separator = DecimalFormatSymbols.getInstance().decimalSeparator.toString()
 
+        val noDecimal = SimpleBudgetApp.pref.getBoolean(
+                SimpleBudgetApp.res.getString(R.string.settings_key_currency_decimal), false)
+
         currencyInput.addTextChangedListener(CurrencyTextWatcher(currencyInput, inputLayout,
-                separator, isZeroAllowed = false, isNegativeAllowed = true, dialog = dialog))
+                separator, isZeroAllowed = false, isNegativeAllowed = true,
+                isCommaAllowed = noDecimal, dialog = dialog))
 
     }
 

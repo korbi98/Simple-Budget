@@ -20,6 +20,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
@@ -112,18 +113,17 @@ class DashboardFragment : androidx.fragment.app.Fragment(),
             }
 
             initIntervalHelper()
-            selectIntervalChip()
             setHasOptionsMenu(true)
         }
     }
 
     override fun onResume() {
         super.onResume()
-        updateIntervalText(false)
-        SimpleBudgetApp.handleRecurringEntries()
         backdropLayout.visibility = View.GONE
         if (::mOptionsMenu.isInitialized) updateOptionsMenu()
-        setupTimeSelectionSpinner(getIntervalType())
+        updateBackdropSelection()
+        updateIntervalText(false)
+        updateView()
     }
 
     override fun onStop() {
@@ -132,13 +132,6 @@ class DashboardFragment : androidx.fragment.app.Fragment(),
             backdropLayout.visibility = View.GONE
             updateOptionsMenu()
         }
-    }
-
-    override fun onStart() {
-        super.onStart()
-
-        updateIntervalText()
-        updateView()
     }
 
     override fun onHiddenChanged(hidden: Boolean) {
@@ -150,6 +143,7 @@ class DashboardFragment : androidx.fragment.app.Fragment(),
                 updateOptionsMenu()
             }
         } else {
+            updateBackdropSelection()
             updateIntervalText()
             updateView()
         }
@@ -320,8 +314,6 @@ class DashboardFragment : androidx.fragment.app.Fragment(),
         showBackdrop()
 
         (activity as MainActivity).setTitle(getString(R.string.select_interval))
-
-        selectIntervalChip()
 
         with(mOptionsMenu) {
 

@@ -43,14 +43,8 @@ object HistoryHelper {
     lateinit var toDateSelection: LocalDate
     var categorySelection = BooleanArray(0) //true if category selected false else
 
-    val data = mutableListOf<HistoryEntry>()
 
     val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yy")
-
-    fun setData(data: MutableList<HistoryEntry>) {
-        data.clear()
-        data.addAll(data)
-    }
 
     fun getHistoryEntries(type: Int,
                           date: Int,

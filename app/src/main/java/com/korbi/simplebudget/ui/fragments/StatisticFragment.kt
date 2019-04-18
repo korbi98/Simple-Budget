@@ -19,6 +19,7 @@ package com.korbi.simplebudget.ui.fragments
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.util.SparseArray
 import android.view.*
 import android.widget.FrameLayout
@@ -32,7 +33,6 @@ import com.google.android.material.chip.ChipGroup
 import com.google.android.material.tabs.TabLayout
 import com.korbi.simplebudget.ui.MainActivity
 import com.korbi.simplebudget.R
-import com.korbi.simplebudget.SimpleBudgetApp
 import com.korbi.simplebudget.logic.IntervalSelectionBackdropHelper
 import com.korbi.simplebudget.logic.MenuAnimator
 import kotlinx.android.synthetic.main.interval_backdrop.view.*
@@ -60,6 +60,14 @@ class StatisticFragment : androidx.fragment.app.Fragment(), IntervalSelectionBac
                               savedInstanceState: Bundle?): View? {
 
         return inflater.inflate(R.layout.fragment_statistic, container, false).apply {
+
+            // prevent chips from being unselected
+            chip_weekly.setOnClickListener { chip_weekly.isChecked = true }
+            chip_monthly.setOnClickListener { chip_monthly.isChecked = true }
+            chip_quarterly.setOnClickListener { chip_quarterly.isChecked = true }
+            chip_yearly.setOnClickListener { chip_yearly.isChecked = true }
+            chip_all_time.setOnClickListener { chip_all_time.isChecked = true }
+
 
             mContext = context
 
@@ -137,14 +145,17 @@ class StatisticFragment : androidx.fragment.app.Fragment(), IntervalSelectionBac
     }
 
     override fun onIntervalSelected() {
-        listener.onDateSelectionChange()
+        if (::listener.isInitialized) listener.onDateSelectionChange()
     }
 
     override fun onResume() {
         super.onResume()
-        SimpleBudgetApp.handleRecurringEntries()
         backdropLayout.visibility = View.GONE
         if (::mOptionsMenu.isInitialized) updateOptionsMenu()
+        if (::listener.isInitialized) listener.onDateSelectionChange()
+        updateBackdropSelection()
+
+        updateIntervalText()
     }
 
     override fun onHiddenChanged(hidden: Boolean) {
@@ -153,6 +164,12 @@ class StatisticFragment : androidx.fragment.app.Fragment(), IntervalSelectionBac
         if (hidden && backdropLayout.isVisible) {
             backdropLayout.visibility = View.GONE
             updateOptionsMenu()
+        }
+
+        if (!hidden) {
+            if (::listener.isInitialized) listener.onDateSelectionChange()
+            updateBackdropSelection()
+            updateIntervalText()
         }
     }
 
@@ -190,6 +207,7 @@ class StatisticFragment : androidx.fragment.app.Fragment(), IntervalSelectionBac
     private fun hideIntervalLayout() {
 
         hideBackdrop {
+            updateIntervalText()
             (activity as AppCompatActivity).supportActionBar?.elevation = 4f
         }
 
@@ -208,9 +226,6 @@ class StatisticFragment : androidx.fragment.app.Fragment(), IntervalSelectionBac
 
         (activity as MainActivity).setTitle(getString(R.string.select_interval))
 
-        selectIntervalChip()
-        backdropLayout.invalidate()
-
         with(mOptionsMenu) {
             MenuAnimator.setVisibility(findItem(R.id.menu_statistic_time_interval), false) {
                 MenuAnimator.setVisibility(findItem(R.id.menu_statistic_interval_done), true)
@@ -218,5 +233,12 @@ class StatisticFragment : androidx.fragment.app.Fragment(), IntervalSelectionBac
         }
     }
 
-
+    private fun updateIntervalText(animate: Boolean = true) {
+        if (animate) {
+            (activity as MainActivity).setTitle(getIntervalString())
+        } else {
+            // don't animate title on startup
+            (activity as MainActivity).title = getIntervalString()
+        }
+    }
 }

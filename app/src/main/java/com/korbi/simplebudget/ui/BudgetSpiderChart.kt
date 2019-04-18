@@ -41,7 +41,7 @@ class BudgetSpiderChart(context: Context, attr: AttributeSet): RadarChart(contex
 
         budgetHelper.expenses = expenses
 
-        val categories = db.getAllCategories()
+        val categories = db.getAllCategories().filter { it.budget != 0 }
 
         val budgetEntries = mutableListOf<RadarEntry>()
         val categoryExpenseEntries = mutableListOf<RadarEntry>()

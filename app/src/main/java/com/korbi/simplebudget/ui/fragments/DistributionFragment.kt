@@ -30,7 +30,6 @@ import com.korbi.simplebudget.utilities.NON_RECURRING
 import kotlinx.android.synthetic.main.fragment_distribution.view.*
 import java.text.NumberFormat
 import kotlin.math.absoluteValue
-import kotlin.math.round
 
 
 class DistributionFragment : androidx.fragment.app.Fragment(), StatisticFragment.DateSelectionListener {
@@ -73,10 +72,10 @@ class DistributionFragment : androidx.fragment.app.Fragment(), StatisticFragment
         val dashboard = requireParentFragment() as StatisticFragment
         with(dashboard) {
             val expenses = if (getInterval() != -1) {
-                getExpensesForInterval(getIntervalType(), getInterval())
+                getExpensesForInterval()
             } else {
                 getExpensesForInterval(SimpleBudgetApp.pref.getInt(
-                        getString(R.string.dashboard_time_selection_key), 1), 0)
+                        getString(R.string.selected_interval_type_key), 1), 0)
             }
 
             updatePieChart(expenses)

@@ -75,8 +75,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        TransitionManager.beginDelayedTransition(main_layout)
-
         setSupportActionBar(toolbar)
 
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
@@ -102,6 +100,15 @@ class MainActivity : AppCompatActivity() {
     override fun onPause() {
         super.onPause()
         updateWidget()
+        with(SimpleBudgetApp.pref.edit()) {
+            putInt(getString(R.string.selected_interval_type_key), SimpleBudgetApp.selectedIntervalType)
+            apply()
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        SimpleBudgetApp.handleRecurringEntries()
     }
 
     override fun onBackPressed() {

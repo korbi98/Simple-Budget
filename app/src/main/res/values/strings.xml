@@ -141,7 +141,7 @@
     <string name="dialog_budget_total_title">Set total budget</string>
     <string name="total_budget_key">total_budget_key</string>
     <string name="total_budget_interval_key">total_budget_interval</string>
-    <string name="dashboard_time_selection_key">dashboard_time_selection_key</string>
+    <string name="selected_interval_type_key">dashboard_time_selection_key</string>
     <string name="empty_history_view_message">Nothing to show here!\n\nChange filter/search criteria
         or\nadd expenses from the Dashboard</string>
     <string name="empty_budget_list_message">Nothing to show here!\n\nAdd expenses to set a budget for
@@ -176,6 +176,7 @@
     <string name="running_charges">Running charges</string>
     <string name="variable_expenses">Variable expenses</string>
     <string name="running_charges_title">Running charges / variable expenses</string>
+    <string name="empty_budget_stat_msg">Nothing to show here! \n\n Add a budget to at least three categories</string>
 
     <string-array name="default_categories">
         <item>Food</item>

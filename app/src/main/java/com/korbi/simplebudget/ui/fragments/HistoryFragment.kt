@@ -56,6 +56,7 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
     private lateinit var historyRecycler: RecyclerView
     private lateinit var historyAdapter: HistoryAdapter
     private lateinit var mOptionsMenu: Menu
+    private var historyEntries = mutableListOf<HistoryEntry>()
 
     private val db = DBhandler.getInstance()
     private var mActionMode: ActionMode? = null
@@ -68,7 +69,7 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
 
         emptyMessage = rootview.history_fragment_empty_message
 
-        historyAdapter = HistoryAdapter(HistoryHelper.data, this, this).apply {
+        historyAdapter = HistoryAdapter(historyEntries, this, this).apply {
             setExpandCollapseListener(object : ExpandableRecyclerAdapter.ExpandCollapseListener {
 
                 override fun onParentCollapsed(parentPosition: Int) {
@@ -101,7 +102,6 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
 
     override fun onResume() {
         super.onResume()
-        SimpleBudgetApp.handleRecurringEntries()
 
         HistoryHelper.run {
             if (categorySelection.size != db.getAllCategories().size) {
@@ -143,7 +143,7 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
 
             fun search() {
                 (requireActivity() as MainActivity).animateLayoutChanges(200)
-                HistoryHelper.setData(performSearch(searchView.query.toString()))
+                setData(performSearch(searchView.query.toString()))
                 historyAdapter.run {
                     sort()
                     initializeSelectedItems()
@@ -226,6 +226,11 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
         }
     }
 
+    private fun setData(data: MutableList<HistoryEntry>) {
+        historyEntries.clear()
+        historyEntries.addAll(data)
+    }
+
     private fun toggleSelection(parentPosition: Int, childPosition: Int) {
 
         mActionMode?.let {
@@ -299,7 +304,7 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
             false -> View.GONE
         }
 
-        HistoryHelper.setData(hEntries)
+        setData(hEntries)
         historyAdapter.run {
             sort()
             initializeSelectedItems()

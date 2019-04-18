@@ -30,6 +30,7 @@ class CurrencyTextWatcher(private val inputView: EditText,
                           private val isZeroAllowed: Boolean = false,
                           private val isNegativeAllowed: Boolean = true,
                           private val enableOkIfEmpty: Boolean = false,
+                          private val isCommaAllowed: Boolean,
                           private val dialog: AlertDialog? = null) : TextWatcher {
 
     override fun afterTextChanged(s: Editable?) {
@@ -60,7 +61,7 @@ class CurrencyTextWatcher(private val inputView: EditText,
         }
 
         // handle input of valid currency amount
-        var hasSeparator = false
+        var hasSeparator = isCommaAllowed
         var separatorPosition: Int? = null
         val originalString = s.toString()
         val newStringBuilder = StringBuilder()
