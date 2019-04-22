@@ -20,7 +20,7 @@
 
     <item android:id="@+id/menu_statistic_interval_done"
         android:title="@string/interval"
-        android:icon="@drawable/ic_done_white_24px"
+        android:icon="@drawable/ic_done_white2_24px"
         app:showAsAction="ifRoom" />
 
     <item android:id="@+id/menu_statistic_time_interval"

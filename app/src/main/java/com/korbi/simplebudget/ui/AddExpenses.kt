@@ -18,6 +18,7 @@ package com.korbi.simplebudget.ui
 
 import android.app.DatePickerDialog
 import android.content.res.TypedArray
+import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log

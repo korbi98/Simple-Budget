@@ -19,7 +19,6 @@ package com.korbi.simplebudget.ui.fragments
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.util.SparseArray
 import android.view.*
 import android.widget.FrameLayout
@@ -31,12 +30,12 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentStatePagerAdapter
 import com.google.android.material.chip.ChipGroup
 import com.google.android.material.tabs.TabLayout
-import com.korbi.simplebudget.ui.MainActivity
 import com.korbi.simplebudget.R
 import com.korbi.simplebudget.logic.IntervalSelectionBackdropHelper
 import com.korbi.simplebudget.logic.MenuAnimator
-import kotlinx.android.synthetic.main.interval_backdrop.view.*
+import com.korbi.simplebudget.ui.MainActivity
 import kotlinx.android.synthetic.main.fragment_statistic.view.*
+import kotlinx.android.synthetic.main.interval_backdrop.view.*
 
 
 class StatisticFragment : androidx.fragment.app.Fragment(), IntervalSelectionBackdropHelper {
@@ -182,11 +181,11 @@ class StatisticFragment : androidx.fragment.app.Fragment(), IntervalSelectionBac
 
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
         R.id.menu_statistic_time_interval -> {
-            showIntervalLayout()
+            showBackdropLayout()
             true
         }
         R.id.menu_statistic_interval_done -> {
-            hideIntervalLayout()
+            hideBackdropLayout()
             true
         }
         else -> super.onOptionsItemSelected(item)
@@ -203,7 +202,7 @@ class StatisticFragment : androidx.fragment.app.Fragment(), IntervalSelectionBac
         }
     }
 
-    private fun hideIntervalLayout() {
+    private fun hideBackdropLayout() {
 
         hideBackdrop {
             updateIntervalText()
@@ -217,7 +216,7 @@ class StatisticFragment : androidx.fragment.app.Fragment(), IntervalSelectionBac
         }
     }
 
-    private fun showIntervalLayout() {
+    private fun showBackdropLayout() {
 
         (activity as AppCompatActivity).supportActionBar?.elevation = 0f
 
