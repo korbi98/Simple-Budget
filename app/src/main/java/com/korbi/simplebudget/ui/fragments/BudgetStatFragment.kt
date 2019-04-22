@@ -42,11 +42,13 @@ class BudgetStatFragment : Fragment(), StatisticFragment.DateSelectionListener {
         spiderChart = rootview.stat_budget_spider_chart
         chartEmptyMsg = rootview.stat_budget_empty_msg
 
+        spiderChart.initChart()
+
         return rootview
     }
 
     override fun onDateSelectionChange() {
-
+        updateView()
     }
 
     fun updateView() {
@@ -64,7 +66,7 @@ class BudgetStatFragment : Fragment(), StatisticFragment.DateSelectionListener {
         }
     }
 
-    fun updateChart(expenses: MutableList<Expense>, interval: Int) {
+    private fun updateChart(expenses: MutableList<Expense>, interval: Int) {
 
         if (DBhandler.getInstance().getAllCategories().all { it.budget == 0 }) {
             chartEmptyMsg.visibility = View.VISIBLE

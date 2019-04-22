@@ -101,7 +101,7 @@ class DistributionPieChart(context: Context, attr: AttributeSet) : PieChart(cont
 
                 val data = PieEntry(percentage)
 
-                data.label = getCurrencyString(catExpenses.absoluteValue)
+                data.label = SimpleBudgetApp.createCurrencyStringRoundToInt(catExpenses.absoluteValue)
 
                 pieEntries.add(data)
                 legendEntries.add(LegendEntry(category.name,
@@ -120,7 +120,7 @@ class DistributionPieChart(context: Context, attr: AttributeSet) : PieChart(cont
                     10f, 0f, null,
                     colors[colorIndex]))
             if (other > 0.0249) {
-                data.label = getCurrencyString(otherExpenses)
+                data.label = SimpleBudgetApp.createCurrencyStringRoundToInt(otherExpenses)
             }
         }
 
@@ -148,23 +148,6 @@ class DistributionPieChart(context: Context, attr: AttributeSet) : PieChart(cont
             }
         }
         invalidate()
-    }
-
-    private fun getCurrencyString(amount: Int): String {
-        val currencyFormat = DecimalFormat("#")
-        val currencySymbol = SimpleBudgetApp.pref
-                .getString(context.getString(R.string.settings_key_currency), "$")
-
-        val amountString = when (SimpleBudgetApp.pref
-                .getBoolean(context.getString(R.string.settings_key_currency_decimal), false)) {
-            true -> currencyFormat.format(amount)
-            false -> currencyFormat.format(amount/100)
-        }
-        return when (SimpleBudgetApp.pref
-                .getBoolean(context.getString(R.string.settings_key_currency_left), false)) {
-            true -> "$currencySymbol$amountString"
-            false -> "$amountString$currencySymbol"
-        }
     }
 
     private fun isCategoryEmpty(category: Category, expenses: MutableList<Expense>): Boolean {

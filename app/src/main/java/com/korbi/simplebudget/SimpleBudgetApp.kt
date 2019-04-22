@@ -75,6 +75,23 @@ class SimpleBudgetApp : Application() {
             }
         }
 
+        fun createCurrencyStringRoundToInt(amount: Int): String {
+            val currencyFormat = DecimalFormat("#")
+            val currencySymbol = SimpleBudgetApp.pref
+                    .getString(res.getString(R.string.settings_key_currency), "$")
+
+            val amountString = when (SimpleBudgetApp.pref
+                    .getBoolean(res.getString(R.string.settings_key_currency_decimal), false)) {
+                true -> currencyFormat.format(amount)
+                false -> currencyFormat.format(amount/100)
+            }
+            return when (SimpleBudgetApp.pref
+                    .getBoolean(res.getString(R.string.settings_key_currency_left), false)) {
+                true -> "$currencySymbol$amountString"
+                false -> "$amountString$currencySymbol"
+            }
+        }
+
         fun handleRecurringEntries() {
 
             val db = DBhandler.getInstance()

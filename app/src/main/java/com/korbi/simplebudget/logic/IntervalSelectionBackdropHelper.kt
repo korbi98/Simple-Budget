@@ -54,6 +54,7 @@ interface IntervalSelectionBackdropHelper {
 
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int,
                                         id: Long) {
+
                 SimpleBudgetApp.selectedInterval = position
                 onIntervalSelected()
             }
