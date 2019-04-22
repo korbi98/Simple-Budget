@@ -120,6 +120,24 @@ interface IntervalSelectionBackdropHelper {
         } else intervalSpinner.setSelection(0)
     }
 
+    fun resetIntervalSelection() {
+        with(DateHelper) {
+            SimpleBudgetApp.selectedInterval = when(SimpleBudgetApp.selectedIntervalType) {
+                WEEKLY_INTERVAL -> {
+                    getWeekSpinnerArray().indexOf(mContext.getString(R.string.this_week))
+                }
+                MONTHLY_INTERVAL -> {
+                    getMonthSpinnerArray().indexOf(mContext.getString(R.string.this_month))
+                }
+                QUARTERLY_INTERVAL -> {
+                    getQuarterSpinnerArray().indexOf(mContext.getString(R.string.this_quarter))
+                }
+                YEARLY_INTERVAL -> getYearSpinnerArray().indexOf(Year.now().toString())
+                else -> 0
+            }
+        }
+    }
+
     fun getExpensesForInterval (intervalType: Int = SimpleBudgetApp.selectedIntervalType,
                                 selectedInterval: Int
                                 = SimpleBudgetApp.selectedInterval): MutableList<Expense> {
@@ -177,7 +195,6 @@ interface IntervalSelectionBackdropHelper {
     }
 
     fun setIntervalSpinnerVisibility(visible: Boolean) {
-
         TransitionManager.beginDelayedTransition(mainLayout, AutoTransition().apply { duration = 100 })
         intervalSpinnerLayout.visibility = if (visible) View.VISIBLE else View.GONE
     }

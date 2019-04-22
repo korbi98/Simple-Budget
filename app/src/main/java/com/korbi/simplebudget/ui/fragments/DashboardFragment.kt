@@ -121,18 +121,14 @@ class DashboardFragment : androidx.fragment.app.Fragment(),
         super.onResume()
         backdropLayout.visibility = View.GONE
         if (::mOptionsMenu.isInitialized) updateOptionsMenu()
+
+        setupTimeSelectionSpinner()
         updateBackdropSelection()
         updateIntervalText(false)
         updateView()
     }
 
-    override fun onStop() {
-        super.onStop()
-        if (backdropLayout.isVisible) {
-            backdropLayout.visibility = View.GONE
-            updateOptionsMenu()
-        }
-    }
+
 
     override fun onHiddenChanged(hidden: Boolean) {
         super.onHiddenChanged(hidden)

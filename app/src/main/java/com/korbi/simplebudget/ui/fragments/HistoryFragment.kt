@@ -255,6 +255,17 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
             setPositiveButton(getString(R.string.yes)) { _, _ ->
                 db.deleteExpenses(historyAdapter.getAndDeleteSelectedIndices())
                 mActionMode?.finish()
+                with(activity as MainActivity){
+                    dashboard?.let {
+                        it.resetIntervalSelection()
+                        it.setupTimeSelectionSpinner()
+                    }
+                    statistics?.let {
+                        it.resetIntervalSelection()
+                        it.setupTimeSelectionSpinner()
+                    }
+                }
+
             }
             setNegativeButton(getString(R.string.no)) { dialog, _ ->
                 dialog.cancel()

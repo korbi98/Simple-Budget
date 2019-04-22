@@ -20,6 +20,7 @@ import android.app.DatePickerDialog
 import android.content.res.TypedArray
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
@@ -38,6 +39,7 @@ import com.korbi.simplebudget.logic.CurrencyTextWatcher
 import com.korbi.simplebudget.logic.model.Expense
 import com.korbi.simplebudget.utilities.*
 import kotlinx.android.synthetic.main.activity_add_expenses.*
+import kotlinx.android.synthetic.main.custom_toolbar.*
 import org.threeten.bp.LocalDate
 import org.threeten.bp.format.DateTimeFormatter
 import java.text.DecimalFormatSymbols
@@ -102,9 +104,17 @@ class AddExpenses : AppCompatActivity() {
         setupCategoryGroup()
 
         prefill()
+
+        custom_toolbar_cancel.setOnClickListener {
+            finish()
+        }
+
+        custom_toolbar_save.setOnClickListener {
+            save()
+        }
     }
 
-    fun save(@Suppress("UNUSED_PARAMETER")view: View) {
+    private fun save() {
 
         val amountString = currencyInput.text.toString().replace(",", ".")
 
@@ -176,10 +186,6 @@ class AddExpenses : AppCompatActivity() {
         }
     }
 
-    fun cancel(@Suppress("UNUSED_PARAMETER")view: View) {
-        finish()
-    }
-
     private fun prefill() {
 
 
@@ -217,9 +223,9 @@ class AddExpenses : AppCompatActivity() {
             addTextChangedListener(
                     CurrencyTextWatcher(this, inputLayout, separator, isCommaAllowed = noDecimal))
 
-            setOnEditorActionListener { v, actionId, _ ->
+            setOnEditorActionListener { _, actionId, _ ->
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    save(v)
+                    save()
                     true
                 } else {
                     false

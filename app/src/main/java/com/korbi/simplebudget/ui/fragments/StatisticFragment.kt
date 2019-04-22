@@ -152,10 +152,10 @@ class StatisticFragment : androidx.fragment.app.Fragment(), IntervalSelectionBac
         super.onResume()
         backdropLayout.visibility = View.GONE
         if (::mOptionsMenu.isInitialized) updateOptionsMenu()
-        if (::listener.isInitialized) listener.onDateSelectionChange()
+        setupTimeSelectionSpinner()
         updateBackdropSelection()
-
         updateIntervalText()
+        if (::listener.isInitialized) listener.onDateSelectionChange()
     }
 
     override fun onHiddenChanged(hidden: Boolean) {
@@ -167,9 +167,9 @@ class StatisticFragment : androidx.fragment.app.Fragment(), IntervalSelectionBac
         }
 
         if (!hidden) {
-            if (::listener.isInitialized) listener.onDateSelectionChange()
             updateBackdropSelection()
             updateIntervalText()
+            if (::listener.isInitialized) listener.onDateSelectionChange()
         }
     }
 
@@ -193,7 +193,6 @@ class StatisticFragment : androidx.fragment.app.Fragment(), IntervalSelectionBac
     }
 
     private fun updateOptionsMenu() {
-        (requireActivity() as MainActivity).animateLayoutChanges()
         with(mOptionsMenu) {
 
             findItem(R.id.menu_statistic_time_interval)?.apply {

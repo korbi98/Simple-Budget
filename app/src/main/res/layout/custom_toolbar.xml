@@ -17,10 +17,12 @@
 
 <android.widget.RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent" android:layout_height="match_parent">
 
 
     <ImageButton
+        android:id="@+id/custom_toolbar_cancel"
         android:padding="8dp"
         android:layout_centerVertical="true"
         android:layout_width="wrap_content"
@@ -29,10 +31,10 @@
         android:layout_alignParentTop="false"
         android:layout_alignParentStart="true"
         android:background="@color/actionbar_imagebutton_background"
-        android:onClick="cancel" />
+        tools:ignore="ContentDescription" />
 
     <TextView
-        android:id="@+id/CustomActionBarTitle"
+        android:id="@+id/custom_toolbar_title"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentTop="true"
@@ -43,6 +45,7 @@
         android:gravity="center"/>
 
     <ImageButton
+        android:id="@+id/custom_toolbar_save"
         android:padding="8dp"
         android:layout_centerVertical="true"
         android:layout_width="wrap_content"
@@ -51,6 +54,6 @@
         android:layout_alignParentEnd="true"
         android:background="@color/actionbar_imagebutton_background"
         app:srcCompat="@drawable/ic_done_white_24px"
-        android:onClick="save" />
+        tools:ignore="ContentDescription" />
 
 </android.widget.RelativeLayout>
