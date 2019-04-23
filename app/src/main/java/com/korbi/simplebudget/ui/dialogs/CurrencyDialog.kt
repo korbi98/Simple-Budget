@@ -20,23 +20,20 @@ import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.app.Dialog
 import android.content.SharedPreferences
-import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.preference.PreferenceManager
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
-import android.widget.*
+import android.widget.CheckBox
+import android.widget.EditText
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import com.korbi.simplebudget.R
-import com.korbi.simplebudget.utilities.*
+import com.korbi.simplebudget.utilities.NO_SELECTION
 import kotlinx.android.synthetic.main.currency_dialog.*
-import java.lang.ClassCastException
-import java.lang.IllegalStateException
 
 
 class CurrencyDialog : DialogFragment() {
@@ -121,10 +118,10 @@ class CurrencyDialog : DialogFragment() {
 
             currencyInput.addTextChangedListener(object : TextWatcher {
                 override fun afterTextChanged(s: Editable?) {
-                    if (!s.isNullOrEmpty()) {
+                    if (!s.isNullOrBlank()) {
                         chipList.last().isChecked = true
-                        checkIfEnableOK(dialog, chipList)
                     }
+                    checkIfEnableOK(dialog, chipList)
                 }
 
                 override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int){}
@@ -167,7 +164,7 @@ class CurrencyDialog : DialogFragment() {
     private fun checkIfEnableOK(dialog: AlertDialog, chipList: MutableList<Chip>) {
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).isEnabled =
                 (getCheckedItem(chipList) != chipList.lastIndex ||
-                        !(currencyInput.text.isEmpty())) &&
+                        currencyInput.text.isNotBlank()) &&
                 getCheckedItem(chipList) != NO_SELECTION
     }
 

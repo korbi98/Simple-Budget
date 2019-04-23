@@ -177,7 +177,7 @@
     <string name="variable_expenses">Variable expenses</string>
     <string name="running_charges_title">Running charges / variable expenses</string>
     <string name="empty_budget_stat_msg">Nothing to show here! \n\n Add a budget to at least three categories</string>
-    <string name="budget_by_category">Budget by category for selected interval</string>
+    <string name="budget_by_category">Budget for selected interval</string>
     <string name="empty_total_budget_stat_msg">Nothing to show here! \n\n Please set a total budget in the dashboard</string>
     <string name="by_month">for last 12 months</string>
     <string name="by_week">for last 26 years</string>
