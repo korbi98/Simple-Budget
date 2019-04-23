@@ -27,13 +27,19 @@ import com.korbi.simplebudget.R
 import com.korbi.simplebudget.SimpleBudgetApp
 import com.korbi.simplebudget.database.DBhandler
 import com.korbi.simplebudget.logic.model.Expense
-import com.korbi.simplebudget.ui.BudgetSpiderChart
+import com.korbi.simplebudget.ui.charts.BudgetSpiderChart
+import com.korbi.simplebudget.ui.charts.TotalBudgetChart
+import com.korbi.simplebudget.utilities.MONTHLY_INTERVAL
+import com.korbi.simplebudget.utilities.WEEKLY_INTERVAL
 import kotlinx.android.synthetic.main.fragment_budget_stat.view.*
 
 class BudgetStatFragment : Fragment(), StatisticFragment.DateSelectionListener {
 
     private lateinit var spiderChart: BudgetSpiderChart
     private lateinit var chartEmptyMsg: TextView
+    private lateinit var totalBudgetChart: TotalBudgetChart
+    private lateinit var totalChartEmptyMsg: TextView
+    private lateinit var totalBudgetChartTitle: TextView
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -41,8 +47,13 @@ class BudgetStatFragment : Fragment(), StatisticFragment.DateSelectionListener {
 
         spiderChart = rootview.stat_budget_spider_chart
         chartEmptyMsg = rootview.stat_budget_empty_msg
+        totalBudgetChart = rootview.stat_total_budget_spider_chart
+        totalChartEmptyMsg = rootview.stat_total_budget_empty_msg
+        totalBudgetChartTitle = rootview.stat_total_budget_chart_title
 
         spiderChart.initChart()
+        totalBudgetChart.initChart()
+        totalBudgetChart.extraTopOffset = 4f
 
         return rootview
     }
@@ -61,12 +72,12 @@ class BudgetStatFragment : Fragment(), StatisticFragment.DateSelectionListener {
                         getString(R.string.selected_interval_type_key), 1), 0)
             }
 
-            updateChart(expenses, getIntervalType())
-
+            updateSpiderChart(expenses, getIntervalType())
+            updateTotalBudgetChart()
         }
     }
 
-    private fun updateChart(expenses: MutableList<Expense>, interval: Int) {
+    private fun updateSpiderChart(expenses: MutableList<Expense>, interval: Int) {
 
         if (DBhandler.getInstance().getAllCategories().all { it.budget == 0 }) {
             chartEmptyMsg.visibility = View.VISIBLE
@@ -78,4 +89,31 @@ class BudgetStatFragment : Fragment(), StatisticFragment.DateSelectionListener {
         }
     }
 
+    private fun updateTotalBudgetChart() {
+        if (DBhandler.getInstance().getAllCategories().all { it.budget == 0 }) {
+            totalChartEmptyMsg.visibility = View.VISIBLE
+            totalBudgetChart.visibility = View.GONE
+        } else {
+            totalChartEmptyMsg.visibility = View.GONE
+            totalBudgetChart.visibility = View.VISIBLE
+            totalBudgetChart.setChartData()
+        }
+
+        val titleString = when(SimpleBudgetApp.pref.getString(
+                requireContext().getString(R.string.settings_key_history_grouping), "1")) {
+            WEEKLY_INTERVAL.toString() ->{
+                requireContext().run {
+                    getString(R.string.total_budget) + " " + getString(R.string.by_week)
+                }
+            }
+            MONTHLY_INTERVAL.toString() -> {
+                requireContext().run {
+                    getString(R.string.total_budget) + " " + getString(R.string.by_month)
+                }
+            }
+            else -> requireContext().getString(R.string.total_budget)
+        }
+
+        totalBudgetChartTitle.text = titleString
+    }
 }

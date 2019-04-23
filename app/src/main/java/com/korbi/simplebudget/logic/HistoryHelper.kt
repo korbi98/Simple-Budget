@@ -55,10 +55,8 @@ object HistoryHelper {
 
         val historyEntries = mutableListOf<HistoryEntry>()
 
-        val historyGrouping = SimpleBudgetApp.pref.getString(
-                SimpleBudgetApp.res.getString(R.string.settings_key_history_grouping), "1")
-
-        when (historyGrouping) {
+        when (SimpleBudgetApp.pref.getString(
+                SimpleBudgetApp.res.getString(R.string.settings_key_history_grouping), "1")) {
             MONTHLY_INTERVAL.toString() -> {
                 for ((index, month) in DateHelper.getMonths().withIndex()) {
 

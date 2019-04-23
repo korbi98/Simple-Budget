@@ -49,7 +49,7 @@
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintStart_toStartOf="parent"/>
 
-                <com.korbi.simplebudget.ui.DistributionPieChart
+                <com.korbi.simplebudget.ui.charts.DistributionPieChart
                     android:id="@+id/distribution_expense_chart"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"

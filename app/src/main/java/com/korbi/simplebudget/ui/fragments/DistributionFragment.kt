@@ -25,7 +25,7 @@ import android.widget.TextView
 import com.korbi.simplebudget.R
 import com.korbi.simplebudget.SimpleBudgetApp
 import com.korbi.simplebudget.logic.model.Expense
-import com.korbi.simplebudget.ui.DistributionPieChart
+import com.korbi.simplebudget.ui.charts.DistributionPieChart
 import com.korbi.simplebudget.utilities.NON_RECURRING
 import kotlinx.android.synthetic.main.fragment_distribution.view.*
 import java.text.NumberFormat

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.korbi.simplebudget.ui
+package com.korbi.simplebudget.ui.charts
 
 import android.content.Context
 import android.graphics.Color

@@ -41,20 +41,65 @@
                 android:padding="8dp">
 
                 <TextView
-                    android:id="@+id/stat_budget_chart_title"
+                    android:id="@+id/stat_total_budget_chart_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/budget"
+                    android:text="@string/total_budget"
                     android:textSize="18sp"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintStart_toStartOf="parent"/>
 
-                <com.korbi.simplebudget.ui.BudgetSpiderChart
+                <com.korbi.simplebudget.ui.charts.TotalBudgetChart
+                    android:id="@+id/stat_total_budget_spider_chart"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_margin="16dp"
+                    app:layout_constraintDimensionRatio="w,3:4"
+                    app:layout_constraintTop_toBottomOf="@id/stat_total_budget_chart_title" />
+
+                <TextView
+                    android:id="@+id/stat_total_budget_empty_msg"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAlignment="center"
+                    android:text="@string/empty_total_budget_stat_msg"
+                    android:layout_marginBottom="16dp"
+                    app:layout_constraintTop_toBottomOf="@id/stat_total_budget_chart_title"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"/>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            app:cardBackgroundColor="@color/gray_background"
+            style="@style/CardView.Dark">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:padding="8dp">
+
+                <TextView
+                    android:id="@+id/stat_budget_chart_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/budget_by_category"
+                    android:textSize="18sp"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"/>
+
+                <com.korbi.simplebudget.ui.charts.BudgetSpiderChart
                     android:id="@+id/stat_budget_spider_chart"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
                     app:layout_constraintDimensionRatio="w,1:1"
-                    app:layout_constraintTop_toTopOf="parent"/>
+                    app:layout_constraintTop_toBottomOf="@id/stat_budget_chart_title"/>
 
                 <TextView
                     android:id="@+id/stat_budget_empty_msg"

@@ -14,32 +14,24 @@
  * limitations under the License.
  */
 
-package com.korbi.simplebudget.ui
+package com.korbi.simplebudget.ui.charts
 
 import android.content.Context
 import android.graphics.Color
 import android.util.AttributeSet
-import android.widget.TextView
 import androidx.core.content.ContextCompat
 import com.github.mikephil.charting.charts.RadarChart
-import com.github.mikephil.charting.components.AxisBase
 import com.github.mikephil.charting.components.Legend
-import com.github.mikephil.charting.components.MarkerView
-import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.RadarData
 import com.github.mikephil.charting.data.RadarDataSet
 import com.github.mikephil.charting.data.RadarEntry
 import com.github.mikephil.charting.formatter.IAxisValueFormatter
-import com.github.mikephil.charting.formatter.IValueFormatter
-import com.github.mikephil.charting.highlight.Highlight
-import com.github.mikephil.charting.utils.MPPointF
-import com.github.mikephil.charting.utils.ViewPortHandler
 import com.korbi.simplebudget.R
 import com.korbi.simplebudget.SimpleBudgetApp
 import com.korbi.simplebudget.database.DBhandler
 import com.korbi.simplebudget.logic.BudgetHelper
+import com.korbi.simplebudget.logic.CustomMarker
 import com.korbi.simplebudget.logic.model.Expense
-import kotlinx.android.synthetic.main.spiderchart_markerview.view.*
 import kotlin.math.round
 
 
@@ -60,21 +52,20 @@ class BudgetSpiderChart(context: Context, attr: AttributeSet): RadarChart(contex
             setDrawInside(true)
         }
         description.isEnabled = false
-        xAxis.apply {
-            textColor = Color.WHITE
-            textSize = 12f
-        }
-        yAxis.apply {
-            textColor = Color.WHITE
-            textSize = 8f
-        }
+
+        xAxis.textColor = Color.WHITE
+        xAxis.textSize = 12f
+
+        yAxis.textColor = Color.WHITE
+        yAxis.textSize = 8f
+
         yAxis.valueFormatter = IAxisValueFormatter { value, _ ->
             SimpleBudgetApp.createCurrencyStringRoundToInt(round(value).toInt())
         }
 
         isRotationEnabled = false
 
-        val marker = CustomMarker(context, R.layout.spiderchart_markerview)
+        val marker = CustomMarker(context, layout = R.layout.chart_markerview)
         marker.chartView = this
         this.marker = marker
     }
@@ -106,7 +97,6 @@ class BudgetSpiderChart(context: Context, attr: AttributeSet): RadarChart(contex
             fillAlpha = 127
             lineWidth = 2f
             setDrawHighlightIndicators(false)
-            setDrawMarkers(true)
             isDrawHighlightCircleEnabled = true
         }
         val expenseSet = RadarDataSet(categoryExpenseEntries,
@@ -120,33 +110,11 @@ class BudgetSpiderChart(context: Context, attr: AttributeSet): RadarChart(contex
             isDrawHighlightCircleEnabled = true
         }
 
-        val spiderData = RadarData(listOf(budgetSet, expenseSet)).apply {
+        data = RadarData(listOf(budgetSet, expenseSet)).apply {
             setValueTextColor(Color.WHITE)
             setDrawValues(false)
         }
 
-        data = spiderData
         invalidate()
-    }
-
-    inner class CustomMarker(context: Context, layout: Int) : MarkerView(context, layout) {
-        private val markerTextView: TextView = marker_content
-        private var mOffset: MPPointF? = null
-
-        override fun refreshContent(e: Entry?, highlight: Highlight?) {
-            e?.let {
-                markerTextView.text = SimpleBudgetApp.createCurrencyString(round(it.y).toInt())
-            }
-
-            super.refreshContent(e, highlight)
-        }
-
-        override fun getOffset(): MPPointF {
-            if (mOffset == null) {
-                // center the marker horizontally and vertically
-                mOffset = MPPointF((-(width / 2)).toFloat(), (-height).toFloat())
-            }
-            return mOffset!!
-        }
     }
 }

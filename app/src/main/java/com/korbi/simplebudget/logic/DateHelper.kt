@@ -64,20 +64,18 @@ object DateHelper {
         return weeks
     }
 
-    private fun getFirstWeekDay(date: LocalDate): LocalDate =  when (isSundayFirstDay()){
+    fun getFirstWeekDay(date: LocalDate): LocalDate =  when (isSundayFirstDay()){
         false-> date.with( DayOfWeek.MONDAY )
         true -> date.with( DayOfWeek.SUNDAY )
     }
 
-    private fun getLastWeekDay(date: LocalDate): LocalDate =  when (isSundayFirstDay()){
+    fun getLastWeekDay(date: LocalDate): LocalDate =  when (isSundayFirstDay()){
         false -> date.with( DayOfWeek.SUNDAY )
         true -> date.with( DayOfWeek.SATURDAY ).plusWeeks(1)
     }
 
-    private fun isSundayFirstDay(): Boolean {
-        return SimpleBudgetApp.pref.getBoolean(
+    fun isSundayFirstDay(): Boolean = SimpleBudgetApp.pref.getBoolean(
                 SimpleBudgetApp.res.getString(R.string.settings_key_start_week_sunday), false)
-    }
 
     fun getMonths(): MutableList<YearMonth> {
 
