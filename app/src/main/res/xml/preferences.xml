@@ -54,6 +54,28 @@
 
     </PreferenceCategory>
 
+    <PreferenceCategory android:title="@string/backup"
+        android:selectable="false"
+        app:iconSpaceReserved="false">
+
+        <Preference
+            android:key="@string/export_expenses_key"
+            android:title="@string/export_expenses"
+            android:summary="@string/export_expenses_summary"
+            app:iconSpaceReserved="false"/>
+
+        <Preference
+            android:key="@string/import_expenses_key"
+            android:title="@string/import_expenses"
+            app:iconSpaceReserved="false"/>
+
+        <Preference
+            android:key="@string/reset_db_key"
+            android:title="@string/reset_database"
+            app:iconSpaceReserved="false"/>
+
+    </PreferenceCategory>
+
     <PreferenceCategory android:title="@string/about_app"
         android:selectable="false"
         app:iconSpaceReserved="false">

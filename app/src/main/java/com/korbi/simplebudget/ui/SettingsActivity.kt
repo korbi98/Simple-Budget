@@ -16,6 +16,7 @@
 
 package com.korbi.simplebudget.ui
 
+import android.content.DialogInterface
 import android.content.Intent
 import android.content.SharedPreferences
 import android.net.Uri
@@ -84,7 +85,7 @@ class SettingsActivity : AppCompatActivity() {
                     }
                     else -> symbol
                 }
-                it.onPreferenceClickListener = Preference.OnPreferenceClickListener {
+                it.setOnPreferenceClickListener {
                     CurrencyDialog().run {
                         setTargetFragment(this@MainPreferenceFragment, 0)
                         setListener(this@MainPreferenceFragment)
@@ -101,12 +102,35 @@ class SettingsActivity : AppCompatActivity() {
                 (it as ListPreference).entry
             }
 
+            //TODO implement import/export
+            val exportExpenses = findPreference<Preference>(getString(R.string.export_expenses_key))
+
+            val importExpenses = findPreference<Preference>(getString(R.string.import_expenses_key))
+
+            val resetDatabase = findPreference<Preference>(getString(R.string.reset_db_key))
+            resetDatabase?.setOnPreferenceClickListener {
+                val dialog = AlertDialog.Builder(requireContext()).apply {
+                    setTitle(R.string.dialog_db_reset_title)
+                    setMessage(R.string.dialog_db_reset_message)
+                    setPositiveButton(R.string.ok) { dialog, _ ->
+                        //TODO implement db reset
+                        dialog.dismiss()
+                    }
+                    setNegativeButton(R.string.cancel) { dialog, _ ->
+                        dialog.cancel()
+                    }
+                }
+
+                true
+            }
+
+
             val version = findPreference<Preference>(getString(R.string.about_version_number_key))
             version?.summary = versionNumber
             version?.isSelectable = false
 
             val sendFeedback = findPreference<Preference>(getString(R.string.key_send_feedback))
-            sendFeedback?.onPreferenceClickListener = Preference.OnPreferenceClickListener {
+            sendFeedback?.setOnPreferenceClickListener {
                 val mailLink = "mailto:info@korbinian-moser.de?" + "subject=Simple Budget feedback"
 
                 val sendMail = Intent(Intent.ACTION_VIEW)
@@ -117,7 +141,7 @@ class SettingsActivity : AppCompatActivity() {
             }
 
             val rateApp = findPreference<Preference>(getString(R.string.about_rate_app_key))
-            rateApp?.onPreferenceClickListener = Preference.OnPreferenceClickListener {
+            rateApp?.setOnPreferenceClickListener {
                 try {
                     startActivity(Intent(Intent.ACTION_VIEW,
                             Uri.parse("market://details?id=$packageName")))
@@ -130,7 +154,7 @@ class SettingsActivity : AppCompatActivity() {
             }
 
             val otherApps = findPreference<Preference>(getString(R.string.about_other_apps_key))
-            otherApps?.onPreferenceClickListener = Preference.OnPreferenceClickListener {
+            otherApps?.setOnPreferenceClickListener {
                 try {
                     startActivity(Intent(Intent.ACTION_VIEW,
                             Uri.parse("market://developer?id=Korbinian+Moser")))

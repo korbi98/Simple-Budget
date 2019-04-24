@@ -192,7 +192,6 @@ class TotalBudgetChart(context: Context, attr: AttributeSet) : CombinedChart(con
             } else startDate.with(DayOfWeek.MONDAY).plusWeeks(1)
         } else startDate.plusMonths(1)
 
-
         val expenseList = mutableListOf<Float>()
 
         while (endDate.isBefore(startDate)) {

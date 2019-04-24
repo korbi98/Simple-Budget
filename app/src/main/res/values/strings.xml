@@ -181,6 +181,21 @@
     <string name="empty_total_budget_stat_msg">Nothing to show here! \n\n Please set a total budget in the dashboard</string>
     <string name="by_month">for last 12 months</string>
     <string name="by_week">for last 26 years</string>
+    <string name="app_icon_credit">Appicon (piggy bank) made by
+        <a href="https://www.flaticon.com/authors/gregor-cresnar" title="Gregor Cresnar">Gregor Cresnar</a> from <a href="https://www.flaticon.com/"
+        title="Flaticon">www.flaticon.com</a> is licensed by
+        <a href="http://creativecommons.org/licenses/by/3.0/"
+        title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a> </string>
+    <string name="backup">Backup</string>
+    <string name="export_expenses">Export expenses</string>
+    <string name="export_expenses_summary">Empty categories are not safed</string>
+    <string name="export_expenses_key">export_expenses_key</string>
+    <string name="import_expenses_key">import_expenses_key</string>
+    <string name="reset_db_key">reset_db_key</string>
+    <string name="reset_database">Reset database</string>
+    <string name="import_expenses">Import expenses</string>
+    <string name="dialog_db_reset_title">Reset whole database?</string>
+    <string name="dialog_db_reset_message">WARNING THIS WILL DELETE EVERYTHING!!!</string>
 
     <string-array name="default_categories">
         <item>Food</item>

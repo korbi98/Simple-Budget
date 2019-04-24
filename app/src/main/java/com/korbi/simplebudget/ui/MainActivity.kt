@@ -44,7 +44,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var listener: OnBackListener
 
     var dashboard: DashboardFragment? = null
-    var history: HistoryFragment? = null
+    private var history: HistoryFragment? = null
     var statistics: StatisticFragment? = null
     private var activeFragment: Fragment? = dashboard
 
