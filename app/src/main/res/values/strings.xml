@@ -196,6 +196,7 @@
     <string name="import_expenses">Import expenses</string>
     <string name="dialog_db_reset_title">Reset whole database?</string>
     <string name="dialog_db_reset_message">WARNING THIS WILL DELETE EVERYTHING!!!</string>
+    <string name="fallback_category_name">default</string>
 
     <string-array name="default_categories">
         <item>Food</item>

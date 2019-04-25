@@ -62,7 +62,7 @@ class ExpenseViewHolder(expenseListening: View, listener: ExpenseAdapterListener
     fun bind(expense: Expense) {
         expenseDate.text = dateFormatter.format(expense.date)
         expenseAmount.text =  SimpleBudgetApp.createCurrencyString(expense.cost)
-        expenseIcon.setImageResource(iconIdArray.getResourceId(expense.category.icon, -1))
+        expenseIcon.setImageResource(iconIdArray.getResourceId(expense.category.icon, 0))
 
         if (expense.cost < 0) {
             expenseAmount.setTextColor(ContextCompat.getColor(context, R.color.expenseColor))
