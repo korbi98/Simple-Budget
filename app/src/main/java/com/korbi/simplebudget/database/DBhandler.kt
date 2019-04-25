@@ -371,4 +371,18 @@ class DBhandler(context: Context, private val defaultCategories: Array<String>) 
         cursor.close()
         return latestID
     }
+
+    fun resetDatabase() {
+        val db = this.writableDatabase
+        db.delete(EXPENSE_TABLE, null, null)
+        db.delete(CATEGORY_TABLE, null, null)
+
+        val values = ContentValues()
+        for ((index, category) in defaultCategories.withIndex()) {
+            values.put(COL_CATEGORY, category)
+            values.put(COL_DRAWABLE, index)
+            values.put(COL_POSITION, index)
+            db.insert(CATEGORY_TABLE, null, values)
+        }
+    }
 }

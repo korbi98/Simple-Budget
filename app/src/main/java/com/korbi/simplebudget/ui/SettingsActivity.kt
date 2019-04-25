@@ -30,6 +30,7 @@ import androidx.preference.PreferenceFragmentCompat
 import com.korbi.simplebudget.BuildConfig
 import com.korbi.simplebudget.R
 import com.korbi.simplebudget.SimpleBudgetApp
+import com.korbi.simplebudget.database.DBhandler
 import com.korbi.simplebudget.ui.dialogs.CurrencyDialog
 
 
@@ -109,16 +110,17 @@ class SettingsActivity : AppCompatActivity() {
 
             val resetDatabase = findPreference<Preference>(getString(R.string.reset_db_key))
             resetDatabase?.setOnPreferenceClickListener {
-                val dialog = AlertDialog.Builder(requireContext()).apply {
+                AlertDialog.Builder(requireContext()).apply {
                     setTitle(R.string.dialog_db_reset_title)
                     setMessage(R.string.dialog_db_reset_message)
                     setPositiveButton(R.string.ok) { dialog, _ ->
-                        //TODO implement db reset
+                        DBhandler.getInstance().resetDatabase()
                         dialog.dismiss()
                     }
                     setNegativeButton(R.string.cancel) { dialog, _ ->
                         dialog.cancel()
                     }
+                    show()
                 }
 
                 true
