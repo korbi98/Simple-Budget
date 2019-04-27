@@ -27,11 +27,11 @@ import com.github.mikephil.charting.data.RadarDataSet
 import com.github.mikephil.charting.data.RadarEntry
 import com.github.mikephil.charting.formatter.IAxisValueFormatter
 import com.korbi.simplebudget.R
-import com.korbi.simplebudget.SimpleBudgetApp
 import com.korbi.simplebudget.database.DBhandler
 import com.korbi.simplebudget.logic.BudgetHelper
 import com.korbi.simplebudget.logic.CustomMarker
 import com.korbi.simplebudget.logic.model.Expense
+import com.korbi.simplebudget.utilities.createCurrencyStringRoundToInt
 import kotlin.math.round
 
 
@@ -60,7 +60,7 @@ class BudgetSpiderChart(context: Context, attr: AttributeSet): RadarChart(contex
         yAxis.textSize = 8f
 
         yAxis.valueFormatter = IAxisValueFormatter { value, _ ->
-            SimpleBudgetApp.createCurrencyStringRoundToInt(round(value).toInt())
+            round(value).toLong().createCurrencyStringRoundToInt()
         }
 
         isRotationEnabled = false
@@ -74,7 +74,7 @@ class BudgetSpiderChart(context: Context, attr: AttributeSet): RadarChart(contex
 
         budgetHelper.expenses = expenses
 
-        val categories = db.getAllCategories().filter { it.budget != 0 }
+        val categories = db.getAllCategories().filter { it.budget != 0L }
 
         val budgetEntries = mutableListOf<RadarEntry>()
         val categoryExpenseEntries = mutableListOf<RadarEntry>()

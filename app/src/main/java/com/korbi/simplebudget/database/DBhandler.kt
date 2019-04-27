@@ -24,10 +24,11 @@ import com.korbi.simplebudget.R
 import com.korbi.simplebudget.SimpleBudgetApp
 import com.korbi.simplebudget.logic.model.Category
 import com.korbi.simplebudget.logic.model.Expense
-import com.korbi.simplebudget.utilities.*
+import com.korbi.simplebudget.utilities.MONTHLY_ROOT
+import com.korbi.simplebudget.utilities.NON_RECURRING
+import com.korbi.simplebudget.utilities.WEEKLY_ROOT
 import org.threeten.bp.LocalDate
 import org.threeten.bp.format.DateTimeFormatter
-import kotlin.collections.ArrayList
 
 private const val DB_NAME = "ExpenseDatabase.db"
 private const val DB_VERSION = 1
@@ -127,7 +128,7 @@ class DBhandler(context: Context, private val defaultCategories: Array<String>) 
             do {
                 val expense = Expense(cursor.getInt(0),
                         cursor.getString(1),
-                        cursor.getInt(2),
+                        cursor.getLong(2),
                         LocalDate.parse(cursor.getString(3)),
                         getCategoryById(cursor.getInt(4)),
                         cursor.getInt(5))
@@ -152,7 +153,7 @@ class DBhandler(context: Context, private val defaultCategories: Array<String>) 
             do {
                 val expense = Expense(cursor.getInt(0),
                         cursor.getString(1),
-                        cursor.getInt(2),
+                        cursor.getLong(2),
                         LocalDate.parse(cursor.getString(3)),
                         getCategoryById(cursor.getInt(4)),
                         cursor.getInt(5))
@@ -174,7 +175,7 @@ class DBhandler(context: Context, private val defaultCategories: Array<String>) 
         cursor?.moveToFirst()
         return Expense(cursor.getInt(0),
                 cursor.getString(1),
-                cursor.getInt(2),
+                cursor.getLong(2),
                 LocalDate.parse(cursor.getString(3)),
                 getCategoryById(cursor.getInt(4)),
                 cursor.getInt(5))
@@ -293,7 +294,7 @@ class DBhandler(context: Context, private val defaultCategories: Array<String>) 
         val name = cursor.getString(1)
         val drawable = cursor.getInt(2)
         val position = cursor.getInt(3)
-        val budget = cursor.getInt(4)
+        val budget = cursor.getLong(4)
         val interval = cursor.getInt(5)
         cursor.close()
         return Category(id, name, drawable, position, budget, interval)
@@ -310,7 +311,7 @@ class DBhandler(context: Context, private val defaultCategories: Array<String>) 
                 val name = cursor.getString(1)
                 val drawable = cursor.getInt(2)
                 val position = cursor.getInt(3)
-                val budget = cursor.getInt(4)
+                val budget = cursor.getLong(4)
                 val interval = cursor.getInt(5)
                 categories.add(Category(id, name, drawable, position, budget, interval))
             } while (cursor.moveToNext())

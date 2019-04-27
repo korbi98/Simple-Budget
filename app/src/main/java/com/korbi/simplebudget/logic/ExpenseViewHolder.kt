@@ -29,6 +29,7 @@ import com.korbi.simplebudget.R
 import com.korbi.simplebudget.SimpleBudgetApp
 import com.korbi.simplebudget.logic.model.Expense
 import com.korbi.simplebudget.utilities.NON_RECURRING
+import com.korbi.simplebudget.utilities.createCurrencyString
 import kotlinx.android.synthetic.main.expense_listening.view.*
 import org.threeten.bp.format.DateTimeFormatter
 
@@ -61,7 +62,7 @@ class ExpenseViewHolder(expenseListening: View, listener: ExpenseAdapterListener
 
     fun bind(expense: Expense) {
         expenseDate.text = dateFormatter.format(expense.date)
-        expenseAmount.text =  SimpleBudgetApp.createCurrencyString(expense.cost)
+        expenseAmount.text =  expense.cost.createCurrencyString()
         expenseIcon.setImageResource(iconIdArray.getResourceId(expense.category.icon, 0))
 
         if (expense.cost < 0) {

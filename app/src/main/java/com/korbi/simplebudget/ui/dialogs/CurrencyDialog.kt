@@ -19,9 +19,7 @@ package com.korbi.simplebudget.ui.dialogs
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.app.Dialog
-import android.content.SharedPreferences
 import android.os.Bundle
-import android.preference.PreferenceManager
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
@@ -32,6 +30,7 @@ import androidx.fragment.app.DialogFragment
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import com.korbi.simplebudget.R
+import com.korbi.simplebudget.SimpleBudgetApp
 import com.korbi.simplebudget.utilities.NO_SELECTION
 import kotlinx.android.synthetic.main.currency_dialog.*
 
@@ -43,7 +42,6 @@ class CurrencyDialog : DialogFragment() {
     private lateinit var currencyInput: EditText
     private lateinit var leftSideCheckBox: CheckBox
     private lateinit var noDecimalCheckBox: CheckBox
-    private lateinit var pref: SharedPreferences
 
     interface OnDismissListener {
         fun onDialogDismiss()
@@ -83,8 +81,8 @@ class CurrencyDialog : DialogFragment() {
             val currencySymbols = resources.getStringArray(R.array.currencies_symbols)
             val currenciesWithText = resources
                                             .getStringArray(R.array.currencies_with_names)
-            pref = PreferenceManager.getDefaultSharedPreferences(context)
-            val currentCurrency = pref.getString(getString(R.string.settings_key_currency), currencySymbols[0])
+
+            val currentCurrency = SimpleBudgetApp.pref.getString(getString(R.string.settings_key_currency), currencySymbols[0])
 
             for ((index, currency) in currenciesWithText.withIndex()) {
                 val chip = Chip(context).apply {
@@ -133,8 +131,8 @@ class CurrencyDialog : DialogFragment() {
                 checkIfEnableOK(dialog, chipList)
             }
 
-            noDecimalCheckBox.isChecked = pref.getBoolean(getString(R.string.settings_key_currency_decimal), false)
-            leftSideCheckBox.isChecked = pref.getBoolean(getString(R.string.settings_key_currency_left), false)
+            noDecimalCheckBox.isChecked = SimpleBudgetApp.pref.getBoolean(getString(R.string.settings_key_currency_decimal), false)
+            leftSideCheckBox.isChecked = SimpleBudgetApp.pref.getBoolean(getString(R.string.settings_key_currency_left), false)
 
             checkIfEnableOK(dialog, chipList)
 
@@ -152,7 +150,7 @@ class CurrencyDialog : DialogFragment() {
             }
         }
 
-        with (pref.edit()) {
+        with (SimpleBudgetApp.pref.edit()) {
             putString(getString(R.string.settings_key_currency), currency)
             putBoolean(getString(R.string.settings_key_currency_left), leftSideCheckBox.isChecked)
             putBoolean(getString(R.string.settings_key_currency_decimal), noDecimalCheckBox.isChecked)

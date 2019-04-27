@@ -28,7 +28,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.korbi.simplebudget.R
 import com.korbi.simplebudget.SimpleBudgetApp
 import com.korbi.simplebudget.logic.model.Expense
-import com.korbi.simplebudget.utilities.*
+import com.korbi.simplebudget.utilities.MONTHLY_ROOT
+import com.korbi.simplebudget.utilities.WEEKLY_ROOT
+import com.korbi.simplebudget.utilities.createCurrencyString
 import kotlinx.android.synthetic.main.income_manager_listening.view.*
 
 class IncomeAdapter(private val incomeList: MutableList<Expense>,
@@ -65,7 +67,7 @@ class IncomeAdapter(private val incomeList: MutableList<Expense>,
         }
         val iconId = iconIdArray.getResourceId(incomeList[position].category.icon, -1)
         holder.incomeIconView.setImageResource(iconId)
-        holder.incomeAmountView.text = SimpleBudgetApp.createCurrencyString(incomeList[position].cost)
+        holder.incomeAmountView.text = incomeList[position].cost.createCurrencyString()
         holder.incomeIntervalView.text = when (incomeList[position].interval) {
             WEEKLY_ROOT -> {
                 holder.itemView.context.getString(R.string.every) +

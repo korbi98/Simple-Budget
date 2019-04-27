@@ -16,12 +16,13 @@
 
 package com.korbi.simplebudget.ui
 
-import android.content.DialogInterface
+import android.app.Activity
 import android.content.Intent
 import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Bundle
 import android.preference.PreferenceManager
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.ListPreference
@@ -31,8 +32,11 @@ import com.korbi.simplebudget.BuildConfig
 import com.korbi.simplebudget.R
 import com.korbi.simplebudget.SimpleBudgetApp
 import com.korbi.simplebudget.database.DBhandler
+import com.korbi.simplebudget.logic.ImportExportHelper
 import com.korbi.simplebudget.ui.dialogs.CurrencyDialog
 
+const val EXPORT_CODE = 123
+const val IMPORT_CODE = 321
 
 class SettingsActivity : AppCompatActivity() {
 
@@ -103,10 +107,30 @@ class SettingsActivity : AppCompatActivity() {
                 (it as ListPreference).entry
             }
 
-            //TODO implement import/export
             val exportExpenses = findPreference<Preference>(getString(R.string.export_expenses_key))
+            exportExpenses?.setOnPreferenceClickListener {
+                val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+                    addCategory(Intent.CATEGORY_OPENABLE)
+                    type = "text/csv"
+                    putExtra(Intent.EXTRA_TITLE, ImportExportHelper.createFileName())
+                }
+
+                startActivityForResult(intent, EXPORT_CODE)
+
+                true
+            }
 
             val importExpenses = findPreference<Preference>(getString(R.string.import_expenses_key))
+            importExpenses?.setOnPreferenceClickListener {
+                val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
+                    addCategory(Intent.CATEGORY_OPENABLE)
+                    type = "text/*"
+                }
+
+                startActivityForResult(intent, IMPORT_CODE)
+
+                true
+            }
 
             val resetDatabase = findPreference<Preference>(getString(R.string.reset_db_key))
             resetDatabase?.setOnPreferenceClickListener {
@@ -201,6 +225,37 @@ class SettingsActivity : AppCompatActivity() {
             activity?.sendBroadcast(
                     SimpleBudgetApp.updateWidgetIntent(requireContext(),
                             requireActivity().application))
+        }
+
+        override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+            super.onActivityResult(requestCode, resultCode, data)
+            if (requestCode == IMPORT_CODE && resultCode == Activity.RESULT_OK) {
+
+                data?.data?.let {
+                    ImportExportHelper.readCSV(it, requireContext())
+                }
+
+            } else if (requestCode == EXPORT_CODE && resultCode == Activity.RESULT_OK) {
+                data?.data?.let {
+                    ImportExportHelper.writeCSV(it, requireContext())
+                }
+            }
+        }
+
+        fun onExportFinish(success: Boolean) {
+            if (success) {
+                Toast.makeText(requireContext(), getString(R.string.export_successful),
+                        Toast.LENGTH_LONG).show()
+            } else Toast.makeText(requireContext(), getString(R.string.export_unsuccessful),
+                        Toast.LENGTH_LONG).show()
+        }
+
+        fun onImportFinish(success: Boolean, report: String) {
+            AlertDialog.Builder(requireContext()).apply {
+                if (success) setTitle(R.string.import_report)
+                else setTitle(R.string.invalid_file)
+                setMessage(report)
+            }.show()
         }
     }
 }

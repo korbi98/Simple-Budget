@@ -18,13 +18,12 @@ package com.korbi.simplebudget.logic
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.util.AttributeSet
 import android.widget.TextView
 import com.github.mikephil.charting.components.MarkerView
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.highlight.Highlight
 import com.github.mikephil.charting.utils.MPPointF
-import com.korbi.simplebudget.SimpleBudgetApp
+import com.korbi.simplebudget.utilities.createCurrencyString
 import kotlinx.android.synthetic.main.chart_markerview.view.*
 import kotlin.math.round
 
@@ -36,7 +35,7 @@ class CustomMarker(context: Context, layout: Int) : MarkerView(context, layout) 
 
     override fun refreshContent(e: Entry?, highlight: Highlight?) {
         e?.let {
-            markerTextView.text = SimpleBudgetApp.createCurrencyString(round(it.y).toInt())
+            markerTextView.text = round(it.y).toLong().createCurrencyString()
         }
 
         super.refreshContent(e, highlight)

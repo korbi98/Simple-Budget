@@ -17,12 +17,11 @@
 package com.korbi.simplebudget.ui.fragments
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-
+import androidx.fragment.app.Fragment
 import com.korbi.simplebudget.R
 import com.korbi.simplebudget.SimpleBudgetApp
 import com.korbi.simplebudget.database.DBhandler
@@ -79,7 +78,7 @@ class BudgetStatFragment : Fragment(), StatisticFragment.DateSelectionListener {
 
     private fun updateSpiderChart(expenses: MutableList<Expense>, interval: Int) {
 
-        if (DBhandler.getInstance().getAllCategories().all { it.budget == 0 }) {
+        if (DBhandler.getInstance().getAllCategories().all { it.budget == 0L }) {
             chartEmptyMsg.visibility = View.VISIBLE
             spiderChart.visibility = View.GONE
         } else {
@@ -90,7 +89,7 @@ class BudgetStatFragment : Fragment(), StatisticFragment.DateSelectionListener {
     }
 
     private fun updateTotalBudgetChart() {
-        if (DBhandler.getInstance().getAllCategories().all { it.budget == 0 }) {
+        if (DBhandler.getInstance().getAllCategories().all { it.budget == 0L }) {
             totalChartEmptyMsg.visibility = View.VISIBLE
             totalBudgetChart.visibility = View.GONE
         } else {

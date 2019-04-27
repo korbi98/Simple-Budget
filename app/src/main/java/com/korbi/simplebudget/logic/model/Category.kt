@@ -20,8 +20,11 @@ data class Category(var id: Int,
                     var name: String,
                     var icon: Int,
                     var position: Int,
-                    var budget: Int,
+                    var budget: Long,
                     var interval: Int) {
+
+    // is used to determine if expenses already exists when importing data
+    fun isDuplicate(other: Category) = (this.name == other.name && this.icon == other.icon)
 
     override fun equals(other: Any?): Boolean {
         other as Category

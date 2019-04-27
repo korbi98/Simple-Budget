@@ -19,13 +19,7 @@ package com.korbi.simplebudget.ui.fragments
 import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
-import android.util.SparseBooleanArray
 import android.view.*
-import androidx.recyclerview.widget.RecyclerView
-import com.korbi.simplebudget.R
-import com.korbi.simplebudget.database.DBhandler
-import com.korbi.simplebudget.logic.adapters.HistoryAdapter
 import android.widget.SearchView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -33,19 +27,19 @@ import androidx.appcompat.view.ActionMode
 import androidx.core.util.containsKey
 import androidx.core.util.set
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.bignerdranch.expandablerecyclerview.ExpandableRecyclerAdapter
-import com.korbi.simplebudget.ui.MainActivity
+import com.korbi.simplebudget.R
 import com.korbi.simplebudget.SimpleBudgetApp
-import com.korbi.simplebudget.logic.*
-import com.korbi.simplebudget.logic.model.Expense
+import com.korbi.simplebudget.database.DBhandler
+import com.korbi.simplebudget.logic.ExpenseViewHolder
+import com.korbi.simplebudget.logic.HistoryEntry
+import com.korbi.simplebudget.logic.HistoryHelper
+import com.korbi.simplebudget.logic.adapters.HistoryAdapter
 import com.korbi.simplebudget.ui.*
-import com.korbi.simplebudget.utilities.*
+import com.korbi.simplebudget.utilities.EXPENSE_INDEX
 import kotlinx.android.synthetic.main.fragment_history.view.*
 import org.threeten.bp.LocalDate
-import org.threeten.bp.format.DateTimeFormatter
-import org.threeten.bp.format.TextStyle
-import org.threeten.bp.temporal.TemporalAdjusters
-import java.util.*
 
 
 class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.ExpenseAdapterListener,
@@ -282,10 +276,6 @@ class HistoryFragment : androidx.fragment.app.Fragment(), ExpenseViewHolder.Expe
 
         Intent(context, AddExpenses::class.java).run {
             putExtra(EXPENSE_INDEX, expenseToUpdate.id)
-            putExtra(EXPENSE_DESC, expenseToUpdate.description)
-            putExtra(EXPENSE_COST, expenseToUpdate.cost)
-            putExtra(EXPENSE_DATE, HistoryHelper.dateFormatter.format(expenseToUpdate.date))
-            putExtra(EXPENSE_CAT, expenseToUpdate.category.id)
             startActivityForResult(this, 1)
         }
     }

@@ -19,6 +19,7 @@ package com.korbi.simplebudget.logic
 import com.korbi.simplebudget.R
 import com.korbi.simplebudget.SimpleBudgetApp
 import com.korbi.simplebudget.database.DBhandler
+import com.korbi.simplebudget.utilities.isBetween
 import org.threeten.bp.DayOfWeek
 import org.threeten.bp.LocalDate
 import org.threeten.bp.Year
@@ -131,11 +132,11 @@ object DateHelper {
         val now = LocalDate.now()
 
         weekList.forEach {
-            if (isBetween(now, it[0], it[1])) {
+            if (now.isBetween(it[0], it[1])) {
                 weekStringArray.add(SimpleBudgetApp.res.getString(R.string.this_week))
             }
             else if (!db.getExpensesByDate(it[0], it[1]).isEmpty()) {
-                if (isBetween(now.minusWeeks(1), it[0], it[1])) {
+                if (now.minusWeeks(1).isBetween(it[0], it[1])) {
                     weekStringArray.add(SimpleBudgetApp.res.getString(R.string.last_week))
                 } else {
                     val dateString = dateFormatter.format(it[0]) + " - " +
@@ -153,7 +154,7 @@ object DateHelper {
         val monthList = getMonths()
 
         monthList.forEach {
-            if (isBetween(LocalDate.now(), it.atDay(1), it.atEndOfMonth())) {
+            if (LocalDate.now().isBetween(it.atDay(1), it.atEndOfMonth())) {
                 monthStringArray.add(SimpleBudgetApp.res.getString(R.string.this_month))
             }
              else if (!db.getExpensesByDate(it.atDay(1), it.atEndOfMonth()).isEmpty()) {
@@ -213,10 +214,5 @@ object DateHelper {
             }
             else -> SimpleBudgetApp.res.getString(R.string.first_quarter)+" "+ Year.now().toString()
         }
-    }
-
-    fun isBetween(now: LocalDate, start: LocalDate, end: LocalDate): Boolean {
-        return now.isAfter(start.minusDays(1)) &&
-                now.isBefore(end.plusDays(1))
     }
 }

@@ -19,18 +19,12 @@ package com.korbi.simplebudget.ui.charts
 import android.content.Context
 import android.graphics.Color
 import android.util.AttributeSet
-import android.util.Log
-import android.widget.TextView
 import androidx.core.content.ContextCompat
 import com.github.mikephil.charting.charts.CombinedChart
 import com.github.mikephil.charting.components.Legend
-import com.github.mikephil.charting.components.MarkerView
 import com.github.mikephil.charting.components.YAxis
 import com.github.mikephil.charting.data.*
 import com.github.mikephil.charting.formatter.IAxisValueFormatter
-import com.github.mikephil.charting.formatter.IValueFormatter
-import com.github.mikephil.charting.highlight.Highlight
-import com.github.mikephil.charting.utils.MPPointF
 import com.korbi.simplebudget.R
 import com.korbi.simplebudget.SimpleBudgetApp
 import com.korbi.simplebudget.database.DBhandler
@@ -39,12 +33,11 @@ import com.korbi.simplebudget.logic.CustomMarker
 import com.korbi.simplebudget.logic.DateHelper
 import com.korbi.simplebudget.utilities.MONTHLY_INTERVAL
 import com.korbi.simplebudget.utilities.WEEKLY_INTERVAL
-import kotlinx.android.synthetic.main.chart_markerview.view.*
+import com.korbi.simplebudget.utilities.createCurrencyStringRoundToInt
+import com.korbi.simplebudget.utilities.sumByLong
 import org.threeten.bp.DayOfWeek
 import org.threeten.bp.LocalDate
-import org.threeten.bp.Year
 import org.threeten.bp.YearMonth
-import org.threeten.bp.format.DateTimeFormatter
 import org.threeten.bp.format.TextStyle
 import org.threeten.bp.temporal.WeekFields
 import java.util.*
@@ -80,7 +73,7 @@ class TotalBudgetChart(context: Context, attr: AttributeSet) : CombinedChart(con
         axisLeft.textSize = 12f
         axisLeft.axisMinimum = 0f
         axisLeft.valueFormatter = IAxisValueFormatter { value, _ ->
-            SimpleBudgetApp.createCurrencyStringRoundToInt(round(value).toInt())
+            round(value).toLong().createCurrencyStringRoundToInt()
         }
 
         val marker = CustomMarker(context, layout = R.layout.chart_markerview)
@@ -200,14 +193,16 @@ class TotalBudgetChart(context: Context, attr: AttributeSet) : CombinedChart(con
                     val intervalExpenses = with (DateHelper) {
                         db.getExpensesByDate(getFirstWeekDay(endDate), getLastWeekDay(endDate))
                     }
-                    expenseList.add(intervalExpenses.filter {it.cost<0}.sumBy { it.cost }.toFloat())
+                    expenseList.add(
+                            intervalExpenses.filter { it.cost < 0 }.sumByLong { it.cost }.toFloat())
                     endDate.plusWeeks(1)
                 }
                 else -> {
                     val start = YearMonth.from(endDate).atDay(1)
                     val end = YearMonth.from(endDate).atEndOfMonth()
                     val intervalExpenses = db.getExpensesByDate(start, end)
-                    expenseList.add(intervalExpenses.filter {it.cost<0}.sumBy { it.cost }.toFloat())
+                    expenseList.add(
+                            intervalExpenses.filter { it.cost < 0 }.sumByLong { it.cost }.toFloat())
                     endDate.plusMonths(1)
                 }
             }

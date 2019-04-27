@@ -28,11 +28,12 @@ import com.jakewharton.threetenabp.AndroidThreeTen
 import com.korbi.simplebudget.database.DBhandler
 import com.korbi.simplebudget.logic.HistoryHelper
 import com.korbi.simplebudget.logic.model.Expense
-import com.korbi.simplebudget.utilities.*
+import com.korbi.simplebudget.utilities.MONTHLY_INTERVAL
+import com.korbi.simplebudget.utilities.MONTHLY_ROOT
+import com.korbi.simplebudget.utilities.WEEKLY_ROOT
 import com.korbi.simplebudget.widget.SimpleBudgetWidget
 import org.threeten.bp.LocalDate
 import java.text.DecimalFormat
-import kotlin.math.round
 
 class SimpleBudgetApp : Application() {
 
@@ -43,54 +44,6 @@ class SimpleBudgetApp : Application() {
         lateinit var res: Resources
         lateinit var pref: SharedPreferences
         lateinit var decimalFormat: DecimalFormat
-
-        fun createCurrencyString(amount: Int,
-                                 omitDecimalIfInteger: Boolean = false,
-                                 omitCurrencySymbol: Boolean = false): String {
-
-            val onLeft = pref.getBoolean(
-                    res.getString(R.string.settings_key_currency_left), false)
-            val amountString = when (pref.getBoolean(
-                    res.getString(R.string.settings_key_currency_decimal), false)) {
-
-                false -> {
-                    val decimalAmount = amount.toFloat()/100
-                    val hasNoDecimal = round(decimalAmount) == decimalAmount
-
-                    if (omitDecimalIfInteger && hasNoDecimal) {
-                        round(decimalAmount).toInt().toString()
-                    } else {
-                        decimalFormat.format(amount.toFloat()/100).toString()
-                    }
-                }
-                true -> String.format("%,d", amount)
-            }
-
-            val currencySymbol = pref.getString(res.getString(R.string.settings_key_currency),
-                                    res.getStringArray(R.array.currencies_symbols)[0])
-            return when {
-                omitCurrencySymbol -> amountString
-                onLeft -> "$currencySymbol $amountString"
-                else -> "$amountString $currencySymbol"
-            }
-        }
-
-        fun createCurrencyStringRoundToInt(amount: Int): String {
-            val currencyFormat = DecimalFormat("#")
-            val currencySymbol = SimpleBudgetApp.pref
-                    .getString(res.getString(R.string.settings_key_currency), "$")
-
-            val amountString = when (SimpleBudgetApp.pref
-                    .getBoolean(res.getString(R.string.settings_key_currency_decimal), false)) {
-                true -> currencyFormat.format(amount)
-                false -> currencyFormat.format(amount/100)
-            }
-            return when (SimpleBudgetApp.pref
-                    .getBoolean(res.getString(R.string.settings_key_currency_left), false)) {
-                true -> "$currencySymbol$amountString"
-                false -> "$amountString$currencySymbol"
-            }
-        }
 
         fun handleRecurringEntries() {
 

@@ -29,7 +29,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.chip.ChipGroup
 import com.korbi.simplebudget.R
-import com.korbi.simplebudget.SimpleBudgetApp
 import com.korbi.simplebudget.logic.BudgetHelper
 import com.korbi.simplebudget.logic.IntervalSelectionBackdropHelper
 import com.korbi.simplebudget.logic.MenuAnimator
@@ -40,9 +39,7 @@ import com.korbi.simplebudget.ui.MainActivity
 import com.korbi.simplebudget.ui.ManageCategories
 import com.korbi.simplebudget.ui.SettingsActivity
 import com.korbi.simplebudget.ui.dialogs.BudgetDialog
-import com.korbi.simplebudget.utilities.ALL_TIME
-import com.korbi.simplebudget.utilities.CAT_INDEX
-import com.korbi.simplebudget.utilities.SET_TOTAL_BUDGET
+import com.korbi.simplebudget.utilities.*
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.fragment_dashboard.view.*
 import kotlinx.android.synthetic.main.interval_backdrop.view.*
@@ -257,14 +254,13 @@ class DashboardFragment : androidx.fragment.app.Fragment(),
 
         val expenses = getExpensesForInterval()
 
-        val totalExpenses = expenses.filter { it.cost < 0 } .sumBy { it.cost }
-        val totalIncome = expenses.filter {it.cost > 0} .sumBy { it.cost }
+        val totalExpenses = expenses.filter { it.cost < 0 } .sumByLong { it.cost }
+        val totalIncome = expenses.filter {it.cost > 0} .sumByLong { it.cost }
         val balance = totalExpenses + totalIncome
 
-        expensesTextView.text = SimpleBudgetApp.createCurrencyString(totalExpenses)
-        incomeTextView.text = SimpleBudgetApp.createCurrencyString(totalIncome)
-        balanceTextView.text = SimpleBudgetApp.createCurrencyString(balance)
-
+        expensesTextView.text = totalExpenses.createCurrencyString()
+        incomeTextView.text = totalIncome.createCurrencyString()
+        balanceTextView.text = balance.createCurrencyString()
         when  {
             balance < 0 -> balanceTextView.setTextColor(ContextCompat.getColor(requireContext(),
                                             R.color.expenseColor))

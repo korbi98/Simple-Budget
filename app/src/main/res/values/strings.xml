@@ -139,7 +139,7 @@
     <string name="dialog_budget_message">To remove a budget set it to</string>
     <string name="total_budget">Total budget</string>
     <string name="dialog_budget_total_title">Set total budget</string>
-    <string name="total_budget_key">total_budget_key</string>
+    <string name="total_budget_key">totalbudget_key</string>
     <string name="total_budget_interval_key">total_budget_interval</string>
     <string name="selected_interval_type_key">dashboard_time_selection_key</string>
     <string name="empty_history_view_message">Nothing to show here!\n\nChange filter/search criteria
@@ -188,7 +188,6 @@
         title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a> </string>
     <string name="backup">Backup</string>
     <string name="export_expenses">Export expenses</string>
-    <string name="export_expenses_summary">Empty categories are not safed</string>
     <string name="export_expenses_key">export_expenses_key</string>
     <string name="import_expenses_key">import_expenses_key</string>
     <string name="reset_db_key">reset_db_key</string>
@@ -197,6 +196,34 @@
     <string name="dialog_db_reset_title">Reset whole database?</string>
     <string name="dialog_db_reset_message">WARNING THIS WILL DELETE EVERYTHING!!!</string>
     <string name="fallback_category_name">default</string>
+    <string name="invalid_file">Invalid file</string>
+    <string name="import_successful">
+        Import successful\n\n
+        Imported expenses: %d\n
+        Omitted %d duplicate expenses\n\n
+        Imported categories: %d\n
+        Omitted %d duplicate categories
+    </string>
+
+    <string name="import_corrupted">
+        Import corrupted\n\n
+        Imported expenses: %d\n
+        Omitted %d duplicate expenses\n\n
+        Imported categories: %d\n
+        Omitted %d duplicate categories\n\n
+        %d expenses where corrupted\n
+        %d categories where corrupted\n\n
+    </string>
+
+    <string name="corrupted_lines">The following lines are corrupted:\n</string>
+    <string name="select_directory">Select a directory</string>
+    <string name="import_expenses_summary">Duplicate entries will not be imported</string>
+    <string name="export_successful">Export was successful</string>
+    <string name="export_unsuccessful">An error occurred. Export was not successful</string>
+    <string name="import_report">Summary for import:</string>
+    <string name="invalid_file_message">This file cannot be imported, because it is not a valid SimpleBudget file</string>
+    <string name="import_successful_title">Import summary:</string>
+    <string name="import_invalid_title">Invalid file</string>
 
     <string-array name="default_categories">
         <item>Food</item>

@@ -18,16 +18,13 @@ package com.korbi.simplebudget.ui
 
 import android.app.DatePickerDialog
 import android.content.res.TypedArray
-import android.graphics.Color
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
-import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
@@ -35,10 +32,13 @@ import com.google.android.material.textfield.TextInputLayout
 import com.korbi.simplebudget.R
 import com.korbi.simplebudget.SimpleBudgetApp
 import com.korbi.simplebudget.database.DBhandler
-import com.korbi.simplebudget.logic.model.Category
 import com.korbi.simplebudget.logic.CurrencyTextWatcher
+import com.korbi.simplebudget.logic.model.Category
 import com.korbi.simplebudget.logic.model.Expense
-import com.korbi.simplebudget.utilities.*
+import com.korbi.simplebudget.utilities.EXPENSE_INDEX
+import com.korbi.simplebudget.utilities.NON_RECURRING
+import com.korbi.simplebudget.utilities.createCurrencyStringForEditText
+import com.korbi.simplebudget.utilities.parseCurrencyAmount
 import kotlinx.android.synthetic.main.activity_add_expenses.*
 import kotlinx.android.synthetic.main.custom_toolbar.*
 import org.threeten.bp.LocalDate
@@ -59,8 +59,8 @@ class AddExpenses : AppCompatActivity() {
     private lateinit var datePickerTextView: EditText
     private lateinit var expenseToUpdate: Expense
     private lateinit var categories: MutableList<Category>
-    private var noDecimal: Boolean? = null
-    private var isSymbolOnLeft: Boolean? = null
+    private var noDecimal = false
+    private var isSymbolOnLeft = false
     private var currencySymbol: String? = "$"
 
     private val dateFormatter = DateTimeFormatter.ofPattern("dd.MM.yy")
@@ -117,23 +117,17 @@ class AddExpenses : AppCompatActivity() {
 
     private fun save() {
 
-        val amountString = currencyInput.text.toString().replace(",", ".")
+        val amount = currencyInput.text.toString().parseCurrencyAmount()
 
         when {
-            amountString.toFloatOrNull() == null || round(amountString.toFloat() * 100).toInt() == 0 ->
+            amount == null || round(amount.toFloat() * 100).toInt() == 0 ->
                 currencyEditLayout.error = getString(R.string.no_amount_warning)
 
             (this::expenseToUpdate.isInitialized) -> { // update existing expense
-                val amount = when (noDecimal) {
-                    false, null -> {
-                        round(amountString.toFloat() * -100).toInt()
-                    }
-                    true -> amountString.toInt()
-                }
 
                 getSelectedCategory()?.let {
                     expenseToUpdate.description = descriptionEditText.text.toString()
-                    expenseToUpdate.cost = amount
+                    expenseToUpdate.cost = -amount
                     expenseToUpdate.date = expenseDate
                     expenseToUpdate.category = it
                     db.updateExpense(expenseToUpdate)
@@ -145,13 +139,9 @@ class AddExpenses : AppCompatActivity() {
 
             else -> { // save new expense
 
-                val amount = when (noDecimal) {
-                    false, null -> round(amountString.toFloat() * -100).toInt()
-                    true -> amountString.toInt()
-                }
                 val id = db.getLatestID()
                 getSelectedCategory()?.let {
-                    val expense = Expense(id, descriptionEditText.text.toString(), amount,
+                    val expense = Expense(id, descriptionEditText.text.toString(), -amount,
                             expenseDate, it, NON_RECURRING)
                     db.addExpense(expense)
                     updateWidget()
@@ -189,25 +179,15 @@ class AddExpenses : AppCompatActivity() {
 
     private fun prefill() {
 
-
         intent?.extras?.let {
-            expenseToUpdate = Expense(it.getInt(EXPENSE_INDEX),
-                    it.getString(EXPENSE_DESC) ?: "",
-                    it.getInt(EXPENSE_COST),
-                    LocalDate.parse(it.getString(EXPENSE_DATE), dateFormatter),
-                    db.getCategoryById(it.getInt(EXPENSE_CAT)), NON_RECURRING)
+            expenseToUpdate = db.getExpenseByID(it.getInt(EXPENSE_INDEX))
 
-            val multiplier = when (noDecimal) {
-                true -> -1
-                false, null -> -100
-            }
+            currencyInput.setText((-expenseToUpdate.cost).createCurrencyStringForEditText())
 
-            currencyInput.setText(SimpleBudgetApp.decimalFormat.format(expenseToUpdate.cost.
-                    toFloat()/multiplier).toString())
-            descriptionEditText.setText(expenseToUpdate.description)
-            datePickerTextView.setText(it.getString(EXPENSE_DATE))
             categoryChips[expenseToUpdate.category.position].isChecked = true
-            expenseDate = LocalDate.parse(it.getString(EXPENSE_DATE), dateFormatter)
+            expenseDate = expenseToUpdate.date
+            descriptionEditText.setText(expenseToUpdate.description)
+            datePickerTextView.setText(expenseDate.format(dateFormatter))
         }
     }
 
@@ -216,9 +196,6 @@ class AddExpenses : AppCompatActivity() {
         val inputLayout = add_expense_input_layout
         inputLayout.hint = getString(R.string.amount_input_hint) + " $currencySymbol"
         val separator = DecimalFormatSymbols.getInstance().decimalSeparator.toString()
-
-        val noDecimal = SimpleBudgetApp.pref.getBoolean(
-                SimpleBudgetApp.res.getString(R.string.settings_key_currency_decimal), false)
 
         currencyInput = add_expense_currency_input.apply {
             addTextChangedListener(

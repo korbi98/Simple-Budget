@@ -24,12 +24,14 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.RemoteViews
 import androidx.core.content.ContextCompat
-import com.korbi.simplebudget.ui.MainActivity
 import com.korbi.simplebudget.R
 import com.korbi.simplebudget.SimpleBudgetApp
 import com.korbi.simplebudget.database.DBhandler
 import com.korbi.simplebudget.ui.AddExpenses
+import com.korbi.simplebudget.ui.MainActivity
 import com.korbi.simplebudget.utilities.WEEKLY_INTERVAL
+import com.korbi.simplebudget.utilities.createCurrencyString
+import com.korbi.simplebudget.utilities.sumByLong
 import org.threeten.bp.DayOfWeek
 import org.threeten.bp.LocalDate
 import org.threeten.bp.YearMonth
@@ -91,7 +93,7 @@ class SimpleBudgetWidget : AppWidgetProvider() {
     }
 
     private fun getAmountString(context: Context, width: Int): String {
-        var intervalAmountString = SimpleBudgetApp.createCurrencyString(getAmount())
+        var intervalAmountString = getAmount().createCurrencyString()
         if (intervalAmountString.length > 9 && width.toDp(context) < 60) {
             intervalAmountString = intervalAmountString.substringBefore(
                     DecimalFormatSymbols.getInstance().decimalSeparator) + "..."
@@ -99,7 +101,7 @@ class SimpleBudgetWidget : AppWidgetProvider() {
         return intervalAmountString
     }
 
-    private fun getAmount(): Int {
+    private fun getAmount(): Long {
         val db = DBhandler.getInstance()
 
         return when (intervalType) {
@@ -115,12 +117,12 @@ class SimpleBudgetWidget : AppWidgetProvider() {
                     false -> LocalDate.now().with ( DayOfWeek.SUNDAY )
                     true -> LocalDate.now().with ( DayOfWeek.SATURDAY )
                 }
-                db.getExpensesByDate(startDate, endDate).sumBy { it.cost }
+                db.getExpensesByDate(startDate, endDate).sumByLong { it.cost }
             }
             else -> {
                 val startDate = YearMonth.now().atDay(1)
                 val endDate = YearMonth.now().atEndOfMonth()
-                db.getExpensesByDate(startDate, endDate).sumBy { it.cost }
+                db.getExpensesByDate(startDate, endDate).sumByLong { it.cost }
             }
         }
     }

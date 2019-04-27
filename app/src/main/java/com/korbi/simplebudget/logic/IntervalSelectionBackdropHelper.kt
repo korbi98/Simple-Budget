@@ -18,12 +18,10 @@ package com.korbi.simplebudget.logic
 
 import android.content.Context
 import android.transition.*
-import android.util.Log
 import android.view.Gravity
 import android.view.View
 import android.widget.*
 import androidx.core.transition.doOnEnd
-import androidx.core.view.size
 import com.google.android.material.chip.ChipGroup
 import com.korbi.simplebudget.R
 import com.korbi.simplebudget.SimpleBudgetApp
@@ -152,7 +150,7 @@ interface IntervalSelectionBackdropHelper {
                 if (weeks.size > 0) {
                     weeks = weeks.subList(1, weeks.size) .filter {
                         db.getExpensesByDate(it[0], it[1]).isNotEmpty() ||
-                                DateHelper.isBetween(LocalDate.now(), it[0], it[1])
+                                LocalDate.now().isBetween(it[0], it[1])
                     } .toMutableList()
                 }
                 weeks.add(0, DateHelper.getWeeks()[0])
@@ -166,8 +164,7 @@ interface IntervalSelectionBackdropHelper {
                 if (months.size > 0) {
                     months = months.subList(1, months.size).filter {
                         db.getExpensesByDate(it.atDay(1), it.atEndOfMonth()).isNotEmpty()
-                                || DateHelper.isBetween(LocalDate.now(),
-                                it.atDay(1), it.atEndOfMonth())
+                                || LocalDate.now().isBetween(it.atDay(1), it.atEndOfMonth())
                     } .toMutableList()
                 }
                 months.add(0, DateHelper.getMonths()[0])

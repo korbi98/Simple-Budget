@@ -20,11 +20,10 @@ import org.threeten.bp.LocalDate
 
 data class Expense(var id: Int,
                    var description: String,
-                   var cost: Int,
+                   var cost: Long,
                    var date: LocalDate,
                    var category: Category,
                    var interval: Int) {
-
 
     override fun equals(other: Any?): Boolean {
         other as Expense
@@ -33,10 +32,17 @@ data class Expense(var id: Int,
                 this.interval == other.interval)
     }
 
+    // is used to determine if expenses already exists when importing data
+    fun isDuplicate(other: Expense): Boolean {
+        return (this.id == other.id && this.cost == other.cost &&
+                this.description == other.description && this.date == other.date &&
+                this.category == other.category)
+    }
+
     override fun hashCode(): Int {
         var result = id
         result = 31 * result + description.hashCode()
-        result = 31 * result + cost
+        result = 31 * (result + cost).toInt()
         result = 31 * result + date.hashCode()
         result = 31 * result + category.hashCode()
         result = 31 * result + interval

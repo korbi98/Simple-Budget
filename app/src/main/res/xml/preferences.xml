@@ -61,12 +61,12 @@
         <Preference
             android:key="@string/export_expenses_key"
             android:title="@string/export_expenses"
-            android:summary="@string/export_expenses_summary"
             app:iconSpaceReserved="false"/>
 
         <Preference
             android:key="@string/import_expenses_key"
             android:title="@string/import_expenses"
+            android:summary="@string/import_expenses_summary"
             app:iconSpaceReserved="false"/>
 
         <Preference

@@ -27,10 +27,11 @@ import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
 import com.korbi.simplebudget.R
-import com.korbi.simplebudget.SimpleBudgetApp
 import com.korbi.simplebudget.database.DBhandler
 import com.korbi.simplebudget.logic.model.Category
 import com.korbi.simplebudget.logic.model.Expense
+import com.korbi.simplebudget.utilities.createCurrencyStringRoundToInt
+import com.korbi.simplebudget.utilities.sumByLong
 import java.text.DecimalFormat
 import kotlin.math.absoluteValue
 
@@ -75,7 +76,7 @@ class DistributionPieChart(context: Context, attr: AttributeSet) : PieChart(cont
             false -> expenses.filter { it.cost < 0 }
         }
 
-        val totalAmount = selectExpensesOrIncome().sumBy { it.cost } .toFloat()
+        val totalAmount = selectExpensesOrIncome().sumByLong { it.cost } .toFloat()
 
         val pieEntries = mutableListOf<PieEntry>()
         val legendEntries = mutableListOf<LegendEntry>()
@@ -84,13 +85,13 @@ class DistributionPieChart(context: Context, attr: AttributeSet) : PieChart(cont
         }
 
         var other = 0f
-        var otherExpenses = 0
+        var otherExpenses = 0L
         var colorIndex = 0
 
         for (category in categories) {
             val catExpenses = selectExpensesOrIncome().filter {
                 it.category == category
-            } .sumBy { it.cost }
+            } .sumByLong { it.cost }
 
             val percentage = catExpenses.toFloat() / totalAmount
             if (percentage < 0.03) {
@@ -101,7 +102,7 @@ class DistributionPieChart(context: Context, attr: AttributeSet) : PieChart(cont
 
                 val data = PieEntry(percentage)
 
-                data.label = SimpleBudgetApp.createCurrencyStringRoundToInt(catExpenses.absoluteValue)
+                data.label = catExpenses.absoluteValue.createCurrencyStringRoundToInt()
 
                 pieEntries.add(data)
                 legendEntries.add(LegendEntry(category.name,
@@ -120,7 +121,7 @@ class DistributionPieChart(context: Context, attr: AttributeSet) : PieChart(cont
                     10f, 0f, null,
                     colors[colorIndex]))
             if (other > 0.0249) {
-                data.label = SimpleBudgetApp.createCurrencyStringRoundToInt(otherExpenses)
+                data.label = otherExpenses.createCurrencyStringRoundToInt()
             }
         }
 

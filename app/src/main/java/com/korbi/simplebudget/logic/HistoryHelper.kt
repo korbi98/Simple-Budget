@@ -26,6 +26,7 @@ import com.korbi.simplebudget.logic.model.Expense
 import com.korbi.simplebudget.ui.*
 import com.korbi.simplebudget.utilities.MONTHLY_INTERVAL
 import com.korbi.simplebudget.utilities.WEEKLY_INTERVAL
+import com.korbi.simplebudget.utilities.isBetween
 import org.threeten.bp.LocalDate
 import org.threeten.bp.format.DateTimeFormatter
 import org.threeten.bp.format.TextStyle
@@ -44,7 +45,7 @@ object HistoryHelper {
     var categorySelection = BooleanArray(0) //true if category selected false else
 
 
-    val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yy")
+    private val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yy")
 
     fun getHistoryEntries(type: Int,
                           date: Int,
@@ -68,8 +69,8 @@ object HistoryHelper {
                             db.getExpensesByDate(month.atDay(1), month.atEndOfMonth())
                     expenses = filterExpenses(expenses, type, date, fromDate, toDate, categories)
 
-                    val isCurrentInterval = DateHelper.isBetween(
-                            LocalDate.now(), month.atDay(1), month.atEndOfMonth())
+                    val isCurrentInterval = LocalDate.now().isBetween(
+                            month.atDay(1), month.atEndOfMonth())
                             && expandCurrentDate
 
                     if (isCurrentInterval) expandedStateMap[index] = true
@@ -89,7 +90,7 @@ object HistoryHelper {
 
 
                     val isCurrentInterval =
-                            DateHelper.isBetween(LocalDate.now(), week[0], week[1])
+                            LocalDate.now().isBetween(week[0], week[1])
 
                     if (isCurrentInterval) expandedStateMap[index] = true
 

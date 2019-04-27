@@ -29,9 +29,9 @@ class BudgetHelper {
     var categories = mutableListOf<Category>()
 
 
-    fun getCategoryExpenses(category: Category): Int {
+    fun getCategoryExpenses(category: Category): Long {
         val categoryExpenses = expenses.filter { it.category == category && it.cost < 0}
-        return -categoryExpenses.sumBy { it.cost }
+        return -categoryExpenses.sumByLong { it.cost }
     }
 
     fun getBudgetText(category: Category): String {
@@ -41,8 +41,7 @@ class BudgetHelper {
         val onLeft = SimpleBudgetApp.pref.getBoolean(
                 SimpleBudgetApp.res.getString(R.string.settings_key_currency_left), false)
 
-        val expensesString = SimpleBudgetApp.createCurrencyString(getCategoryExpenses(category),
-                true, !onLeft)
+        val expensesString = getCategoryExpenses(category).createCurrencyString(true, !onLeft)
 
         val currencySymbol = SimpleBudgetApp.pref.getString(
                 SimpleBudgetApp.res.getString(R.string.settings_key_currency),
@@ -50,10 +49,10 @@ class BudgetHelper {
 
         return when {
             interval == ALL_TIME ->
-                SimpleBudgetApp.createCurrencyString(getCategoryExpenses(category), true)
+                getCategoryExpenses(category).createCurrencyString(true)
 
-            budget != 0 -> {
-                val budgetStr = SimpleBudgetApp.createCurrencyString(budget, true, onLeft)
+            budget != 0L -> {
+                val budgetStr = budget.createCurrencyString(true, onLeft)
                 "$expensesString / $budgetStr"
             }
 
@@ -67,19 +66,19 @@ class BudgetHelper {
     }
 
     fun getTotalBudgetText(): String {
-        val totalExpenses = -expenses.filter { it.cost < 0}.sumBy { it.cost }
+        val totalExpenses = -expenses.filter { it.cost < 0}.sumByLong { it.cost }
         val totalBudget = getIntervalBudget(interval)
 
         val onLeft = SimpleBudgetApp.pref.getBoolean(
                 SimpleBudgetApp.res.getString(R.string.settings_key_currency_left), false)
 
-        val budgetString = SimpleBudgetApp.createCurrencyString(totalExpenses, true, !onLeft)
+        val budgetString = totalExpenses.createCurrencyString(true, !onLeft)
 
         return when {
-            interval == ALL_TIME -> SimpleBudgetApp.createCurrencyString(totalExpenses, true)
+            interval == ALL_TIME -> totalExpenses.createCurrencyString(true)
 
-            totalBudget != 0 -> {
-                val str = SimpleBudgetApp.createCurrencyString(totalBudget, true, onLeft)
+            totalBudget != 0L -> {
+                val str = totalBudget.createCurrencyString(true, onLeft)
                 "$budgetString / $str"
             }
             else -> {
@@ -97,11 +96,11 @@ class BudgetHelper {
 
         return when {
             interval == ALL_TIME -> {
-                if (maxAmount != 0) {
+                if (maxAmount != 0L) {
                     (categoryTotalSum.toFloat() / maxAmount.toFloat() * 100).toInt()
                 } else 0
             }
-            categoryTotalSum > 0 && budget != 0 -> {
+            categoryTotalSum > 0 && budget != 0L -> {
                 ((categoryTotalSum.toFloat() / budget.toFloat()) * 100).toInt()
             }
             else -> 0
@@ -110,23 +109,23 @@ class BudgetHelper {
 
     fun getTotalBudgetProgress(): Int {
 
-        val totalExpenses = -expenses.filter { it.cost < 0}.sumBy { it.cost }
+        val totalExpenses = -expenses.filter { it.cost < 0}.sumByLong { it.cost }
 
         val budget = getIntervalBudget(interval)
 
         return when {
             interval == ALL_TIME -> 100
-            totalExpenses > 0 && budget != 0 -> {
+            totalExpenses > 0 && budget != 0L -> {
                 ((totalExpenses.toFloat() / budget.toFloat())*100).toInt()
             }
             else -> 0
         }
     }
 
-    fun getIntervalBudget(selectedInterval: Int, category: Category? = null): Int {
+    fun getIntervalBudget(selectedInterval: Int, category: Category? = null): Long {
 
-        val budget = category?.budget ?: SimpleBudgetApp.pref.getInt(
-                SimpleBudgetApp.res.getString(R.string.total_budget_key), 0)
+        val budget = category?.budget ?: SimpleBudgetApp.pref.getLong(
+                SimpleBudgetApp.res.getString(R.string.total_budget_key), 0L)
 
         val budgetInterval= category?.interval ?: SimpleBudgetApp.pref.getInt(
                 SimpleBudgetApp.res.getString(R.string.total_budget_interval_key), MONTHLY_INTERVAL)
@@ -155,7 +154,7 @@ class BudgetHelper {
                 when (budgetInterval) {
                     WEEKLY_INTERVAL -> budget
                     else -> {
-                        (budget / 4.33f).toInt()
+                        (budget / 4.33f).toLong()
                     }
                 }
             }

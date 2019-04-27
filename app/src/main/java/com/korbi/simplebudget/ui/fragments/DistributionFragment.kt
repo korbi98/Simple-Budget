@@ -27,6 +27,8 @@ import com.korbi.simplebudget.SimpleBudgetApp
 import com.korbi.simplebudget.logic.model.Expense
 import com.korbi.simplebudget.ui.charts.DistributionPieChart
 import com.korbi.simplebudget.utilities.NON_RECURRING
+import com.korbi.simplebudget.utilities.createCurrencyString
+import com.korbi.simplebudget.utilities.sumByLong
 import kotlinx.android.synthetic.main.fragment_distribution.view.*
 import java.text.NumberFormat
 import kotlin.math.absoluteValue
@@ -84,7 +86,7 @@ class DistributionFragment : androidx.fragment.app.Fragment(), StatisticFragment
     }
 
     private fun updatePieChart(expenses: MutableList<Expense>) {
-        if (expenses.filter { it.cost < 0 } .sumBy { it.cost } != 0) {
+        if (expenses.filter { it.cost < 0 } .sumByLong { it.cost } != 0L) {
             expenseEmptyMsg.visibility = View.GONE
             expenseChart.visibility = View.VISIBLE
             expenseChart.createPieData(expenses)
@@ -100,23 +102,23 @@ class DistributionFragment : androidx.fragment.app.Fragment(), StatisticFragment
         val runningCharges = expensesOnly.filter { it.interval != NON_RECURRING }
         val variableExpenses = expensesOnly.filter { it.interval == NON_RECURRING }
 
-        val totalAmount = expensesOnly.sumBy {it.cost } .absoluteValue
-        val runningTotalAmount = runningCharges.sumBy { it.cost } .absoluteValue
-        val variableTotalAmount = variableExpenses.sumBy { it.cost } .absoluteValue
+        val totalAmount = expensesOnly.sumByLong {it.cost } .absoluteValue
+        val runningTotalAmount = runningCharges.sumByLong { it.cost } .absoluteValue
+        val variableTotalAmount = variableExpenses.sumByLong { it.cost } .absoluteValue
 
-        val runningChargePercentage = if (totalAmount != 0) {
+        val runningChargePercentage = if (totalAmount != 0L) {
             runningTotalAmount.toFloat()/totalAmount.toFloat()
         } else 0f
 
 
-        val variableExpensePercentage = if (totalAmount != 0) {
+        val variableExpensePercentage = if (totalAmount != 0L) {
             1 - runningChargePercentage
         } else 0f
 
         val formatter = NumberFormat.getPercentInstance().apply { maximumFractionDigits = 1 }
 
-        runningChargeText.text = SimpleBudgetApp.createCurrencyString(runningTotalAmount)
-        variableExpenseText.text = SimpleBudgetApp.createCurrencyString(variableTotalAmount)
+        runningChargeText.text = runningTotalAmount.createCurrencyString()
+        variableExpenseText.text = variableTotalAmount.createCurrencyString()
 
         runningChargePercentText.text = "(${formatter.format(runningChargePercentage)})"
         variableExpensePercentageText.text = "(${formatter.format(variableExpensePercentage)})"

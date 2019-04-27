@@ -31,15 +31,13 @@ import com.google.android.material.textfield.TextInputLayout
 import com.korbi.simplebudget.R
 import com.korbi.simplebudget.SimpleBudgetApp
 import com.korbi.simplebudget.database.DBhandler
-import com.korbi.simplebudget.logic.*
+import com.korbi.simplebudget.logic.CurrencyTextWatcher
 import com.korbi.simplebudget.logic.model.Expense
 import com.korbi.simplebudget.utilities.*
 import kotlinx.android.synthetic.main.income_manager_add_dialog.*
 import org.threeten.bp.LocalDate
 import org.threeten.bp.format.DateTimeFormatter
-import java.lang.ClassCastException
 import java.text.DecimalFormatSymbols
-import kotlin.math.round
 
 class AddEditRecurrentEntryDialog : DialogFragment() {
 
@@ -131,10 +129,13 @@ class AddEditRecurrentEntryDialog : DialogFragment() {
     }
 
     private fun prefill() {
+
         arguments?.getInt(INCOME_INDEX)?.let { id ->
             prefillIncome = db.getExpenseByID(id)
             prefillIncome?.let {
-                currencyInput.setText(SimpleBudgetApp.createCurrencyString(it.cost))
+
+                currencyInput.setText((-it.cost).createCurrencyStringForEditText())
+
                 categorySpinner.setSelection(it.category.position)
                 when (it.interval) {
                     WEEKLY_ROOT -> weeklyChip.isChecked = true
@@ -148,13 +149,10 @@ class AddEditRecurrentEntryDialog : DialogFragment() {
 
     private fun save() {
 
-        val amountString = currencyInput.text.toString().replace(",", ".")
+        val amount = currencyInput.text.toString().parseCurrencyAmount() ?: 0L
         val id = prefillIncome?.id ?: db.getLatestID()
         val name = descriptionInput.text.toString()
-        val amount = when (noDecimal) {
-            false, null -> round(amountString.toFloat() * -100).toInt()
-            true -> amountString.toInt()
-        }
+
         val category = when {
             !db.getAllCategories().none { it.position == categorySpinner.selectedItemPosition } -> {
                 db.getAllCategories().find { it.position == categorySpinner.selectedItemPosition }
@@ -168,7 +166,7 @@ class AddEditRecurrentEntryDialog : DialogFragment() {
             else -> MONTHLY_ROOT
         }
 
-        val recurrentEntry = Expense(id, name, amount, intervalDate, category, interval)
+        val recurrentEntry = Expense(id, name, -amount, intervalDate, category, interval)
         listener.onSave(recurrentEntry, prefillIncome)
     }
 

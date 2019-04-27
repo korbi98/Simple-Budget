@@ -19,7 +19,6 @@ package com.korbi.simplebudget.ui.dialogs
 import android.annotation.SuppressLint
 import android.app.Dialog
 import android.os.Bundle
-import android.util.Log
 import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
@@ -29,9 +28,9 @@ import com.google.android.material.textfield.TextInputLayout
 import com.korbi.simplebudget.R
 import com.korbi.simplebudget.SimpleBudgetApp
 import com.korbi.simplebudget.database.DBhandler
-import com.korbi.simplebudget.logic.*
+import com.korbi.simplebudget.logic.CurrencyTextWatcher
 import com.korbi.simplebudget.logic.model.Category
-import com.korbi.simplebudget.ui.fragments.*
+import com.korbi.simplebudget.ui.fragments.DashboardFragment
 import com.korbi.simplebudget.utilities.*
 import kotlinx.android.synthetic.main.budget_dialog.*
 import java.text.DecimalFormatSymbols
@@ -47,7 +46,7 @@ class BudgetDialog : DialogFragment() {
     private lateinit var weeklyChip: Chip
     private lateinit var category: Category
     private var catIndex = 0
-    private var totalBudget = 0
+    private var totalBudget = 0L
     private var totalBudgetInterval = MONTHLY_INTERVAL
     private var noDecimal: Boolean? = null
     private val db = DBhandler.getInstance()
@@ -59,7 +58,7 @@ class BudgetDialog : DialogFragment() {
         noDecimal = SimpleBudgetApp.pref.getBoolean(
                 getString(R.string.settings_key_currency_decimal), false)
         totalBudget = SimpleBudgetApp.pref
-                .getInt(getString(R.string.total_budget_key), 0)
+                .getLong(getString(R.string.total_budget_key), 0)
         totalBudgetInterval = SimpleBudgetApp.pref
                 .getInt(getString(R.string.total_budget_interval_key), MONTHLY_INTERVAL)
 
@@ -71,8 +70,9 @@ class BudgetDialog : DialogFragment() {
                     category = db.getCategoryById(catIndex)
                 }
 
-                val message = "${getString(R.string.dialog_budget_message)} " +
-                        SimpleBudgetApp.createCurrencyString(0)
+                val message = getString(R.string.dialog_budget_message) + " " +
+                        0L.createCurrencyString()
+
                 if (catIndex == -100) {
                     setTitle(R.string.dialog_budget_total_title)
                     setMessage(message)
@@ -116,27 +116,17 @@ class BudgetDialog : DialogFragment() {
             }
 
             if (catIndex == -100) {
-                if (totalBudget != 0) {
-                    budgetInput.setText(SimpleBudgetApp.createCurrencyString(totalBudget))
+                if (totalBudget != 0L) {
+                    budgetInput.setText(totalBudget.createCurrencyStringForEditText())
                 }
 
                 if (totalBudgetInterval == WEEKLY_INTERVAL) {
                     intervalGroup.check(R.id.chip_week_budget)
                 } else intervalGroup.check(R.id.chip_month_budget)
-            }
-            else {
-                if (category.budget != 0) {
 
-                    val noDecimal = SimpleBudgetApp.pref.getBoolean(
-                            SimpleBudgetApp.res.getString(R.string.settings_key_currency_decimal), false)
-
-                    if (noDecimal) {
-                        budgetInput.setText(category.budget.toString())
-                    } else {
-                        val budget = category.budget.toFloat() / 100
-                        val budgetStr = String.format("%.2f", budget)
-                        budgetInput.setText(budgetStr)
-                    }
+            } else {
+                if (category.budget != 0L) {
+                    budgetInput.setText(category.budget.createCurrencyStringForEditText())
                 }
 
                 if (category.interval == WEEKLY_INTERVAL) {
@@ -151,12 +141,7 @@ class BudgetDialog : DialogFragment() {
 
     private fun save() {
 
-        val amount = budgetInput.text.toString().replace(",", ".").toFloatOrNull() ?: 0f
-
-        val amountInt = when (noDecimal) {
-            false, null -> (amount * 100).toInt()
-            true -> amount.toInt()
-        }
+        val amount = budgetInput.text.toString().parseCurrencyAmount() ?: 0L
 
         val interval = when (intervalGroup.checkedChipId) {
             R.id.chip_week_budget -> WEEKLY_INTERVAL
@@ -164,15 +149,15 @@ class BudgetDialog : DialogFragment() {
         }
 
         if (catIndex == -100) {
-            totalBudget = amountInt
+            totalBudget = amount
             totalBudgetInterval = interval
             with(SimpleBudgetApp.pref.edit()) {
-                putInt(getString(R.string.total_budget_key), totalBudget)
+                putLong(getString(R.string.total_budget_key), totalBudget)
                 putInt(getString(R.string.total_budget_interval_key), totalBudgetInterval)
                 apply()
             }
         } else {
-            category.budget = amountInt
+            category.budget = amount
             category.interval = interval
 
             db.updateCategory(category)

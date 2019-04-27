@@ -21,8 +21,9 @@ import android.view.View
 import androidx.core.content.ContextCompat
 import com.bignerdranch.expandablerecyclerview.ParentViewHolder
 import com.korbi.simplebudget.R
-import com.korbi.simplebudget.SimpleBudgetApp
 import com.korbi.simplebudget.logic.model.Expense
+import com.korbi.simplebudget.utilities.createCurrencyString
+import com.korbi.simplebudget.utilities.sumByLong
 import kotlinx.android.synthetic.main.history_date_listening.view.*
 
 
@@ -47,9 +48,10 @@ class HistoryViewHolder(private val historyEntryView: View) : ParentViewHolder<H
     }
 
     fun bind (week: String) {
-        val totalAmount = parent.childList.sumBy { it.cost }
+        val totalAmount = parent.childList.sumByLong { it.cost }
         entryDate.text = week
-        totalAmountView.text = SimpleBudgetApp.createCurrencyString(totalAmount)
+        totalAmountView.text =
+                totalAmount.createCurrencyString()
 
         totalAmountView.setTextColor(when {
             totalAmount < 0 -> ContextCompat.getColor(context,R.color.expenseColor)

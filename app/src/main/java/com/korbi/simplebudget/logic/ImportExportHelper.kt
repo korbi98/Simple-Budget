@@ -16,6 +16,11 @@
 
 package com.korbi.simplebudget.logic
 
+import android.app.AlertDialog
+import android.content.Context
+import android.net.Uri
+import android.util.Log
+import android.widget.Toast
 import com.korbi.simplebudget.R
 import com.korbi.simplebudget.SimpleBudgetApp
 import com.korbi.simplebudget.database.DBhandler
@@ -24,8 +29,6 @@ import com.korbi.simplebudget.logic.model.Expense
 import org.threeten.bp.LocalDate
 import org.threeten.bp.format.DateTimeFormatter
 import java.io.*
-
-import java.lang.StringBuilder
 import java.text.ParseException
 
 const val HEADER_STRING = "### DO NOT MODIFY THIS FILE. Import file from settings in Simple Budget app. ###"
@@ -34,41 +37,80 @@ const val EXPENSE_HEADER = "### expenses ###"
 
 object ImportExportHelper {
 
+    private var expensesWithFallbackCategory = 0
+    private var lineOffset = 3
+    private val corruptedLines = mutableListOf<Int>()
+
     private val db = DBhandler.getInstance()
 
-    fun writeCSV(directory: String): Boolean {
+    private val fallbackCategory = Category(db.getLatestCategoryID(),
+            SimpleBudgetApp.res.getString(R.string.fallback_category_name),
+            45, db.getAllCategories().size, 0, 0)
 
+    fun createFileName(): String {
         val dateString = LocalDate.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy"))
-        val filename = "SimpleBudget_export_$dateString.csv"
+        return "SimpleBudget_export_$dateString.csv"
+    }
 
-        return try {
-            File(directory, filename).writeText(createDataString())
-            true
+    fun writeCSV(uri: Uri, context: Context) {
+
+        try {
+
+            context.contentResolver.openFileDescriptor(uri, "w")?.use {
+                FileOutputStream(it.fileDescriptor).use { file ->
+                    file.write(createDataString().toByteArray())
+                }
+            }
+            Toast.makeText(context, context.getString(R.string.export_successful),
+                    Toast.LENGTH_LONG).show()
         } catch (e: IOException) {
-            false
+            Toast.makeText(context, context.getString(R.string.export_unsuccessful),
+                    Toast.LENGTH_LONG).show()
+        } catch (e: FileNotFoundException) {
+            Toast.makeText(context, context.getString(R.string.export_unsuccessful),
+                    Toast.LENGTH_LONG).show()
         }
     }
 
-    fun readCSV(directory: String): List<List<Int>>? {
+    fun readCSV(uri: Uri, context: Context) {
 
-        val file = File(directory)
-        val data = file.readLines()
-        return if (data[0] == HEADER_STRING && data[1] == CATEGORY_HEADER) {
-            data.run { importExpensesFromCSV(subList(2, size)) }
+        expensesWithFallbackCategory = 0
+        corruptedLines.clear()
+
+        val data = context.contentResolver.openInputStream(uri)?.use { inputStream ->
+            BufferedReader(InputStreamReader(inputStream)).use { reader ->
+                reader.readLines()
+            }
         }
-        else null // invalid file
+
+        val result = data?.let {
+
+            if (it.getOrNull(0) == HEADER_STRING && it.getOrNull(1) == CATEGORY_HEADER
+                    && it.size > 2) {
+
+                    Pair(true, it.run { importExpensesFromCSV(subList(2, size)) })
+            }
+            else Pair(false, buildReport(false)) // invalid file
+        } ?: Pair(false, buildReport(false))
+
+        AlertDialog.Builder(context).apply {
+            setTitle(when(result.first) {
+                true -> context.getString(R.string.import_successful_title)
+                false -> context.getString(R.string.import_invalid_title)
+            })
+            setMessage(result.second)
+            setPositiveButton(R.string.ok) {dialog, _ ->
+                dialog.dismiss()
+            }
+            show()
+        }
     }
 
-    private fun importExpensesFromCSV(data: List<String>): List<List<Int>> {
-        val corruptedLines = mutableListOf<Int>()
-        val missingCategories = mutableListOf<Int>()
-
+    private fun importExpensesFromCSV(data: List<String>): String {
         val importedExpenses = mutableListOf<Expense>()
         val categoryImport = importCategoriesFromCSV(data)
-
-        val fallbackCategory = Category(db.getLatestCategoryID(),
-                                    SimpleBudgetApp.res.getString(R.string.fallback_category_name),
-                                        45, db.getAllCategories().size, 0, 0)
+        var corruptedCategories = categoryImport.third
+        var corruptedExpenses = 0
 
         categoryImport.second.forEachIndexed { lineNumber, line ->
 
@@ -78,58 +120,119 @@ object ImportExportHelper {
 
                 val id = valueList[0].toIntOrNull()
                 val description = valueList[1]
-                val cost = valueList[2].toIntOrNull()
+                val cost = valueList[2].toLongOrNull()
                 val date: LocalDate? = try {
                     LocalDate.parse(valueList[3])
                 } catch (e: ParseException) {
                     null
                 }
-                val categoryId = valueList[4].toIntOrNull()
-                val category = categoryImport.first.getOrNull(categoryId ?: -1)
+                val categoryId = valueList[4].toIntOrNull() ?: -1
+                val category = categoryImport.first.find { it.id == categoryId}
                         ?: fallbackCategory.also {
-                    missingCategories.add(lineNumber + 1)
+                            corruptedLines.add(lineNumber + lineOffset)
+                            expensesWithFallbackCategory++
+                            corruptedCategories++
                 }
-                val interval: Int? = valueList[5].toIntOrNull()
+                val interval = valueList[5].toIntOrNull()
 
                 if (id != null && cost != null && date != null && interval != null ) {
                     importedExpenses.add(Expense(id, description, cost, date, category, interval))
+                } else {
+                    corruptedExpenses++
+                    corruptedLines.add(lineNumber + lineOffset)
                 }
 
-            } else corruptedLines.add(lineNumber + 1)
+            } else {
+                valueList.forEach{
+                    Log.d("test", it)
+                }
+                corruptedExpenses++
+                corruptedLines.add(lineNumber + lineOffset)
+            }
         }
 
-        return listOf(corruptedLines, missingCategories)
+        return with(performIncrementalImport(importedExpenses, categoryImport.first)) {
+            buildReport(
+                    success = true,
+                    importedExpenses = this[0],
+                    omittedExpenses = this[1],
+                    importedCategories = this[2],
+                    omittedCategories = this[3],
+                    corruptedExpenses = corruptedExpenses,
+                    corruptedCategories = corruptedCategories,
+                    corruptedLines = corruptedLines,
+                    expensesWithFallback = expensesWithFallbackCategory)
+        }
     }
 
-    private fun importCategoriesFromCSV(data: List<String>): Pair<List<Category>, List<String>> {
+    private fun importCategoriesFromCSV(data: List<String>):
+            Triple<List<Category>, List<String>, Int> {
         val importedCategories = mutableListOf<Category>()
         var expenseData = data
+        var corruptedCategories = 0
 
-        data.forEachIndexed { index, line ->
+        for ((index, line) in data.withIndex()) {
             val valueList = line.split(",")
             if (valueList.size == 6) {
                 val id = valueList[0].toIntOrNull()
                 val name = valueList[1]
                 val icon = valueList[2].toIntOrNull()
                 val position = valueList[3].toIntOrNull()
-                val category: Int? = valueList[4].toIntOrNull()
-                val interval: Int? = valueList[5].toIntOrNull()
+                val budget = valueList[4].toLongOrNull()
+                val interval = valueList[5].toIntOrNull()
 
                 if (id != null && icon != null &&
-                        position != null && category != null && interval != null) {
-                    importedCategories.add(Category(id, name, icon, position, category, interval))
+                        position != null && budget != null && interval != null) {
+                    importedCategories.add(Category(id, name, icon, position, budget, interval))
+                } else {
+                    corruptedLines.add(index + lineOffset)
+                    corruptedCategories++
                 }
-            } else if (line == EXPENSE_HEADER) expenseData = data.subList(index, data.lastIndex)
+
+            } else if (line == EXPENSE_HEADER) {
+                lineOffset += index
+                expenseData = data.subList(index + 1, data.size)
+                break
+            } else {
+                corruptedCategories++
+                corruptedLines.add(index + lineOffset)
+            }
         }
-        return Pair(importedCategories, expenseData)
+        return Triple(importedCategories, expenseData, corruptedCategories)
     }
 
-    private fun performIncrementalImport(expenses: List<Expense>, categories: List<Category>) {
-        // TODO implement function
+    private fun performIncrementalImport(expenses: List<Expense>, categories: List<Category>): List<Int> {
+        val existingExpenses = db.getExpensesByDate(db.getOldestDate(), db.getNewestDate())
+        val existingCategories = db.getAllCategories()
+
+        var importedExpenses = 0
+        var omittedExpenses = 0
+        var importedCategories = 0
+        var omittedCategories = 0
+
+        expenses.forEach { exp ->
+            if (existingExpenses.none { it.isDuplicate(exp) }) {
+                if (categories.none { it.isDuplicate(exp.category) }) {
+                    exp.category = fallbackCategory
+                    expensesWithFallbackCategory++
+                }
+                db.addExpense(exp)
+                importedExpenses++
+            } else omittedExpenses++
+        }
+
+        categories.forEach { cat ->
+            if (existingCategories.none { it.isDuplicate(cat) }) {
+                db.addCategory(cat)
+                importedCategories++
+            } else omittedCategories++
+        }
+
+        return listOf(importedExpenses, omittedExpenses, importedCategories, omittedCategories)
     }
 
     private fun createDataString(): String {
-        val data = StringBuilder().append("$HEADER_STRING\n").append(CATEGORY_HEADER)
+        val data = StringBuilder().append("$HEADER_STRING\n").append("$CATEGORY_HEADER\n")
         val expenses = db.getExpensesByDate(db.getOldestDate(), db.getNewestDate())
         val categories = db.getAllCategories()
 
@@ -142,17 +245,55 @@ object ImportExportHelper {
             data.append("${it.interval}\n")
         }
 
-        data.append(EXPENSE_HEADER)
+        data.append("$EXPENSE_HEADER\n")
 
         expenses.forEach {
             data.append("${it.id},")
             data.append("${it.description},")
             data.append("${it.cost},")
             data.append("${it.date},")
-            data.append("${it.category},")
+            data.append("${it.category.id},")
             data.append("${it.interval}\n")
         }
 
         return data.toString()
+    }
+
+    private fun buildReport(success: Boolean,
+                            importedExpenses:Int = 0,
+                            omittedExpenses: Int = 0,
+                            corruptedExpenses: Int = 0,
+                            expensesWithFallback: Int = 0,
+                            importedCategories: Int = 0,
+                            omittedCategories: Int = 0,
+                            corruptedCategories: Int = 0,
+                            corruptedLines: List<Int> = listOf()): String {
+
+        return if (success) {
+            if (corruptedExpenses == 0 && corruptedCategories == 0 &&
+                    corruptedLines.isEmpty() && expensesWithFallback == 0) {
+
+                SimpleBudgetApp.res.getString(
+                        R.string.import_successful,
+                        importedExpenses,
+                        omittedExpenses,
+                        importedCategories,
+                        omittedCategories)
+
+            } else SimpleBudgetApp.res.getString(
+                    R.string.import_corrupted,
+                    importedExpenses,
+                    omittedExpenses,
+                    importedCategories,
+                    omittedCategories,
+                    corruptedExpenses,
+                    corruptedCategories) +
+
+                    SimpleBudgetApp.res.getString(R.string.corrupted_lines) +
+                    StringBuilder().apply {
+                        corruptedLines.forEach { append("$it, ") }
+                    } .toString()
+
+        } else SimpleBudgetApp.res.getString(R.string.invalid_file_message)
     }
 }
