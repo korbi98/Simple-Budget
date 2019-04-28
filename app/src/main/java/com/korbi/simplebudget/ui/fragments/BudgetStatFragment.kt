@@ -78,7 +78,7 @@ class BudgetStatFragment : Fragment(), StatisticFragment.DateSelectionListener {
 
     private fun updateSpiderChart(expenses: MutableList<Expense>, interval: Int) {
 
-        if (DBhandler.getInstance().getAllCategories().all { it.budget == 0L }) {
+        if (DBhandler.getInstance().getAllCategories().count { it.budget != 0L } < 3) {
             chartEmptyMsg.visibility = View.VISIBLE
             spiderChart.visibility = View.GONE
         } else {

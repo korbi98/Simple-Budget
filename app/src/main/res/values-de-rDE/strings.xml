@@ -78,7 +78,7 @@
     <string name="category_name">Name der Kategorie</string>
     <string name="select_icon">Wähle Symbol</string>
     <string name="add_edit_category_dialog_titel">Kategorie ändern/hinzufügen</string>
-    <string name="migrate_expenses_message">Wählen Sie eine Kategorie, in die Sie bestehende Ausgaben migrieren möchten.         Wenn Sie keine auswählen, werden alle Ausgaben in der Kategorie gelöscht!</string>
+    <string name="migrate_expenses_message">Wählen Sie eine Kategorie, in die Sie bestehende Ausgaben migrieren möchten. Wenn Sie keine auswählen, werden alle Ausgaben in der Kategorie gelöscht!</string>
     <string name="none">Keine</string>
     <string name="migrate_to_category">In Kategorie migrieren:</string>
     <string name="delete_category">Kategorie löschen?</string>
@@ -114,7 +114,7 @@
     <string name="dont_show_again">Nicht mehr zeigen</string>
     <string name="dont_show_again_settings">Dialog im Verlauf nicht zeigen</string>
     <string name="dont_show_again_settings_message">Dialog über regelmäßige Einträge nicht zeigen</string>
-    <string name="dialog_budget_title">"Budget festlegen für "</string>
+    <string name="dialog_budget_title">"Budget festlegen für </string>
     <string name="dialog_budget_message">Um ein Budget zu löschen setze es auf</string>
     <string name="total_budget">Gesamtbudget</string>
     <string name="dialog_budget_total_title">Gesamtbudget festlegen</string>
@@ -123,7 +123,7 @@
     <string name="no_budget_set_info_short">Kein Budget</string>
     <string name="distribution">Verteilung</string>
     <string name="other">Andere</string>
-    <string name="total_expenses">Gesammtausgaben</string>
+    <string name="total_expenses">Gesamtausgaben</string>
     <string name="settings_history_grouping">Gruppierung in Verlauf und Widget</string>
     <string name="settings_start_week_sunday">Woche mit Sonntag statt Montag beginnen</string>
     <string name="choose_currency">Wähle deine Währung:\n</string>
@@ -143,7 +143,7 @@
     <string name="running_charges">Laufende Kosten</string>
     <string name="variable_expenses">Variable Kosten</string>
     <string name="running_charges_title">Laufende / variable Kosten</string>
-    <string name="empty_budget_stat_msg">Hier ist nichts!\n\nFüge zu mindested drei Kategories ein Budget hinzu</string>
+    <string name="empty_budget_stat_msg">Hier ist nichts!\n\nFüge zu mindestens drei Kategorien ein Budget hinzu</string>
     <string name="budget_by_category">Budget für gewählten Zeitraum</string>
     <string name="empty_total_budget_stat_msg">Hier ist nichts!\n\nBitte lege ein Gesamtbudget fest</string>
     <string name="by_month">der letzten 12 Monate</string>
@@ -152,8 +152,8 @@
     <string name="export_expenses">Ausgaben exportieren</string>
     <string name="reset_database">Datenbank zurücksetzen</string>
     <string name="import_expenses">Ausgaben importieren</string>
-    <string name="dialog_db_reset_title">Gesammte datebank löschen?</string>
-    <string name="dialog_db_reset_message">WARNUNG  DIES LÖSCHT ALLE EINTRÄGE!!!</string>
+    <string name="dialog_db_reset_title">Gesamte datebank löschen?</string>
+    <string name="dialog_db_reset_message">WARNUNG DIES LÖSCHT ALLE EINTRÄGE!!!</string>
     <string name="fallback_category_name">standart</string>
     <string name="invalid_file">Ungültige Datei</string>
     <string name="import_successful">Import erfolgreich\n\n Importierte Einträge: %d\n %d doppelte Einträge ausgelassen\n\n Importierte Kategorien: %d\n %d doppelte Kategorien ausgelassen</string>
