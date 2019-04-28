@@ -121,7 +121,7 @@ class DistributionPieChart(context: Context, attr: AttributeSet) : PieChart(cont
                     10f, 0f, null,
                     colors[colorIndex]))
             if (other > 0.0249) {
-                data.label = otherExpenses.createCurrencyStringRoundToInt()
+                data.label = otherExpenses.absoluteValue.createCurrencyStringRoundToInt()
             }
         }
 
