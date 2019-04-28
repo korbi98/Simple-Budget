@@ -226,4 +226,5 @@
     </string-array>
     <string name="weekly_long">Wöchentlich</string>
     <string name="monthly_long">Monatlich</string>
+    <string name="setup_dialog_tip">Beim Hinzufügen von Einträgen, steht ein positiver Betrag für eine Ausgabe. Gib einen negativen Betrag ein um eine Einnahme zu speichern.</string>
 </resources>

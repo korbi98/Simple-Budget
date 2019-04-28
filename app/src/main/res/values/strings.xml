@@ -198,7 +198,7 @@
     <string name="export_unsuccessful">An error occurred. Export was not successful</string>
     <string name="import_report">Summary for import:</string>
     <string name="invalid_file_message">This file cannot be imported, because it is not a valid SimpleBudget file</string>
-
+    <string name="setup_dialog_tip">When adding expenses/income, a positive amount denotes a expense and a negative amount an income.</string>
 
 
     <string-array name="default_categories">
