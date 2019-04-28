@@ -132,7 +132,7 @@ class TotalBudgetChart(context: Context, attr: AttributeSet) : CombinedChart(con
             entries.add(BarEntry(i.toFloat(), -value))
         }
 
-        val barDataSet = BarDataSet(entries, context.getString(R.string.dashboard_expenses)).apply {
+        val barDataSet = BarDataSet(entries, context.getString(R.string.expenses)).apply {
             axisDependency = YAxis.AxisDependency.LEFT
             color = ContextCompat.getColor(context, R.color.expenseColor)
             valueTextColor = Color.WHITE

@@ -289,15 +289,16 @@ class DBhandler(context: Context, private val defaultCategories: Array<String>) 
         val db = this.writableDatabase
         val cursor = db.rawQuery(query, null)
 
-        cursor?.moveToFirst()
-        val id = cursor.getInt(0)
-        val name = cursor.getString(1)
-        val drawable = cursor.getInt(2)
-        val position = cursor.getInt(3)
-        val budget = cursor.getLong(4)
-        val interval = cursor.getInt(5)
-        cursor.close()
-        return Category(id, name, drawable, position, budget, interval)
+        return if (cursor.moveToFirst()) {
+            val id = cursor.getInt(0)
+            val name = cursor.getString(1)
+            val drawable = cursor.getInt(2)
+            val position = cursor.getInt(3)
+            val budget = cursor.getLong(4)
+            val interval = cursor.getInt(5)
+            cursor.close()
+            Category(id, name, drawable, position, budget, interval)
+        } else Category(getLatestCategoryID(), "Fallback", 0, 0,0, 0)
     }
 
     fun getAllCategories(): MutableList<Category> {

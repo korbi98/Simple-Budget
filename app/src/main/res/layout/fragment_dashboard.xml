@@ -83,7 +83,7 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="@string/dashboard_expenses"
+                                    android:text="@string/expenses"
                                     android:layout_gravity="center_vertical" />
                                 <TextView
                                     android:id="@+id/dashboard_total_expenses"
@@ -117,7 +117,7 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="@string/dashboard_balance"
+                                    android:text="@string/balance"
                                     android:layout_gravity="center_vertical" />
                                 <TextView
                                     android:id="@+id/dashboard_balance"

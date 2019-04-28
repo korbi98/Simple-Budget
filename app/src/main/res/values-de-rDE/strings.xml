@@ -17,4 +17,210 @@
 
 <resources>
     <string name="app_name">Simple Budget</string>
+    <string name="title_history">Verlauf</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_statistic">Statisitk</string>
+    <string name="amount_input_hint">Betrag</string>
+    <string name="description_input_hint">Beschreibung</string>
+    <string name="add_expense_title">Eintrag ändern/hinzufügen</string>
+    <string name="no_category_warning">Bitte wähle eine Kategorie!</string>
+    <string name="no_amount_warning">Bitte gib einen Betrag ein!</string>
+    <string name="menu_history_search">Suche</string>
+    <string name="menu_history_filter">Filtern</string>
+    <string name="today">Heute</string>
+    <string name="yesterday">Gestern</string>
+    <string name="edit">Bearbeiten</string>
+    <string name="delete">Löschen</string>
+    <string name="delete_expenses_message">Willst du alle gewählen Einträge löschen?</string>
+    <string name="yes">Ja</string>
+    <string name="no">Nein</string>
+    <string name="filter_fragment_daterange_textview">Zeitraum</string>
+    <string name="filter_fragment_expense_type_textview">Art des Eintrags</string>
+    <string name="about_app">Über die App</string>
+    <string name="about_version">Version</string>
+    <string name="about_send_feedback_summary">Fragen oder Probleme? Schreibe mir eine Nachricht</string>
+    <string name="about_send_feedback_title">Feedback senden</string>
+    <string name="about_rate_app_summary">Gib der App 5 Sterne wenn du sie magst</string>
+    <string name="about_rate_app_title">Bewerte die App</string>
+    <string name="about_other_apps_title">Meine anderen Apps</string>
+    <string name="about_sourcecode_summary">Schau den Sourcecode auf GitHub an</string>
+    <string name="about_sourcecode_title">Quellcode</string>
+    <string name="summary_about">Eine einfache und unkomplizierte App um deine Finanzen zu verwalten</string>
+    <string name="general_settings">Allgemeine Einstellungen</string>
+    <string name="cancel">Abbrechen</string>
+    <string name="reset">Reset</string>
+    <string name="dashboard_time_selection">FürgeGe</string>
+    <string name="expenses">Ausgaben</string>
+    <string name="dashboard_income">Einnahmen</string>
+    <string name="licenses">Lizenzen</string>
+    <string name="budget">Budget</string>
+    <string name="settings">Einstellungen</string>
+    <string name="income_manager_title">Regelmäßige Ausgaben/Einnahmen</string>
+    <string name="manage_categories_titel">Kategorien verwalten</string>
+    <string name="this_week">Diese Woche</string>
+    <string name="last_week">Letzte Woche</string>
+    <string name="this_month">Dieser Monat</string>
+    <string name="this_quarter">Dieses Quartal</string>
+    <string name="first_quarter">1. Quartal</string>
+    <string name="second_quarter">2. Quartal</string>
+    <string name="third_quarter">3. Quartal</string>
+    <string name="fourth_quarter">4. Quartal</string>
+    <string name="default_value">0,00 €</string>
+    <string name="currency">Währung</string>
+    <string name="settings_currency_custom">Eigenes Währungssymbol</string>
+    <string name="settings_currency_before_amount">Währungssymbol vor Betrag</string>
+    <string name="settings_currency_no_decimal">Keine Dezimalwerte</string>
+    <string name="settings_currency_dialog_titel">Wähle deine Währung</string>
+    <string name="ok">OK</string>
+    <string name="no_currency_selected">Bitte wähle eine Währung</string>
+    <string name="balance">Bilanz</string>
+    <string name="add">Hinzufügen</string>
+    <string name="category_name">Name der Kategorie</string>
+    <string name="select_icon">Wähle Symbol</string>
+    <string name="add_edit_category_dialog_titel">Kategorie ändern/hinzufügen</string>
+    <string name="migrate_expenses_message">Wählen Sie eine Kategorie, in die Sie bestehende Ausgaben migrieren möchten.         Wenn Sie keine auswählen, werden alle Ausgaben in der Kategorie gelöscht!</string>
+    <string name="none">Keine</string>
+    <string name="migrate_to_category">In Kategorie migrieren:</string>
+    <string name="delete_category">Kategorie löschen?</string>
+    <string name="choose_categories">Kategorie wählen</string>
+    <string name="add_recurrent_entry_title">Regelmäßigen Eintrag hinzufügen</string>
+    <string name="edit_recurrent_entry_title">Regelmäßigen Eintrag bearbeiten</string>
+    <string name="date">Datum</string>
+    <string name="both">Beides</string>
+    <string name="income">Einnahme</string>
+    <string name="expense">Ausgabe</string>
+    <string name="last30days">Letzten 30 Tage</string>
+    <string name="last90days">Letzten 90 Tage</string>
+    <string name="this_year">Dieses Jahr</string>
+    <string name="all_time">Gesamter Zeitraum</string>
+    <string name="specific_range">Bestimmter Zeitraum</string>
+    <string name="filter_fragment_category_textview">Filter Kategorien</string>
+    <string name="to">Bis</string>
+    <string name="from">Von</string>
+    <string name="from_after_to_error">Nach Enddatum!</string>
+    <string name="to_before_from_error">Bevor Startdatum!</string>
+    <string name="monthly">Monatlich</string>
+    <string name="weekly">Wöchentlich</string>
+    <string name="start_date_hint">Beginnend mit</string>
+    <string name="interval">Interval</string>
+    <string name="delete_regular_income_expense">Regelmäßigen Eintrag löschen?</string>
+    <string name="delete_regular_income_expense_message">Du kannst den Eintrag für die Zukunft stoppen oder auch alle schon bestehenden Ausgaben/Einnahmen löschen</string>
+    <string name="stop_in_future">Stoppen</string>
+    <string name="delete_all">Alle löschen</string>
+    <string name="every">Jeden</string>
+    <string name="of_month">Monatstag</string>
+    <string name="this_is_recurrent_entry">Dies ist ein regelmäßiger Eintrag</string>
+    <string name="this_is_recurrent_entry_message">Wenn du regelmäßige Einträge löschen oder bearbeiten willst, kannst du dies über den Manager für regelmäßige Einträge tun, den du im Menü des Dashboards findest</string>
+    <string name="dont_show_again">Nicht mehr zeigen</string>
+    <string name="dont_show_again_settings">Dialog im Verlauf nicht zeigen</string>
+    <string name="dont_show_again_settings_message">Dialog über regelmäßige Einträge nicht zeigen</string>
+    <string name="dialog_budget_title">"Budget festlegen für "</string>
+    <string name="dialog_budget_message">Um ein Budget zu löschen setze es auf</string>
+    <string name="total_budget">Gesamtbudget</string>
+    <string name="dialog_budget_total_title">Gesamtbudget festlegen</string>
+    <string name="empty_history_view_message">Hier ist nichts!\n\nÄndere die Filter-/Suchkriterien\noder füge Ausgaben hinzu</string>
+    <string name="no_budget_set_info">Budget festlegen</string>
+    <string name="no_budget_set_info_short">Kein Budget</string>
+    <string name="distribution">Verteilung</string>
+    <string name="other">Andere</string>
+    <string name="total_expenses">Gesammtausgaben</string>
+    <string name="settings_history_grouping">Gruppierung in Verlauf und Widget</string>
+    <string name="settings_start_week_sunday">Woche mit Sonntag statt Montag beginnen</string>
+    <string name="choose_currency">Wähle deine Währung:\n</string>
+    <string name="currency_default">Dollar $</string>
+    <string name="monday">Montag</string>
+    <string name="sunday">Sonntag</string>
+    <string name="choose_week_start">Lege ersten Tag der Woche fest:</string>
+    <string name="setup_dialog_title">Setup</string>
+    <string name="show_recurring_symbol">Regelmäßige Einträge mit Symbol kennzeichnen (\u27F3)</string>
+    <string name="empty_pie_message">Hier ist nichts!\n\n Füge Ausgaben hinzu indem du auf den Button und klickst</string>
+    <string name="empty_income_list_message">Hier ist nichts!\n\n Füge regelmäßige Einträge über den + Button hinzu</string>
+    <string name="select_interval">Zeitraum wählen:</string>
+    <string name="quarterly">Quartalsweise</string>
+    <string name="yearly">Jährlich</string>
+    <string name="summary">Übersicht</string>
+    <string name="set_budget">Budget festlegen</string>
+    <string name="running_charges">Laufende Kosten</string>
+    <string name="variable_expenses">Variable Kosten</string>
+    <string name="running_charges_title">Laufende / variable Kosten</string>
+    <string name="empty_budget_stat_msg">Hier ist nichts!\n\nFüge zu mindested drei Kategories ein Budget hinzu</string>
+    <string name="budget_by_category">Budget für gewählten Zeitraum</string>
+    <string name="empty_total_budget_stat_msg">Hier ist nichts!\n\nBitte lege ein Gesamtbudget fest</string>
+    <string name="by_month">der letzten 12 Monate</string>
+    <string name="by_week">der letzten 26 Wochen</string>
+    <string name="backup">Backup</string>
+    <string name="export_expenses">Ausgaben exportieren</string>
+    <string name="reset_database">Datenbank zurücksetzen</string>
+    <string name="import_expenses">Ausgaben importieren</string>
+    <string name="dialog_db_reset_title">Gesammte datebank löschen?</string>
+    <string name="dialog_db_reset_message">WARNUNG  DIES LÖSCHT ALLE EINTRÄGE!!!</string>
+    <string name="fallback_category_name">standart</string>
+    <string name="invalid_file">Ungültige Datei</string>
+    <string name="import_successful">Import erfolgreich\n\n Importierte Einträge: %d\n %d doppelte Einträge ausgelassen\n\n Importierte Kategorien: %d\n %d doppelte Kategorien ausgelassen</string>
+    <string name="import_corrupted">Datei beschädigt\n\n Importierte Einträge: %d\n %d doppelte Einträge ausgelassen\n\n Importierte Kategorien: %d\n %d doppelte Kategorien ausgelassen\n\n %d Eintäge sind beschädigt\n %d Kategorien sind beschädigt</string>
+    <string name="corrupted_lines">Die folgenden Zeilen sind Fehlerhaft:\n</string>
+    <string name="select_directory">Wähle einen Ordner</string>
+    <string name="import_expenses_summary">Bereits vorhandene Einträge werden nicht importiert</string>
+    <string name="export_successful">Export erfolgreich</string>
+    <string name="export_unsuccessful">Export fehlgeschlagen</string>
+    <string name="import_report">Zusammenfassung des Imports:</string>
+    <string name="invalid_file_message">Die Datei kann nicht importiert werden, da es sich nicht um eine gültige Simple Budget Exportdatei handelt</string>
+
+    <string-array name="default_categories">
+        <item>Essen</item>
+        <item>Verkehrsmittel</item>
+        <item>Gesundheit</item>
+        <item>Shopping</item>
+        <item>Wohnen</item>
+        <item>Reisen</item>
+    </string-array>
+
+    <string-array name="history_grouping_interval">
+        <item>Monatlich</item>
+        <item>Wöchentlich</item>
+    </string-array>
+
+    <string-array name="ordinals">
+        <item>1.</item>
+        <item>2.</item>
+        <item>3.</item>
+        <item>4.</item>
+        <item>5.</item>
+        <item>6.</item>
+        <item>7.</item>
+        <item>8.</item>
+        <item>9.</item>
+        <item>10.</item>
+        <item>11.</item>
+        <item>12.</item>
+        <item>13.</item>
+        <item>14.</item>
+        <item>15.</item>
+        <item>16.</item>
+        <item>17.</item>
+        <item>18.</item>
+        <item>19.</item>
+        <item>20.</item>
+        <item>21.</item>
+        <item>22.</item>
+        <item>23.</item>
+        <item>24.</item>
+        <item>25.</item>
+        <item>26.</item>
+        <item>27.</item>
+        <item>28.</item>
+        <item>29.</item>
+        <item>30.</item>
+        <item>31.</item>
+    </string-array>
+
+    <string-array name="weekdays">
+        <item>Montag</item>
+        <item>Dienstag</item>
+        <item>Mittwoch</item>
+        <item>Donnerstag</item>
+        <item>Freitag</item>
+        <item>Samstag</item>
+        <item>Sonntag</item>
+    </string-array>
 </resources>

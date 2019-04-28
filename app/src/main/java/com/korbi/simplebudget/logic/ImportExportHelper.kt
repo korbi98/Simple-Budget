@@ -26,6 +26,9 @@ import com.korbi.simplebudget.SimpleBudgetApp
 import com.korbi.simplebudget.database.DBhandler
 import com.korbi.simplebudget.logic.model.Category
 import com.korbi.simplebudget.logic.model.Expense
+import com.korbi.simplebudget.utilities.MONTHLY_ROOT
+import com.korbi.simplebudget.utilities.NON_RECURRING
+import com.korbi.simplebudget.utilities.WEEKLY_INTERVAL
 import org.threeten.bp.LocalDate
 import org.threeten.bp.format.DateTimeFormatter
 import java.io.*
@@ -95,8 +98,8 @@ object ImportExportHelper {
 
         AlertDialog.Builder(context).apply {
             setTitle(when(result.first) {
-                true -> context.getString(R.string.import_successful_title)
-                false -> context.getString(R.string.import_invalid_title)
+                true -> context.getString(R.string.import_report)
+                false -> context.getString(R.string.invalid_file)
             })
             setMessage(result.second)
             setPositiveButton(R.string.ok) {dialog, _ ->
@@ -211,7 +214,19 @@ object ImportExportHelper {
         var omittedCategories = 0
 
         expenses.forEach { exp ->
+
             if (existingExpenses.none { it.isDuplicate(exp) }) {
+
+                if (exp.interval != MONTHLY_ROOT && exp.interval != WEEKLY_INTERVAL &&
+                        exp.interval != NON_RECURRING) {
+                    val parent = expenses.find {
+                        (it.interval == MONTHLY_ROOT || it.interval == WEEKLY_INTERVAL) &&
+                                it.description == exp.description && it.cost == exp.cost &&
+                                it.category == exp.category }
+
+                    exp.interval = parent?.id ?: 0
+                }
+
                 if (categories.none { it.isDuplicate(exp.category) }) {
                     exp.category = fallbackCategory
                     expensesWithFallbackCategory++
@@ -225,7 +240,13 @@ object ImportExportHelper {
             if (existingCategories.none { it.isDuplicate(cat) }) {
                 db.addCategory(cat)
                 importedCategories++
-            } else omittedCategories++
+            } else {
+                existingCategories.find { it.isDuplicate(cat) }?.let {
+                    it.budget = cat.budget
+                    db.updateCategory(it)
+                }
+                omittedCategories++
+            }
         }
 
         return listOf(importedExpenses, omittedExpenses, importedCategories, omittedCategories)

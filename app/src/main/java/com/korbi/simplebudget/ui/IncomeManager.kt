@@ -16,20 +16,20 @@
 
 package com.korbi.simplebudget.ui
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.korbi.simplebudget.R
 import com.korbi.simplebudget.database.DBhandler
-import com.korbi.simplebudget.logic.model.Expense
 import com.korbi.simplebudget.logic.adapters.IncomeAdapter
+import com.korbi.simplebudget.logic.model.Expense
 import com.korbi.simplebudget.ui.dialogs.AddEditRecurrentEntryDialog
-import com.korbi.simplebudget.utilities.*
+import com.korbi.simplebudget.utilities.INCOME_INDEX
 import kotlinx.android.synthetic.main.activity_regular_income_manager.*
 
 class IncomeManager : AppCompatActivity(), AddEditRecurrentEntryDialog.OnSaveListener,
@@ -43,7 +43,7 @@ class IncomeManager : AppCompatActivity(), AddEditRecurrentEntryDialog.OnSaveLis
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_regular_income_manager)
-        setTitle(R.string.income_manager_titel)
+        setTitle(R.string.income_manager_title)
 
         incomeList = db.getRecurringExpenses()
         incomeAdapter = IncomeAdapter(incomeList, this)

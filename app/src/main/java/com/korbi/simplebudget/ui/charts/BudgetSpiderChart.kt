@@ -100,7 +100,7 @@ class BudgetSpiderChart(context: Context, attr: AttributeSet): RadarChart(contex
             isDrawHighlightCircleEnabled = true
         }
         val expenseSet = RadarDataSet(categoryExpenseEntries,
-                context.getString(R.string.dashboard_expenses)).apply {
+                context.getString(R.string.expenses)).apply {
             color = ContextCompat.getColor(context, R.color.expenseColor)
             fillColor = ContextCompat.getColor(context, R.color.expenseColor)
             setDrawFilled(true)

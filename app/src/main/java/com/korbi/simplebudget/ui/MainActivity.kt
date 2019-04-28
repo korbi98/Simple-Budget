@@ -17,23 +17,27 @@
 package com.korbi.simplebudget.ui
 
 import android.content.Intent
+import android.content.res.Configuration
 import android.os.Bundle
 import android.transition.AutoTransition
 import android.transition.TransitionManager
-import android.view.*
+import android.util.Log
+import android.view.WindowManager
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
 import android.widget.TextView
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.korbi.simplebudget.R
 import com.korbi.simplebudget.SimpleBudgetApp
 import com.korbi.simplebudget.ui.dialogs.SetupDialog
-import com.korbi.simplebudget.ui.fragments.*
+import com.korbi.simplebudget.ui.fragments.DashboardFragment
+import com.korbi.simplebudget.ui.fragments.HistoryFragment
+import com.korbi.simplebudget.ui.fragments.StatisticFragment
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlin.ClassCastException
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -186,5 +190,21 @@ class MainActivity : AppCompatActivity() {
 
     private fun updateWidget() {
         sendBroadcast(SimpleBudgetApp.updateWidgetIntent(this, application))
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+
+        Log.d("test", "language changed")
+
+        with (supportFragmentManager.beginTransaction()) {
+            history?.let { remove(it) }
+            dashboard?.let { remove(it) }
+            statistics?.let { remove(it) }
+        }
+        history = null
+        dashboard = null
+        statistics = null
+        showFragment(dashboard)
     }
 }

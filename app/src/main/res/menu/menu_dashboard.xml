@@ -28,10 +28,10 @@
         android:icon="@drawable/ic_date_range_white_24dp"
         app:showAsAction="ifRoom" />
     <item android:id="@+id/menu_dashboard_categories"
-        android:title="@string/menu_categories" />
+        android:title="@string/manage_categories_titel" />
     <item android:id="@+id/menu_dashboard_regular_income"
-        android:title="@string/menu_regular_income" />
+        android:title="@string/income_manager_title" />
     <item android:id="@+id/menu_dashboard_settings"
-        android:title="@string/menu_settings" />
+        android:title="@string/settings" />
 
 </menu>

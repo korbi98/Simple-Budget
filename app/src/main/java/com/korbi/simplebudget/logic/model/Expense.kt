@@ -32,11 +32,12 @@ data class Expense(var id: Int,
                 this.interval == other.interval)
     }
 
-    // is used to determine if expenses already exists when importing data
+    //TODO fix bug
+    // is used to determine if expenses already exist when importing data
     fun isDuplicate(other: Expense): Boolean {
-        return (this.id == other.id && this.cost == other.cost &&
-                this.description == other.description && this.date == other.date &&
-                this.category == other.category)
+        return (this.description == other.description && this.cost == other.cost &&
+                this.id == other.id && this.date == other.date &&
+                this.category.icon == other.category.icon)
     }
 
     override fun hashCode(): Int {
