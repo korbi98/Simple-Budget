@@ -25,6 +25,7 @@
         <item>@drawable/cat_shopping_bag</item>
         <item>@drawable/cat_home</item>
         <item>@drawable/cat_explore</item>
+        <item>@drawable/cat_sofa</item>
 
         <item>@drawable/cat_food1</item>
         <item>@drawable/cat_coffee</item>
@@ -46,7 +47,6 @@
         <item>@drawable/cat_education</item>
         <item>@drawable/cat_mountain</item>
         <item>@drawable/cat_pool</item>
-        <item>@drawable/cat_sofa</item>
         <item>@drawable/cat_tools</item>
         <item>@drawable/cat_travel_bag</item>
         <item>@drawable/cat_pets</item>

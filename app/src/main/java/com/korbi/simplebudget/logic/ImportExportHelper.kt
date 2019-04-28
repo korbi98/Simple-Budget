@@ -19,7 +19,6 @@ package com.korbi.simplebudget.logic
 import android.app.AlertDialog
 import android.content.Context
 import android.net.Uri
-import android.util.Log
 import android.widget.Toast
 import com.korbi.simplebudget.R
 import com.korbi.simplebudget.SimpleBudgetApp
@@ -146,9 +145,6 @@ object ImportExportHelper {
                 }
 
             } else {
-                valueList.forEach{
-                    Log.d("test", it)
-                }
                 corruptedExpenses++
                 corruptedLines.add(lineNumber + lineOffset)
             }

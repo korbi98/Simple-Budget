@@ -172,14 +172,17 @@ class DBhandler(context: Context, private val defaultCategories: Array<String>) 
         val db = this.writableDatabase
         val cursor = db.rawQuery(query, null)
 
-        cursor?.moveToFirst()
-        return Expense(cursor.getInt(0),
-                cursor.getString(1),
-                cursor.getLong(2),
-                LocalDate.parse(cursor.getString(3)),
-                getCategoryById(cursor.getInt(4)),
-                cursor.getInt(5))
-                .also { cursor.close() }
+        return if (cursor?.moveToFirst() == true) {
+            Expense(cursor.getInt(0),
+                    cursor.getString(1),
+                    cursor.getLong(2),
+                    LocalDate.parse(cursor.getString(3)),
+                    getCategoryById(cursor.getInt(4)),
+                    cursor.getInt(5))
+                    .also { cursor.close() }
+        } else Expense(Id, "ERROR", 0, LocalDate.now(),
+                getCategoryById(getLatestCategoryID()), NON_RECURRING)
+
     }
 
     fun getOldestDate(): LocalDate {
@@ -359,7 +362,7 @@ class DBhandler(context: Context, private val defaultCategories: Array<String>) 
         latestID = cursor.getInt(0)
 
         cursor.close()
-        return latestID
+        return latestID + 1
     }
 
     fun getLatestCategoryID(): Int {
@@ -371,7 +374,7 @@ class DBhandler(context: Context, private val defaultCategories: Array<String>) 
         latestID = cursor.getInt(0)
 
         cursor.close()
-        return latestID
+        return latestID + 1
     }
 
     fun resetDatabase() {

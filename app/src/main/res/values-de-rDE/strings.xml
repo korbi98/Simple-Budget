@@ -49,7 +49,7 @@
     <string name="general_settings">Allgemeine Einstellungen</string>
     <string name="cancel">Abbrechen</string>
     <string name="reset">Reset</string>
-    <string name="dashboard_time_selection">FürgeGe</string>
+    <string name="dashboard_time_selection">Für</string>
     <string name="expenses">Ausgaben</string>
     <string name="dashboard_income">Einnahmen</string>
     <string name="licenses">Lizenzen</string>
@@ -99,8 +99,8 @@
     <string name="from">Von</string>
     <string name="from_after_to_error">Nach Enddatum!</string>
     <string name="to_before_from_error">Bevor Startdatum!</string>
-    <string name="monthly">Monatlich</string>
-    <string name="weekly">Wöchentlich</string>
+    <string name="monthly">Monat</string>
+    <string name="weekly">Woche</string>
     <string name="start_date_hint">Beginnend mit</string>
     <string name="interval">Interval</string>
     <string name="delete_regular_income_expense">Regelmäßigen Eintrag löschen?</string>
@@ -136,8 +136,8 @@
     <string name="empty_pie_message">Hier ist nichts!\n\n Füge Ausgaben hinzu indem du auf den Button und klickst</string>
     <string name="empty_income_list_message">Hier ist nichts!\n\n Füge regelmäßige Einträge über den + Button hinzu</string>
     <string name="select_interval">Zeitraum wählen:</string>
-    <string name="quarterly">Quartalsweise</string>
-    <string name="yearly">Jährlich</string>
+    <string name="quarterly">Quartal</string>
+    <string name="yearly">Jahr</string>
     <string name="summary">Übersicht</string>
     <string name="set_budget">Budget festlegen</string>
     <string name="running_charges">Laufende Kosten</string>
@@ -160,7 +160,7 @@
     <string name="import_corrupted">Datei beschädigt\n\n Importierte Einträge: %d\n %d doppelte Einträge ausgelassen\n\n Importierte Kategorien: %d\n %d doppelte Kategorien ausgelassen\n\n %d Eintäge sind beschädigt\n %d Kategorien sind beschädigt</string>
     <string name="corrupted_lines">Die folgenden Zeilen sind Fehlerhaft:\n</string>
     <string name="select_directory">Wähle einen Ordner</string>
-    <string name="import_expenses_summary">Bereits vorhandene Einträge werden nicht importiert</string>
+    <string name="import_expenses_summary">Bereits vorhandene Einträge werden nicht importiert. Es ist empfehlenswert die Datenbank vor dem Import zurückzusetzen</string>
     <string name="export_successful">Export erfolgreich</string>
     <string name="export_unsuccessful">Export fehlgeschlagen</string>
     <string name="import_report">Zusammenfassung des Imports:</string>
@@ -173,6 +173,7 @@
         <item>Shopping</item>
         <item>Wohnen</item>
         <item>Reisen</item>
+        <item>Freizeit</item>
     </string-array>
 
     <string-array name="history_grouping_interval">
@@ -223,4 +224,6 @@
         <item>Samstag</item>
         <item>Sonntag</item>
     </string-array>
+    <string name="weekly_long">Wöchentlich</string>
+    <string name="monthly_long">Monatlich</string>
 </resources>

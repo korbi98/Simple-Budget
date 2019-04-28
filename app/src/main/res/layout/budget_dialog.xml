@@ -53,15 +53,15 @@
 
         <com.google.android.material.chip.Chip
             android:id="@+id/chip_month_budget"
-            android:text="@string/monthly"
+            style="@style/Widget.MaterialComponents.Chip.Choice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:chipBackgroundColor="@color/custom_choice_chip_selector"
-            style="@style/Widget.MaterialComponents.Chip.Choice"/>
+            android:text="@string/monthly_long"
+            app:chipBackgroundColor="@color/custom_choice_chip_selector" />
 
         <com.google.android.material.chip.Chip
             android:id="@+id/chip_week_budget"
-            android:text="@string/weekly"
+            android:text="@string/weekly_long"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:chipBackgroundColor="@color/custom_choice_chip_selector"

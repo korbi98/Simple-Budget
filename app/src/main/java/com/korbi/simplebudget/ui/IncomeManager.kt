@@ -66,7 +66,7 @@ class IncomeManager : AppCompatActivity(), AddEditRecurrentEntryDialog.OnSaveLis
         } else {
             db.addExpense(income)
             incomeList.add(income)
-            incomeAdapter.notifyItemInserted(incomeList.indexOf(income))
+            incomeAdapter.notifyItemInserted(incomeList.size)
         }
 
         checkIfShowEmptyMessage()
@@ -98,7 +98,6 @@ class IncomeManager : AppCompatActivity(), AddEditRecurrentEntryDialog.OnSaveLis
     }
 
     override fun onEdit(income: Expense) {
-
         AddEditRecurrentEntryDialog().run {
             arguments = Bundle().apply { putInt(INCOME_INDEX, income.id) }
             show(supportFragmentManager, "addEditRecurrentEntryDialog")

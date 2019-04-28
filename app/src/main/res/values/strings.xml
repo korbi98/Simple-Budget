@@ -41,19 +41,6 @@
 
     <string name="about_app">About the app</string>
     <string name="about_version">Version</string>
-    <string name="about_version_number_key" translatable="false">version_number_key</string>
-    <string name="key_send_feedback" translatable="false">send_feedback</string>
-    <string name="about_send_feedback_summary">Have any questions or problems? Let me know</string>
-    <string name="about_send_feedback_title">Send feedback</string>
-    <string name="about_rate_app_key" translatable="false">rate_app</string>
-    <string name="about_rate_app_summary">Give the app 5 stars if you like it.</string>
-    <string name="about_rate_app_title">Rate the app!</string>
-    <string name="about_other_apps_key" translatable="false">other_apps_key</string>
-    <string name="about_other_apps_title">Check out my other apps</string>
-    <string name="about_sourcecode_summary">View the sourcecode on my GitHub repo</string>
-    <string name="about_sourcecode_title">Sourcecode</string>
-    <string name="summary_about">A simple and straightforward App for handling your finances</string>
-    <string name="general_settings">General settings</string>
 
     <string name="cancel">Cancel</string>
     <string name="reset">Reset</string>
@@ -61,7 +48,7 @@
     <string name="expenses">Expenses</string>
     <string name="balance">Balance</string>
     <string name="dashboard_income">Income</string>
-    <string name="licenses_key" translatable="false">licenses_key</string>
+
     <string name="licenses">Licenses</string>
     <string name="budget">Budget</string>
     <string name="income_manager_title">Regular income/expenses</string>
@@ -76,22 +63,21 @@
     <string name="third_quarter">3rd quarter</string>
     <string name="fourth_quarter">4th quarter</string>
     <string name="default_value">0.00 $</string>
-    <string name="settings_key_currency" translatable="false">currency</string>
+
     <string name="currency">Currency</string>
     <string name="settings_currency_custom">Custom currency symbol</string>
     <string name="settings_currency_before_amount">Currency symbol before amount</string>
     <string name="settings_currency_no_decimal">No decimal values</string>
     <string name="settings_currency_dialog_titel">Choose your currency</string>
     <string name="ok">OK</string>
-    <string name="settings_key_currency_left" translatable="false">currency_left</string>
-    <string name="settings_key_currency_decimal" translatable="false">currency_decimal</string>
+
     <string name="no_currency_selected">Please select a currency!</string>
     <string name="add">Add</string>
     <string name="category_name">Category name</string>
     <string name="select_icon">Select icon:</string>
     <string name="add_edit_category_dialog_titel">Add/Edit Category</string>
-    <string name="number_format" translatable="false">#,###,###,##0.00</string>
-    <string name="migrate_expenses_message">Choose a category to migrate existing expenses to.         If you choose none, all expenses in the category will be deleted!</string>
+
+    <string name="migrate_expenses_message">Choose a category to migrate existing expenses to. If you choose none, all expenses in the category will be deleted!</string>
     <string name="none">None</string>
     <string name="migrate_to_category">Migrate to category:</string>
     <string name="delete_category">Delete category?</string>
@@ -112,8 +98,6 @@
     <string name="from">From</string>
     <string name="from_after_to_error">Date is after last date!</string>
     <string name="to_before_from_error">Date is before first date!</string>
-    <string name="monthly">Monthly</string>
-    <string name="weekly">Weekly</string>
     <string name="start_date_hint">Starting from</string>
     <string name="interval">Interval</string>
     <string name="delete_regular_income_expense">Delete regular income/expense?</string>
@@ -125,60 +109,66 @@
     <string name="this_is_recurrent_entry">This is a recurrent entry</string>
     <string name="this_is_recurrent_entry_message">If you want to change recurrent entries, use the regular income/expense manager</string>
     <string name="dont_show_again">Don\'t show this again</string>
-    <string name="dont_show_again_key" translatable="false">dont_show_key</string>
-    <string name="dont_show_again_settings">Don\'t show dialog in history</string>
-    <string name="dont_show_again_settings_message">Don\'t show info dialog about selecting recurring income/expense</string>
+
+
     <string name="dialog_budget_title">Set budget for</string>
     <string name="dialog_budget_message">To remove a budget set it to</string>
     <string name="total_budget">Total budget</string>
     <string name="dialog_budget_total_title">Set total budget</string>
-    <string name="total_budget_key" translatable="false">totalbudget_key</string>
-    <string name="total_budget_interval_key" translatable="false">total_budget_interval</string>
-    <string name="selected_interval_type_key" translatable="false">dashboard_time_selection_key</string>
-    <string name="empty_history_view_message">Nothing to show here!  Change filter/search criteria         or add expenses</string>
+
+
     <string name="no_budget_set_info">Click to set budget</string>
     <string name="no_budget_set_info_short">No budget</string>
     <string name="distribution">Distribution</string>
     <string name="other">Other</string>
     <string name="total_expenses">Total expenses</string>
-    <string name="settings_key_history_grouping" translatable="false">settings_key_history_grouping</string>
-    <string name="settings_history_grouping">Grouping in History and Widget</string>
-    <string name="settings_key_start_week_sunday" translatable="false">key_start_week_sunday</string>
-    <string name="settings_start_week_sunday">Start week on Sunday instead of Monday</string>
-    <string name="settings_key_initial_start" translatable="false">key_initial_start</string>
+    <string name="setup_dialog_title">Initial setup</string>
     <string name="choose_currency">Select your currency:\n</string>
     <string name="currency_default">Dollar $</string>
     <string name="monday">Monday</string>
     <string name="sunday">Sunday</string>
-    <string name="choose_week_start">Choose first day of week:</string>
-    <string name="setup_dialog_title">Initial setup</string>
-    <string name="settings_key_show_recurring_symbol" translatable="false">key_recurring_symbol</string>
-    <string name="show_recurring_symbol">Indicate recurrent entries with symbol (\u27F3)</string>
+
+
+
     <string name="empty_pie_message">Nothing to show here!\n\n Add expenses by clicking the button below</string>
     <string name="empty_income_list_message">Nothing to show here!\n\nAdd regular income/expenses by pressing the + button</string>
+    <string name="empty_history_view_message">Nothing to show here!\n\nChange filter/search criteria\nor add expenses</string>
+    <string name="empty_budget_stat_msg">Nothing to show here!\n\nAdd a budget to at least three categories</string>
+    <string name="empty_total_budget_stat_msg">Nothing to show here!\n\nPlease set a total budget in the dashboard</string>
+
     <string name="select_interval">Select interval:</string>
+    <string name="weekly_long">Weekly</string>
+    <string name="monthly_long">Monthly</string>
     <string name="quarterly">Quarterly</string>
     <string name="yearly">Yearly</string>
     <string name="summary">Summary</string>
+    <string name="monthly">Monthly</string>
+    <string name="weekly">Weekly</string>
+
     <string name="set_budget">Set budget</string>
     <string name="running_charges">Running charges</string>
     <string name="variable_expenses">Variable expenses</string>
     <string name="running_charges_title">Running / variable expenses</string>
-    <string name="empty_budget_stat_msg">Nothing to show here!\n\nAdd a budget to at least three categories</string>
     <string name="budget_by_category">Budget for selected interval</string>
-    <string name="empty_total_budget_stat_msg">Nothing to show here!\n\nPlease set a total budget in the dashboard</string>
     <string name="by_month">for last 12 months</string>
     <string name="by_week">for last 26 weeks</string>
-    <string name="app_icon_credit" translatable="false">Appicon (piggy bank) made by
-        <a href="https://www.flaticon.com/authors/gregor-cresnar" title="Gregor Cresnar">Gregor Cresnar</a> from <a href="https://www.flaticon.com/"
-        title="Flaticon">www.flaticon.com</a> is licensed by
-        <a href="http://creativecommons.org/licenses/by/3.0/"
-        title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a> </string>
+
+    <string name="settings_history_grouping">Grouping in History and Widget</string>
+    <string name="settings_start_week_sunday">Start week on Sunday instead of Monday</string>
+    <string name="about_send_feedback_summary">Have any questions or problems? Let me know</string>
+    <string name="about_send_feedback_title">Send feedback</string>
+    <string name="about_rate_app_summary">Give the app 5 stars if you like it.</string>
+    <string name="about_rate_app_title">Rate the app!</string>
+    <string name="about_other_apps_title">Check out my other apps</string>
+    <string name="about_sourcecode_summary">View the sourcecode on my GitHub repo</string>
+    <string name="about_sourcecode_title">Sourcecode</string>
+    <string name="summary_about">A simple and straightforward App for handling your finances</string>
+    <string name="general_settings">General settings</string>
+    <string name="dont_show_again_settings">Don\'t show dialog in history</string>
+    <string name="dont_show_again_settings_message">Don\'t show info dialog about selecting recurring income/expense</string>
+    <string name="choose_week_start">Choose first day of week:</string>
+    <string name="show_recurring_symbol">Indicate recurrent entries with symbol (\u27F3)</string>
     <string name="backup">Backup</string>
-    <string name="export_expenses">Export expenses</string>
-    <string name="export_expenses_key" translatable="false">export_expenses_key</string>
-    <string name="import_expenses_key" translatable="false">import_expenses_key</string>
-    <string name="reset_db_key" translatable="false">reset_db_key</string>
     <string name="reset_database">Reset database</string>
     <string name="import_expenses">Import expenses</string>
     <string name="dialog_db_reset_title">Reset whole database?</string>
@@ -201,14 +191,15 @@
         Omitted %d duplicate categories\n\n
         %d expenses where corrupted\n
         %d categories where corrupted       "</string>
-
     <string name="corrupted_lines">The following lines are corrupted:\n</string>
     <string name="select_directory">Select a directory</string>
-    <string name="import_expenses_summary">Duplicate entries will not be imported</string>
+    <string name="import_expenses_summary">Duplicate entries will not be imported. It is recommended to reset the database before importing</string>
     <string name="export_successful">Export was successful</string>
     <string name="export_unsuccessful">An error occurred. Export was not successful</string>
     <string name="import_report">Summary for import:</string>
     <string name="invalid_file_message">This file cannot be imported, because it is not a valid SimpleBudget file</string>
+
+
 
     <string-array name="default_categories">
         <item>Food</item>
@@ -217,6 +208,7 @@
         <item>Shopping</item>
         <item>Housing</item>
         <item>Travel</item>
+        <item>Leisure</item>
     </string-array>
 
     <string-array name="history_grouping_interval">
@@ -272,4 +264,32 @@
         <item>Saturday</item>
         <item>Sunday</item>
     </string-array>
+
+    <string name="about_version_number_key" translatable="false">version_number_key</string>
+    <string name="key_send_feedback" translatable="false">send_feedback</string>
+    <string name="export_expenses">Export expenses</string>
+    <string name="export_expenses_key" translatable="false">export_expenses_key</string>
+    <string name="import_expenses_key" translatable="false">import_expenses_key</string>
+    <string name="reset_db_key" translatable="false">reset_db_key</string>
+    <string name="app_icon_credit" translatable="false">Appicon (piggy bank) made by
+        <a href="https://www.flaticon.com/authors/gregor-cresnar" title="Gregor Cresnar">Gregor Cresnar</a> from <a href="https://www.flaticon.com/"
+            title="Flaticon">www.flaticon.com</a> is licensed by
+        <a href="http://creativecommons.org/licenses/by/3.0/"
+            title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a> </string>
+    <string name="about_rate_app_key" translatable="false">rate_app</string>
+    <string name="settings_key_show_recurring_symbol" translatable="false">key_recurring_symbol</string>
+    <string name="total_budget_key" translatable="false">totalbudget_key</string>
+    <string name="total_budget_interval_key" translatable="false">total_budget_interval</string>
+    <string name="selected_interval_type_key" translatable="false">dashboard_time_selection_key</string>
+    <string name="settings_key_currency_left" translatable="false">currency_left</string>
+    <string name="settings_key_currency_decimal" translatable="false">currency_decimal</string>
+    <string name="about_other_apps_key" translatable="false">other_apps_key</string>
+    <string name="licenses_key" translatable="false">licenses_key</string>
+    <string name="settings_key_currency" translatable="false">currency</string>
+    <string name="settings_key_history_grouping" translatable="false">settings_key_history_grouping</string>
+    <string name="settings_key_start_week_sunday" translatable="false">key_start_week_sunday</string>
+    <string name="settings_key_initial_start" translatable="false">key_initial_start</string>
+    <string name="dont_show_again_key" translatable="false">dont_show_key</string>
+    <string name="number_format" translatable="false">#,###,###,##0.00</string>
+
 </resources>
