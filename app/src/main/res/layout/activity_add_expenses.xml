@@ -44,7 +44,7 @@
                 android:ems="6"
                 android:textAlignment="viewEnd"
                 android:lines="1"
-                android:inputType="numberDecimal"
+                android:inputType="numberDecimal|numberSigned"
                 android:digits="0123456789,.-"
                 android:textSize="@dimen/currency_input_textsize"
                 android:imeOptions="actionDone">
