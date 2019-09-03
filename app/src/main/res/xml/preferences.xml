@@ -46,7 +46,20 @@
             android:defaultValue="true"
             app:iconSpaceReserved="false"/>
 
-        <CheckBoxPreference
+        <SwitchPreference
+            android:key="@string/settings_key_income_switch_visibility"
+            android:title="@string/settings_income_switch_title"
+            android:summary="@string/settings_income_switch_summary"
+            android:defaultValue="true"
+            app:iconSpaceReserved="false"/>
+
+        <SwitchPreference
+            android:key="@string/settings_key_dashboard_alternative"
+            android:title="@string/settings_dashboard_alternative_title"
+            android:summary="@string/settings_dashboard_alternative_summary"
+            app:iconSpaceReserved="false"/>
+
+        <SwitchPreference
             android:key="@string/dont_show_again_key"
             android:title="@string/dont_show_again_settings"
             android:summary="@string/dont_show_again_settings_message"

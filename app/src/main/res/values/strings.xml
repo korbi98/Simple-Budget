@@ -87,7 +87,6 @@
     <string name="date">Date</string>
     <string name="both">Both</string>
     <string name="income">Income</string>
-    <string name="expense">Expense</string>
     <string name="last30days">Last 30 days</string>
     <string name="last90days">Last 90 days</string>
     <string name="this_year">This year</string>
@@ -291,5 +290,15 @@
     <string name="settings_key_initial_start" translatable="false">key_initial_start</string>
     <string name="dont_show_again_key" translatable="false">dont_show_key</string>
     <string name="number_format" translatable="false">#,###,###,##0.00</string>
+    <string name="settings_key_income_switch_visibility" translatable="false">income_switch_visibility</string>
+    <string name="settings_income_switch_title">Show income checkbox</string>
+    <string name="settings_income_switch_summary">You can still add income by entering negative amounts when checkbox is disabled</string>
+    <string name="settings_dashboard_alternative_summary">Shows total budget, expenses and savings in summary instead</string>
+    <string name="settings_dashboard_alternative_title">Alternative dashboard</string>
+    <string name="settings_key_dashboard_alternative" translatable="false">settings_dashboard_alternative</string>
+    <string name="savings">Savings</string>
+    <string name="settings_key_update_info" translatable="false">settings_update_info</string>
+    <string name="update_dialog_title">Update to version 1.1</string>
+    <string name="update_dialog_message">After some feedback, i made adding income a bit more intuitive.\nThere is now a dedicated checkbox for declaring an income.\n\nYou can still disable the checkbox and add income by entering negative amounts if you want.</string>
 
 </resources>

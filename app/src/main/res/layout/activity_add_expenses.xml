@@ -55,12 +55,38 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
+        <RelativeLayout
+            android:id="@+id/add_expense_income_switch_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="4dp"
+            >
+
+            <TextView
+                android:id="@+id/add_expense_income_title"
+                android:layout_alignParentStart="true"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="32dp"
+                android:text="@string/income" />
+
+            <CheckBox
+                android:id="@+id/add_expense_income_switch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toEndOf="@id/add_expense_income_title"
+                android:buttonTint="@color/checkbox_color"/>
+
+        </RelativeLayout>
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/choose_categories"
-            android:layout_marginStart="20dp"
-            android:layout_marginTop="8dp"/>
+            android:layout_marginTop="8dp"
+            android:layout_marginStart="24dp" />
 
         <com.google.android.material.chip.ChipGroup
             android:id="@+id/add_expense_category_group"

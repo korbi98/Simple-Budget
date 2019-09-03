@@ -17,6 +17,7 @@
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -27,7 +28,8 @@
         android:id="@+id/income_manager_input_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:errorEnabled="true">
+        app:errorEnabled="true"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/income_manager_dialog_amount_edit"
@@ -42,6 +44,30 @@
             android:imeOptions="actionDone" />
 
     </com.google.android.material.textfield.TextInputLayout>
+
+    <RelativeLayout
+        android:id="@+id/income_manager_income_switch_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp">
+
+        <TextView
+            android:layout_alignParentStart="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:text="@string/income"
+            tools:ignore="RelativeOverlap" />
+
+        <CheckBox
+            android:id="@+id/income_manager_income_switch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="8dp"
+            android:buttonTint="@color/checkbox_color"/>
+
+    </RelativeLayout>
 
     <TextView
         android:layout_width="match_parent"
@@ -70,6 +96,7 @@
             android:text="@string/monthly"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textColor="@android:color/white"
             app:chipBackgroundColor="@color/custom_choice_chip_selector"
             style="@style/Widget.MaterialComponents.Chip.Choice"/>
 
@@ -78,6 +105,7 @@
             android:text="@string/weekly"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textColor="@android:color/white"
             app:chipBackgroundColor="@color/custom_choice_chip_selector"
             style="@style/Widget.MaterialComponents.Chip.Choice"/>
 

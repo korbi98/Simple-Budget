@@ -26,20 +26,21 @@
         android:id="@+id/budget_dialog_input_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:backgroundTint="@color/colorPrimary"
         app:errorEnabled="true"
-        style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense">
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense">
 
-    <com.google.android.material.textfield.TextInputEditText
-        android:id="@+id/budget_dialog_input"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:ems="6"
-        android:textAlignment="viewEnd"
-        android:lines="1"
-        android:inputType="numberDecimal"
-        android:digits="0123456789,.-"
-        android:textSize="30sp"
-        android:imeOptions="actionDone" />
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/budget_dialog_input"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ems="6"
+            android:textAlignment="viewEnd"
+            android:lines="1"
+            android:inputType="numberDecimal"
+            android:digits="0123456789,.-"
+            android:textSize="30sp"
+            android:imeOptions="actionDone" />
 
         <requestFocus/>
 
@@ -57,6 +58,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/monthly_long"
+            android:textColor="@android:color/white"
             app:chipBackgroundColor="@color/custom_choice_chip_selector" />
 
         <com.google.android.material.chip.Chip
@@ -64,6 +66,7 @@
             android:text="@string/weekly_long"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textColor="@android:color/white"
             app:chipBackgroundColor="@color/custom_choice_chip_selector"
             style="@style/Widget.MaterialComponents.Chip.Choice"/>
 

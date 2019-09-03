@@ -28,8 +28,8 @@ android {
         applicationId "com.korbi.simplebudget"
         minSdkVersion 21
         targetSdkVersion 28
-        versionCode 5
-        versionName "1.0.2"
+        versionCode 6
+        versionName "1.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -45,13 +45,13 @@ dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'androidx.appcompat:appcompat:1.0.2'
-    implementation 'androidx.core:core-ktx:1.0.1'
-    implementation 'com.google.android.material:material:1.1.0-alpha04'
-    implementation 'androidx.constraintlayout:constraintlayout:2.0.0-alpha5'
+    implementation 'androidx.core:core-ktx:1.0.2'
+    implementation 'com.google.android.material:material:1.1.0-alpha09'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.0-beta2'
     implementation 'androidx.vectordrawable:vectordrawable:1.0.1'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    implementation 'androidx.recyclerview:recyclerview:1.1.0-alpha04'
-    implementation 'androidx.preference:preference:1.1.0-alpha04'
+    implementation 'androidx.recyclerview:recyclerview:1.1.0-beta2'
+    implementation 'androidx.preference:preference:1.1.0-rc01'
 
     implementation "android.arch.persistence.room:runtime:2.1.0-alpha06"
     kapt "android.arch.persistence.room:compiler:2.1.0-alpha06"
@@ -59,8 +59,8 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.0.0"
 
     testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'androidx.test:runner:1.1.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
+    androidTestImplementation 'androidx.test:runner:1.2.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 
     implementation 'com.bignerdranch.android:expandablerecyclerview:3.0.0-RC1'
     implementation 'com.jakewharton.threetenabp:threetenabp:1.1.2'

@@ -87,8 +87,7 @@
     <string name="edit_recurrent_entry_title">Regelmäßigen Eintrag bearbeiten</string>
     <string name="date">Datum</string>
     <string name="both">Beides</string>
-    <string name="income">Einnahme</string>
-    <string name="expense">Ausgabe</string>
+    <string name="income">Einkommen</string>
     <string name="last30days">Letzten 30 Tage</string>
     <string name="last90days">Letzten 90 Tage</string>
     <string name="this_year">Dieses Jahr</string>
@@ -227,4 +226,11 @@
     <string name="weekly_long">Wöchentlich</string>
     <string name="monthly_long">Monatlich</string>
     <string name="setup_dialog_tip">Beim Hinzufügen von Einträgen, steht ein positiver Betrag für eine Ausgabe. Gib einen negativen Betrag ein um eine Einnahme zu speichern.</string>
+    <string name="settings_income_switch_title">Zeige Einkommens Checkbox</string>
+    <string name="settings_income_switch_summary">Falls die Checkbox deaktiviert ist kannst du Einkommen hinzufügen indem du negative Beträge eingibst</string>
+    <string name="settings_dashboard_alternative_title">Alternatives Dashboard</string>
+    <string name="settings_dashboard_alternative_summary">Zeigt Budget, Ausgaben und Ersparnis in der Übersicht</string>
+    <string name="savings">Ersparnis</string>
+    <string name="update_dialog_title">Update auf Version 1.1</string>
+    <string name="update_dialog_message">Nach einigem Feedback, habe ich das Hinzufügen von Einkommen intuitiver gemacht.\nEs gibt nun eine Checkbox um ein Einkommen festzulegen.\n\nEs kann immer noch Einkommen über negative Beträge hinzugefügt werden.</string>
 </resources>

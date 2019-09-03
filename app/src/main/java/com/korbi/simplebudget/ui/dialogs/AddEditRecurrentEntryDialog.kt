@@ -20,9 +20,8 @@ import android.annotation.SuppressLint
 import android.app.DatePickerDialog
 import android.app.Dialog
 import android.os.Bundle
-import android.widget.ArrayAdapter
-import android.widget.EditText
-import android.widget.Spinner
+import android.view.View
+import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import com.google.android.material.chip.Chip
@@ -38,6 +37,7 @@ import kotlinx.android.synthetic.main.income_manager_add_dialog.*
 import org.threeten.bp.LocalDate
 import org.threeten.bp.format.DateTimeFormatter
 import java.text.DecimalFormatSymbols
+import kotlin.math.abs
 
 class AddEditRecurrentEntryDialog : DialogFragment() {
 
@@ -49,6 +49,8 @@ class AddEditRecurrentEntryDialog : DialogFragment() {
     private lateinit var intervalGroup: ChipGroup
     private lateinit var intervalDateInput: EditText
     private lateinit var descriptionInput: EditText
+    private lateinit var incomeSwitch: CheckBox
+    private lateinit var incomeSwitchLayout: RelativeLayout
     private var currencySymbol: String? = "$"
     private lateinit var monthlyChip: Chip
     private lateinit var weeklyChip: Chip
@@ -101,6 +103,14 @@ class AddEditRecurrentEntryDialog : DialogFragment() {
             intervalDateInput = dialog.income_manager_dialog_interval_start_from_edit
             intervalDateInput.inputType = 0
             descriptionInput = dialog.income_manager_dialog_description
+            incomeSwitch = dialog.income_manager_income_switch
+            incomeSwitchLayout = dialog.income_manager_income_switch_layout
+            incomeSwitchLayout.visibility = if (SimpleBudgetApp.pref.getBoolean(getString(
+                            R.string.settings_key_income_switch_visibility), true)) {
+                View.VISIBLE
+            } else {
+                View.GONE
+            }
 
             dialog.getButton(Dialog.BUTTON_POSITIVE).isEnabled = false
 
@@ -134,7 +144,12 @@ class AddEditRecurrentEntryDialog : DialogFragment() {
             prefillIncome = db.getExpenseByID(id)
             prefillIncome?.let {
 
-                currencyInput.setText((-it.cost).createCurrencyStringForEditText())
+                if (incomeSwitchLayout.visibility == View.VISIBLE) {
+                    currencyInput.setText((abs(it.cost)).createCurrencyStringForEditText())
+                    incomeSwitch.isChecked = (it.cost > 0)
+                } else {
+                    currencyInput.setText((-it.cost).createCurrencyStringForEditText())
+                }
 
                 categorySpinner.setSelection(it.category.position)
                 when (it.interval) {
@@ -149,7 +164,11 @@ class AddEditRecurrentEntryDialog : DialogFragment() {
 
     private fun save() {
 
-        val amount = currencyInput.text.toString().parseCurrencyAmount() ?: 0L
+        var amount = currencyInput.text.toString().parseCurrencyAmount() ?: 0L
+        if (incomeSwitch.isChecked) {
+            amount = -abs(amount)
+        }
+
         val id = prefillIncome?.id ?: db.getLatestID()
         val name = descriptionInput.text.toString()
 

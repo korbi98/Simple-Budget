@@ -32,6 +32,7 @@
             android:text="@string/weekly"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textColor="@android:color/white"
             app:chipBackgroundColor="@color/interval_chip_selector"
             style="@style/Widget.MaterialComponents.Chip.Choice"/>
 
@@ -41,6 +42,7 @@
             android:checkable="true"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textColor="@android:color/white"
             app:chipBackgroundColor="@color/interval_chip_selector"
             style="@style/Widget.MaterialComponents.Chip.Choice" />
 
@@ -49,6 +51,7 @@
             android:text="@string/quarterly"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textColor="@android:color/white"
             app:chipBackgroundColor="@color/interval_chip_selector"
             style="@style/Widget.MaterialComponents.Chip.Choice"/>
 
@@ -57,6 +60,7 @@
             android:text="@string/yearly"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textColor="@android:color/white"
             app:chipBackgroundColor="@color/interval_chip_selector"
             style="@style/Widget.MaterialComponents.Chip.Choice"/>
 
@@ -65,6 +69,7 @@
             android:text="@string/all_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textColor="@android:color/white"
             app:chipBackgroundColor="@color/interval_chip_selector"
             style="@style/Widget.MaterialComponents.Chip.Choice"/>
 

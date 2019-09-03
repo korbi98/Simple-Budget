@@ -29,6 +29,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.chip.ChipGroup
 import com.korbi.simplebudget.R
+import com.korbi.simplebudget.SimpleBudgetApp
 import com.korbi.simplebudget.logic.BudgetHelper
 import com.korbi.simplebudget.logic.IntervalSelectionBackdropHelper
 import com.korbi.simplebudget.logic.MenuAnimator
@@ -60,6 +61,9 @@ class DashboardFragment : androidx.fragment.app.Fragment(),
     private lateinit var expensesTextView: TextView
     private lateinit var incomeTextView: TextView
     private lateinit var balanceTextView: TextView
+    private lateinit var dashboardTable1: TextView
+    private lateinit var dashboardTable2: TextView
+    private lateinit var dashboardTable3: TextView
     private lateinit var mOptionsMenu: Menu
 
     private lateinit var budgetRecycler: RecyclerView
@@ -93,6 +97,9 @@ class DashboardFragment : androidx.fragment.app.Fragment(),
             expensesTextView = dashboard_total_expenses
             incomeTextView = dashboard_total_income
             balanceTextView = dashboard_balance
+            dashboardTable1 = dashboard_title1
+            dashboardTable2 = dashboard_title2
+            dashboardTable3 = dashboard_title3
 
             // Setup Budget
             budgetAdapter = BudgetAdapter(this@DashboardFragment)
@@ -126,6 +133,7 @@ class DashboardFragment : androidx.fragment.app.Fragment(),
         updateBackdropSelection()
         updateIntervalText(false)
         updateView()
+        checkIfAlternativeDashboard()
     }
 
     override fun onHiddenChanged(hidden: Boolean) {
@@ -256,16 +264,29 @@ class DashboardFragment : androidx.fragment.app.Fragment(),
 
         val totalExpenses = expenses.filter { it.cost < 0 } .sumByLong { it.cost }
         val totalIncome = expenses.filter {it.cost > 0} .sumByLong { it.cost }
-        val balance = totalExpenses + totalIncome
+        var balance = totalExpenses + totalIncome
 
-        expensesTextView.text = totalExpenses.createCurrencyString()
-        incomeTextView.text = totalIncome.createCurrencyString()
+        if (SimpleBudgetApp.pref.getBoolean(getString(
+                        R.string.settings_key_dashboard_alternative), false)) {
+
+            val totalBudget = budgetHelper.let {
+                it.getIntervalBudget(it.interval)
+            }
+            balance = totalBudget + totalExpenses
+            expensesTextView.text = totalBudget.createCurrencyString()
+            incomeTextView.text = totalExpenses.createCurrencyString()
+        } else {
+            expensesTextView.text = totalExpenses.createCurrencyString()
+            incomeTextView.text = totalIncome.createCurrencyString()
+        }
         balanceTextView.text = balance.createCurrencyString()
+
         when  {
+
             balance < 0 -> balanceTextView.setTextColor(ContextCompat.getColor(requireContext(),
-                                            R.color.expenseColor))
+                    R.color.expenseColor))
             balance > 0 -> balanceTextView.setTextColor(ContextCompat.getColor(requireContext(),
-                                            R.color.incomeColor))
+                    R.color.incomeColor))
             else -> balanceTextView.setTextColor(ContextCompat.getColor(requireContext(),
                     R.color.neutralColor))
         }
@@ -322,6 +343,28 @@ class DashboardFragment : androidx.fragment.app.Fragment(),
             MenuAnimator.setVisibility(findItem(R.id.menu_dashboard_time_interval), false) { // endAction
                 MenuAnimator.setVisibility(findItem(R.id.menu_dashboard_interval_done), true)
             }
+        }
+    }
+
+    private fun checkIfAlternativeDashboard() {
+        // change text of dashboard summary if alternative dashboard in settings is enabled
+        if (SimpleBudgetApp.pref.getBoolean(getString(
+                        R.string.settings_key_dashboard_alternative), false)) {
+            dashboardTable1.text = getString(R.string.total_budget)
+            dashboardTable2.text = getString(R.string.expenses)
+            dashboardTable3.text = getString(R.string.savings)
+            expensesTextView.setTextColor(
+                    ContextCompat.getColor(requireContext(), R.color.neutralColor))
+            incomeTextView.setTextColor(
+                    ContextCompat.getColor(requireContext(), R.color.expenseColor))
+        } else {
+            dashboardTable1.text = getString(R.string.expenses)
+            dashboardTable2.text = getString(R.string.income)
+            dashboardTable3.text = getString(R.string.balance)
+            expensesTextView.setTextColor(
+                    ContextCompat.getColor(requireContext(), R.color.expenseColor))
+            incomeTextView.setTextColor(
+                    ContextCompat.getColor(requireContext(), R.color.incomeColor))
         }
     }
 

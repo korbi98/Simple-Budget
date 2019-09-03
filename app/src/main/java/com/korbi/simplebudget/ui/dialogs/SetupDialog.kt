@@ -26,11 +26,11 @@ import android.widget.Button
 import androidx.fragment.app.DialogFragment
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
-import com.korbi.simplebudget.ui.MainActivity
 import com.korbi.simplebudget.R
-import com.korbi.simplebudget.utilities.*
+import com.korbi.simplebudget.ui.MainActivity
+import com.korbi.simplebudget.utilities.MONTHLY_INTERVAL
+import com.korbi.simplebudget.utilities.WEEKLY_INTERVAL
 import kotlinx.android.synthetic.main.setup_dialog.*
-import java.lang.IllegalStateException
 
 class SetupDialog : DialogFragment(), CurrencyDialog.OnDismissListener {
 
@@ -138,6 +138,7 @@ class SetupDialog : DialogFragment(), CurrencyDialog.OnDismissListener {
             putBoolean(getString(R.string.settings_key_start_week_sunday), startWithSunday)
             putString(getString(R.string.settings_key_history_grouping), interval)
             putBoolean(getString(R.string.settings_key_initial_start), false)
+            putBoolean(getString(R.string.settings_key_update_info), false)
             apply()
         }
     }

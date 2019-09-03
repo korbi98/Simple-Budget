@@ -81,6 +81,7 @@
 
                             <TableRow>
                                 <TextView
+                                    android:id="@+id/dashboard_title1"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="@string/expenses"
@@ -98,6 +99,7 @@
 
                             <TableRow>
                                 <TextView
+                                    android:id="@+id/dashboard_title2"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="@string/dashboard_income"
@@ -115,6 +117,7 @@
 
                             <TableRow>
                                 <TextView
+                                    android:id="@+id/dashboard_title3"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="@string/balance"

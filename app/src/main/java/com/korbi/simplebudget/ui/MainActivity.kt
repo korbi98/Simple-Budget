@@ -26,12 +26,14 @@ import android.view.WindowManager
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.korbi.simplebudget.R
 import com.korbi.simplebudget.SimpleBudgetApp
+import com.korbi.simplebudget.database.DBhandler
 import com.korbi.simplebudget.ui.dialogs.SetupDialog
 import com.korbi.simplebudget.ui.fragments.DashboardFragment
 import com.korbi.simplebudget.ui.fragments.HistoryFragment
@@ -90,8 +92,28 @@ class MainActivity : AppCompatActivity() {
         // make sure, that the keyboard doesn't push the bottomnavigationbar upwards
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING)
 
-        if (SimpleBudgetApp.pref.getBoolean(
-                        getString(R.string.settings_key_initial_start), true)) {
+        val initialStart = SimpleBudgetApp.pref.getBoolean(
+                getString(R.string.settings_key_initial_start), true)
+        val showUpdateInfo = SimpleBudgetApp.pref.getBoolean(
+                getString(R.string.settings_key_update_info), true)
+
+        if (showUpdateInfo && !initialStart) {
+            AlertDialog.Builder(this).apply {
+                setTitle(R.string.update_dialog_title)
+                setMessage(R.string.update_dialog_message)
+                setPositiveButton(R.string.ok) { dialog, _ ->
+                    DBhandler.getInstance().resetDatabase()
+                    with(SimpleBudgetApp.pref.edit()) {
+                        putBoolean(getString(R.string.settings_key_update_info), false)
+                        apply()
+                    }
+                    dialog.dismiss()
+                }
+                show()
+            }
+        }
+
+        if (initialStart) {
             SetupDialog().show(supportFragmentManager, "setup_dialog")
         }
 

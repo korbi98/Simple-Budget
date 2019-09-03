@@ -19,10 +19,13 @@ package com.korbi.simplebudget.ui
 import android.app.DatePickerDialog
 import android.content.res.TypedArray
 import android.os.Bundle
+import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.view.inputmethod.EditorInfo
+import android.widget.CheckBox
 import android.widget.EditText
+import android.widget.RelativeLayout
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -44,6 +47,7 @@ import kotlinx.android.synthetic.main.custom_toolbar.*
 import org.threeten.bp.LocalDate
 import org.threeten.bp.format.DateTimeFormatter
 import java.text.DecimalFormatSymbols
+import kotlin.math.abs
 import kotlin.math.round
 
 class AddExpenses : AppCompatActivity() {
@@ -59,6 +63,8 @@ class AddExpenses : AppCompatActivity() {
     private lateinit var datePickerTextView: EditText
     private lateinit var expenseToUpdate: Expense
     private lateinit var categories: MutableList<Category>
+    private lateinit var incomeSwitchLayout: RelativeLayout
+    private lateinit var incomeSwitch: CheckBox
     private var noDecimal = false
     private var isSymbolOnLeft = false
     private var currencySymbol: String? = "$"
@@ -93,6 +99,16 @@ class AddExpenses : AppCompatActivity() {
         categoryGroup = add_expense_category_group
         categoryChips = mutableListOf()
 
+        incomeSwitch = add_expense_income_switch
+        incomeSwitchLayout = add_expense_income_switch_layout
+        incomeSwitchLayout.visibility = if (SimpleBudgetApp.pref.getBoolean(
+                        getString(R.string.settings_key_income_switch_visibility), true)) {
+            View.VISIBLE
+        } else {
+            View.GONE
+        }
+
+
         val actionBarLayout = layoutInflater.inflate(R.layout.custom_toolbar, null as ViewGroup?)
         supportActionBar?.run {
             setDisplayShowCustomEnabled(true)
@@ -117,7 +133,11 @@ class AddExpenses : AppCompatActivity() {
 
     private fun save() {
 
-        val amount = currencyInput.text.toString().parseCurrencyAmount()
+        var amount = currencyInput.text.toString().parseCurrencyAmount()
+
+        if (incomeSwitch.isChecked) {
+            amount = -abs(amount ?: 0)
+        }
 
         when {
             amount == null || round(amount.toFloat() * 100).toInt() == 0 ->
@@ -182,7 +202,12 @@ class AddExpenses : AppCompatActivity() {
         intent?.extras?.let {
             expenseToUpdate = db.getExpenseByID(it.getInt(EXPENSE_INDEX))
 
-            currencyInput.setText((-expenseToUpdate.cost).createCurrencyStringForEditText())
+            if (incomeSwitchLayout.visibility == View.VISIBLE) {
+                currencyInput.setText((abs(expenseToUpdate.cost)).createCurrencyStringForEditText())
+                incomeSwitch.isChecked = (expenseToUpdate.cost > 0)
+            } else {
+                currencyInput.setText((-expenseToUpdate.cost).createCurrencyStringForEditText())
+            }
 
             categoryChips[expenseToUpdate.category.position].isChecked = true
             expenseDate = expenseToUpdate.date
