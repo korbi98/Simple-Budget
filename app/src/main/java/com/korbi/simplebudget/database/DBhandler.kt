@@ -95,11 +95,6 @@ class DBhandler(context: Context, private val defaultCategories: Array<String>) 
             values.put(COL_POSITION, index)
             db.insert(CATEGORY_TABLE, null, values)
         }
-        // add income as additional default category on newly installed apps with version 1.1
-        values.put(COL_CATEGORY, SimpleBudgetApp.res.getString(R.string.income))
-        values.put(COL_DRAWABLE, 45)
-        values.put(COL_POSITION, 7)
-        db.insert(CATEGORY_TABLE, null, values)
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {}
