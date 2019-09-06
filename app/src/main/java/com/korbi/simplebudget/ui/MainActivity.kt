@@ -33,7 +33,6 @@ import androidx.fragment.app.FragmentTransaction
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.korbi.simplebudget.R
 import com.korbi.simplebudget.SimpleBudgetApp
-import com.korbi.simplebudget.database.DBhandler
 import com.korbi.simplebudget.ui.dialogs.SetupDialog
 import com.korbi.simplebudget.ui.fragments.DashboardFragment
 import com.korbi.simplebudget.ui.fragments.HistoryFragment
@@ -102,7 +101,6 @@ class MainActivity : AppCompatActivity() {
                 setTitle(R.string.update_dialog_title)
                 setMessage(R.string.update_dialog_message)
                 setPositiveButton(R.string.ok) { dialog, _ ->
-                    DBhandler.getInstance().resetDatabase()
                     with(SimpleBudgetApp.pref.edit()) {
                         putBoolean(getString(R.string.settings_key_update_info), false)
                         apply()
